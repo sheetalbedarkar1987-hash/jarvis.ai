@@ -343,4 +343,383 @@
     let cachedVoices = [];
     let history = [];
 
-    // Populate
+    // Populate 10 Assistants
+    ASSISTANTS.forEach((a) => {
+      const opt = document.createElement("option");
+      opt.value = a.id;
+      opt.textContent = a.name;
+      assistantSelect.appendChild(opt);
+    });
+
+    const savedAssistant = localStorage.getItem("jarvis_assistant") || "jarvis";
+    assistantSelect.value = ASSISTANTS.some((a) => a.id === savedAssistant) ? savedAssistant : "jarvis";
+    updateBrandHeader();
+
+    function getCurrentAssistant() {
+      return ASSISTANTS.find((a) => a.id === assistantSelect.value) || ASSISTANTS[0];
+    }
+
+    function updateBrandHeader() {
+      const current = getCurrentAssistant();
+      const shortName = current.name.split(".")[1].split("(")[0].trim().toUpperCase();
+      brandTitle.textContent = shortName + " AI";
+    }
+
+    assistantSelect.addEventListener("change", () => {
+      localStorage.setItem("jarvis_assistant", assistantSelect.value);
+      updateBrandHeader();
+      const current = getCurrentAssistant();
+      speakText(current.sample);
+    });
+
+    testVoiceBtn.addEventListener("click", () => {
+      const current = getCurrentAssistant();
+      speakText(current.sample);
+    });
+
+    if ("speechSynthesis" in window) {
+      const loadVoices = () => {
+        cachedVoices = window.speechSynthesis.getVoices() || [];
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    apiKeyEl.value = localStorage.getItem("jarvis_api_key") || "";
+    localAddrEl.value = localStorage.getItem("jarvis_local_addr") || "";
+    updateLocalDot();
+    if (apiKeyEl.value.trim().length > 10) {
+      detectModel();
+    }
+
+    apiKeyEl.addEventListener("input", () => {
+      const val = apiKeyEl.value.trim();
+      localStorage.setItem("jarvis_api_key", val);
+      activeModel = "";
+      if (val.length > 10) {
+        detectModel();
+      } else {
+        keyDot.classList.remove("on");
+        statusEl.textContent = "Put your API key above";
+      }
+    });
+
+    localAddrEl.addEventListener("input", () => {
+      localStorage.setItem("jarvis_local_addr", localAddrEl.value.trim());
+      updateLocalDot();
+    });
+
+    voiceBtn.addEventListener("click", () => {
+      voiceEnabled = !voiceEnabled;
+      voiceBtn.textContent = voiceEnabled ? "Voice: ON" : "Voice: OFF";
+      if (!voiceEnabled && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    sendBtn.addEventListener("click", () => askJarvis());
+    promptEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") askJarvis();
+    });
+    micBtn.addEventListener("click", toggleMic);
+
+    function updateLocalDot() {
+      const hasAddr = localAddrEl.value.trim().length >= 7;
+      localDot.classList.toggle("on", hasAddr);
+    }
+
+    function normalizeUrl(raw) {
+      let url = (raw || "").trim().replace(/\/+$/, "");
+      if (!url) return "";
+      if (!/^https?:\/\//i.test(url)) {
+        url = "http://" + url;
+      }
+      return url;
+    }
+
+    async function espPost(path, payload) {
+      const base = normalizeUrl(localAddrEl.value);
+      if (!base) return;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2500);
+      try {
+        await fetch(base + path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+      } catch (_) {
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function sendEspExpression(expression, sound) {
+      espPost("/api/expression", {
+        expression: expression || "neutral",
+        sound: sound || "none"
+      });
+    }
+
+    function sendEspSay(text) {
+      const safeOled = String(text || "")
+        .replace(/[^\x20-\x7E]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 72) || "JARVIS";
+      espPost("/api/say", {
+        text: safeOled,
+        header: "JARVIS",
+        expression: "speaking",
+        sound: "ai",
+        duration: 8000
+      });
+    }
+
+    async function detectModel() {
+      const key = apiKeyEl.value.trim();
+      if (!key) return "";
+      if (activeModel) return activeModel;
+
+      statusEl.textContent = "Connecting...";
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/models", {
+          headers: { "Authorization": "Bearer " + key }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error((data && data.error && data.error.message) || "Invalid API key");
+        }
+
+        const ids = (data.data || []).map((m) => m.id).filter(Boolean);
+        const chatModels = ids.filter(
+          (id) => !/whisper|guard|tts|orpheus|embed|playai/i.test(id)
+        );
+        const preferred = [
+          "openai/gpt-oss-20b",
+          "openai/gpt-oss-120b",
+          "llama-3.3-70b-versatile",
+          "qwen/qwen3-32b",
+          "llama-3.1-8b-instant"
+        ];
+        activeModel =
+          preferred.find((p) => chatModels.includes(p)) ||
+          chatModels[0] ||
+          "openai/gpt-oss-20b";
+
+        keyDot.classList.add("on");
+        statusEl.textContent = "Ready (" + activeModel + ")";
+        return activeModel;
+      } catch (err) {
+        keyDot.classList.remove("on");
+        statusEl.textContent = "Key error: " + err.message;
+        return "";
+      }
+    }
+
+    function addBubble(text, role) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.textContent = text;
+      chatEl.appendChild(div);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function pickBestVoice(isHindi, gender) {
+      const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
+      if (!voices.length) return null;
+
+      const femaleHints = /female|zira|heera|kalpana|swara|neerja|aria|jenny|samantha|google हिन्दी|google uk english female/i;
+      const maleHints = /male|david|ravi|hemant|madhur|prabhat|george|daniel|mark|google uk english male/i;
+
+      if (isHindi) {
+        const hindiVoices = voices.filter((v) => /hi|hindi|हिन्दी/i.test(v.lang + " " + v.name));
+        if (hindiVoices.length) {
+          const genderMatch = hindiVoices.find((v) =>
+            gender === "female" ? femaleHints.test(v.name) : maleHints.test(v.name)
+          );
+          return genderMatch || hindiVoices[0];
+        }
+        const indianVoices = voices.filter((v) => /in/i.test(v.lang));
+        if (indianVoices.length) return indianVoices[0];
+      }
+
+      const enVoices = voices.filter((v) => /^en/i.test(v.lang));
+      const pool = enVoices.length ? enVoices : voices;
+      const genderMatch = pool.find((v) =>
+        gender === "female" ? femaleHints.test(v.name) : maleHints.test(v.name)
+      );
+      return genderMatch || pool[0];
+    }
+
+    function speakText(text) {
+      if (!voiceEnabled || !("speechSynthesis" in window)) return;
+      const clean = String(text || "")
+        .replace(/[*#`_~]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!clean) return;
+
+      window.speechSynthesis.cancel();
+
+      const assistant = getCurrentAssistant();
+      // Split sentences so Hindi (Devanagari) and English parts speak smoothly
+      const chunks = clean.match(/[^।.!?]+[।.!?]*/g) || [clean];
+
+      chunks.forEach((chunk) => {
+        const part = chunk.trim();
+        if (!part) return;
+        const isHindi = /[\u0900-\u097F]/.test(part);
+        const u = new SpeechSynthesisUtterance(part);
+        u.lang = isHindi ? "hi-IN" : "en-IN";
+        u.pitch = assistant.pitch;
+        u.rate = assistant.rate;
+
+        const chosenVoice = pickBestVoice(isHindi, assistant.gender);
+        if (chosenVoice) {
+          u.voice = chosenVoice;
+        }
+        voiceInfo.textContent = `Voice: ${assistant.name.split(".")[1].trim()} | Lang: ${isHindi ? "Hindi (hi-IN)" : "English (en-IN)"}`;
+        window.speechSynthesis.speak(u);
+      });
+    }
+
+    async function askJarvis(spokenText) {
+      if (busy) return;
+      const q = (spokenText || promptEl.value || "").trim();
+      if (!q) return;
+
+      const key = apiKeyEl.value.trim();
+      if (!key) {
+        addBubble("Pehle upar 'Put your API key' mein apni Groq API key paste karo.", "bot");
+        return;
+      }
+
+      if (!spokenText) promptEl.value = "";
+      busy = true;
+      addBubble(q, "user");
+      statusEl.textContent = "Thinking...";
+      sendEspExpression("thinking", "think");
+
+      try {
+        const model = await detectModel();
+        if (!model) {
+          throw new Error("API key invalid ya expire hai. Nayi Groq API key daalo.");
+        }
+
+        const assistant = getCurrentAssistant();
+        const shortName = assistant.name.split(".")[1].split("(")[0].trim();
+
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify({
+            model: model,
+            temperature: 0.6,
+            max_tokens: 240,
+            messages: [
+              {
+                role: "system",
+                content:
+                  `You are ${shortName}, a smart and helpful AI assistant. Reply clearly in 1 to 3 concise sentences in the exact same language or script the user asks in (Hindi Devanagari, English, or Hinglish). Avoid emojis so text-to-speech reads smoothly.`
+              },
+              ...history.slice(-6),
+              { role: "user", content: q }
+            ]
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          activeModel = "";
+          throw new Error((data && data.error && data.error.message) || "API request failed");
+        }
+
+        const reply =
+          (data.choices &&
+            data.choices[0] &&
+            data.choices[0].message &&
+            data.choices[0].message.content ||
+            "").trim() || "No response received.";
+
+        history.push({ role: "user", content: q });
+        history.push({ role: "assistant", content: reply });
+
+        addBubble(reply, "bot");
+        sendEspSay(reply);
+        speakText(reply);
+        setTimeout(() => sendEspExpression("happy", "none"), 2200);
+        statusEl.textContent = "Ready (" + model + ")";
+      } catch (err) {
+        addBubble("Error: " + err.message, "bot");
+        statusEl.textContent = "Error";
+        sendEspExpression("worried", "worried");
+      } finally {
+        busy = false;
+      }
+    }
+
+    function toggleMic() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        statusEl.textContent = "Mic is browser mein supported nahi hai";
+        return;
+      }
+
+      if (listening && recognition) {
+        recognition.stop();
+        return;
+      }
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      const rec = new SR();
+      recognition = rec;
+      rec.lang = "hi-IN";
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      listening = true;
+      micBtn.classList.add("active");
+      micBtn.textContent = "Stop";
+      statusEl.textContent = "Listening (Hindi / English)...";
+
+      let done = false;
+      rec.onresult = (event) => {
+        if (done) return;
+        done = true;
+        const transcript = (
+          (event.results &&
+            event.results[0] &&
+            event.results[0][0] &&
+            event.results[0][0].transcript) ||
+          ""
+        ).trim();
+        rec.stop();
+        if (transcript) {
+          askJarvis(transcript);
+        }
+      };
+
+      rec.onerror = (event) => {
+        statusEl.textContent = "Mic error: " + event.error;
+      };
+
+      rec.onend = () => {
+        listening = false;
+        recognition = null;
+        micBtn.classList.remove("active");
+        micBtn.textContent = "Mic";
+      };
+
+      rec.start();
+    }
+  </script>
+</body>
+</html>
