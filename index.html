@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JARVIS AI</title>
+  <title>JARVIS AI - Multi Voice</title>
   <style>
     :root {
-      --bg: #060a12;
-      --panel: #0d1525;
+      --bg: #050911;
+      --panel: #0c1424;
       --accent: #00e5ff;
       --accent2: #2563eb;
-      --text: #eaf3ff;
+      --text: #eef5ff;
       --muted: #8ea4c2;
       --border: rgba(0, 229, 255, 0.25);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", system-ui, sans-serif; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
     body {
-      background: radial-gradient(circle at top, #102240 0%, var(--bg) 70%);
+      background: radial-gradient(circle at top, #102447 0%, var(--bg) 70%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -26,15 +31,15 @@
     }
     .app {
       width: 100%;
-      max-width: 760px;
+      max-width: 820px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
-      box-shadow: 0 0 40px rgba(0, 229, 255, 0.1);
+      box-shadow: 0 0 40px rgba(0, 229, 255, 0.12);
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
     .header {
       display: flex;
@@ -51,7 +56,7 @@
       letter-spacing: 2px;
       color: var(--accent);
     }
-    .inputs-row {
+    .top-inputs {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -59,15 +64,15 @@
       flex: 1;
       justify-content: flex-end;
     }
-    .box {
+    .field {
       display: flex;
       align-items: center;
       gap: 6px;
-      min-width: 195px;
       flex: 1;
-      max-width: 260px;
+      min-width: 175px;
+      max-width: 240px;
     }
-    .box input {
+    .field input, .assistant-bar select {
       width: 100%;
       background: #070d19;
       color: var(--text);
@@ -77,7 +82,28 @@
       font-size: 0.84rem;
       outline: none;
     }
-    .box input:focus { border-color: var(--accent); }
+    .field input:focus, .assistant-bar select:focus {
+      border-color: var(--accent);
+    }
+    .assistant-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: rgba(7, 13, 25, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+    .assistant-bar label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .assistant-bar select {
+      flex: 1;
+      min-width: 220px;
+    }
     .dot {
       width: 10px;
       height: 10px;
@@ -85,11 +111,14 @@
       background: #ef4444;
       flex-shrink: 0;
     }
-    .dot.ready { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+    .dot.on {
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+    }
     .chat {
-      height: 350px;
+      height: 340px;
       overflow-y: auto;
-      background: rgba(6, 10, 18, 0.85);
+      background: rgba(5, 9, 17, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px;
       padding: 14px;
@@ -98,17 +127,18 @@
       gap: 10px;
     }
     .msg {
-      max-width: 84%;
+      max-width: 85%;
       padding: 10px 14px;
       border-radius: 12px;
       font-size: 0.95rem;
       line-height: 1.45;
       word-wrap: break-word;
+      white-space: pre-wrap;
     }
     .msg.user {
       align-self: flex-end;
       background: linear-gradient(135deg, #1d4ed8, #2563eb);
-      color: #fff;
+      color: #ffffff;
     }
     .msg.bot {
       align-self: flex-start;
@@ -130,7 +160,9 @@
       font-size: 0.95rem;
       outline: none;
     }
-    .composer input:focus { border-color: var(--accent); }
+    .composer input:focus {
+      border-color: var(--accent);
+    }
     button {
       background: linear-gradient(135deg, var(--accent2), var(--accent));
       color: #03101d;
@@ -140,54 +172,154 @@
       font-weight: 700;
       font-size: 0.9rem;
       cursor: pointer;
+      white-space: nowrap;
     }
-    button.mic {
+    button.mic, button.small-btn {
       background: #132038;
       color: var(--accent);
       border: 1px solid var(--border);
+      padding: 7px 12px;
+      font-size: 0.82rem;
     }
     button.mic.active {
       background: #dc2626;
-      color: #fff;
+      color: #ffffff;
       border-color: #dc2626;
     }
-    .status {
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
       font-size: 0.78rem;
       color: var(--muted);
-      text-align: right;
     }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="header">
-      <div class="title">JARVIS AI</div>
-      <div class="inputs-row">
-        <div class="box">
-          <span class="dot" id="keyDot" title="API Key Status"></span>
-          <input id="apiKey" type="password" placeholder="Put your API key" oninput="handleKeyInput()" />
+      <div class="title" id="brandTitle">JARVIS AI</div>
+      <div class="top-inputs">
+        <div class="field">
+          <span class="dot" id="keyDot" title="API Key"></span>
+          <input id="apiKey" type="password" placeholder="Put your API key" />
         </div>
-        <div class="box">
-          <span class="dot" id="localDot" title="Local Address Status"></span>
-          <input id="localAddr" type="text" placeholder="Put your local address" oninput="handleLocalInput()" />
+        <div class="field">
+          <span class="dot" id="localDot" title="ESP32 Local Address"></span>
+          <input id="localAddr" type="text" placeholder="Put your local address" />
         </div>
       </div>
     </div>
 
+    <div class="assistant-bar">
+      <label for="assistantSelect">Assistant Voice:</label>
+      <select id="assistantSelect"></select>
+      <button class="small-btn" id="testVoiceBtn" type="button">Test Voice</button>
+      <button class="small-btn" id="voiceBtn" type="button">Voice: ON</button>
+    </div>
+
     <div class="chat" id="chat">
-      <div class="msg bot">Put your API key and local address above, then ask anything.</div>
+      <div class="msg bot">JARVIS online. Choose any of the 10 voices above, put your API key, and ask in Hindi or English!</div>
     </div>
 
     <div class="composer">
-      <button class="mic" id="micBtn" onclick="toggleMic()">Mic</button>
-      <input id="prompt" type="text" placeholder="Ask JARVIS..." onkeydown="if(event.key==='Enter') askJarvis()" />
-      <button onclick="askJarvis()">Send</button>
+      <button class="mic" id="micBtn" type="button">Mic</button>
+      <input id="prompt" type="text" placeholder="Ask in English, Hindi, or Hinglish..." />
+      <button id="sendBtn" type="button">Send</button>
     </div>
 
-    <div class="status" id="status">Waiting for API key</div>
+    <div class="footer-bar">
+      <span id="voiceInfo">Language: Auto (Hindi + English)</span>
+      <span id="status">Waiting for API key</span>
+    </div>
   </div>
 
   <script>
+    const ASSISTANTS = [
+      {
+        id: "jarvis",
+        name: "1. JARVIS (Boy - Deep AI Tone)",
+        gender: "male",
+        pitch: 0.68,
+        rate: 0.94,
+        sample: "Hello! I am JARVIS. नमस्ते, मैं जार्विस हूँ और आपकी मदद के लिए तैयार हूँ।"
+      },
+      {
+        id: "aarav",
+        name: "2. Aarav (Boy - Clear Indian)",
+        gender: "male",
+        pitch: 0.92,
+        rate: 1.0,
+        sample: "Hi, I am Aarav. नमस्ते, मैं आरव बोल रहा हूँ, बताइए क्या काम है?"
+      },
+      {
+        id: "vikram",
+        name: "3. Vikram (Boy - Heavy Commander)",
+        gender: "male",
+        pitch: 0.60,
+        rate: 0.88,
+        sample: "Vikram reporting. नमस्ते, मैं विक्रम हूँ। आदेश दीजिए।"
+      },
+      {
+        id: "kabir",
+        name: "4. Kabir (Boy - Fast & Energetic)",
+        gender: "male",
+        pitch: 1.02,
+        rate: 1.12,
+        sample: "Hey! I am Kabir. नमस्ते, मैं कबीर हूँ, चलो शुरू करते हैं!"
+      },
+      {
+        id: "rohan",
+        name: "5. Rohan (Boy - Friendly Soft)",
+        gender: "male",
+        pitch: 1.08,
+        rate: 0.97,
+        sample: "Hello friend, I am Rohan. नमस्ते दोस्त, मैं रोहन हूँ।"
+      },
+      {
+        id: "friday",
+        name: "6. FRIDAY (Girl - Smart AI)",
+        gender: "female",
+        pitch: 1.15,
+        rate: 1.0,
+        sample: "Systems online. I am FRIDAY. नमस्ते, मैं फ्राइडे हूँ, सब तैयार है।"
+      },
+      {
+        id: "ananya",
+        name: "7. Ananya (Girl - Sweet & Clear)",
+        gender: "female",
+        pitch: 1.24,
+        rate: 0.98,
+        sample: "Hello! I am Ananya. नमस्ते, मैं अनन्या बोल रही हूँ।"
+      },
+      {
+        id: "diya",
+        name: "8. Diya (Girl - Lively High)",
+        gender: "female",
+        pitch: 1.35,
+        rate: 1.08,
+        sample: "Hi there! I am Diya. नमस्ते, मैं दीया हूँ, क्या पूछना है?"
+      },
+      {
+        id: "meera",
+        name: "9. Meera (Girl - Calm & Gentle)",
+        gender: "female",
+        pitch: 1.10,
+        rate: 0.90,
+        sample: "Greetings, I am Meera. नमस्ते, मैं मीरा हूँ, शांति से बात करते हैं।"
+      },
+      {
+        id: "zara",
+        name: "10. Zara (Girl - Modern Crisp)",
+        gender: "female",
+        pitch: 1.28,
+        rate: 1.05,
+        sample: "Hey! Zara here. नमस्ते, मैं ज़ारा हूँ, तुरंत जवाब मिलेगा।"
+      }
+    ];
+
     const apiKeyEl = document.getElementById("apiKey");
     const localAddrEl = document.getElementById("localAddr");
     const keyDot = document.getElementById("keyDot");
@@ -196,241 +328,19 @@
     const promptEl = document.getElementById("prompt");
     const statusEl = document.getElementById("status");
     const micBtn = document.getElementById("micBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const assistantSelect = document.getElementById("assistantSelect");
+    const testVoiceBtn = document.getElementById("testVoiceBtn");
+    const brandTitle = document.getElementById("brandTitle");
+    const voiceInfo = document.getElementById("voiceInfo");
 
     let busy = false;
     let listening = false;
+    let voiceEnabled = true;
     let recognition = null;
     let activeModel = "";
+    let cachedVoices = [];
     let history = [];
 
-    apiKeyEl.value = localStorage.getItem("jarvis_key") || "";
-    localAddrEl.value = localStorage.getItem("jarvis_local_addr") || "";
-    updateLocalDot();
-    if (apiKeyEl.value.trim().length > 10) detectBestModel();
-
-    function normalizeBaseUrl(raw) {
-      let val = (raw || "").trim();
-      if (!val) return "";
-      val = val.replace(/\/+$/, "");
-      if (!/^https?:\/\//i.test(val)) {
-        val = "http://" + val;
-      }
-      return val;
-    }
-
-    function handleLocalInput() {
-      localStorage.setItem("jarvis_local_addr", localAddrEl.value.trim());
-      updateLocalDot();
-    }
-
-    function updateLocalDot() {
-      const hasAddr = localAddrEl.value.trim().length > 6;
-      localDot.classList.toggle("ready", hasAddr);
-    }
-
-    function handleKeyInput() {
-      const val = apiKeyEl.value.trim();
-      localStorage.setItem("jarvis_key", val);
-      activeModel = "";
-      if (val.length > 10) {
-        detectBestModel();
-      } else {
-        keyDot.classList.remove("ready");
-        statusEl.textContent = "Put your API key above";
-      }
-    }
-
-    async function sendEspExpression(expression, sound = "none") {
-      const base = normalizeBaseUrl(localAddrEl.value);
-      if (!base) return;
-      try {
-        await fetch(`${base}/api/expression`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ expression, sound })
-        });
-      } catch (_) {}
-    }
-
-    async function sendEspSay(text, expression = "speaking") {
-      const base = normalizeBaseUrl(localAddrEl.value);
-      if (!base) return;
-      const safeOled = String(text || "").replace(/[^\x20-\x7E]/g, "").slice(0, 74) || "JARVIS";
-      try {
-        await fetch(`${base}/api/say`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: safeOled,
-            header: "JARVIS",
-            expression,
-            sound: "ai",
-            duration: 8000
-          })
-        });
-      } catch (_) {}
-    }
-
-    async function detectBestModel() {
-      const key = apiKeyEl.value.trim();
-      if (!key) return "openai/gpt-oss-20b";
-      if (activeModel) return activeModel;
-
-      statusEl.textContent = "Connecting...";
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/models", {
-          headers: { "Authorization": `Bearer ${key}` }
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error?.message || "Invalid API key");
-
-        const ids = (data.data || []).map(m => m.id).filter(Boolean);
-        const preferred = [
-          "openai/gpt-oss-20b",
-          "openai/gpt-oss-120b",
-          "qwen/qwen3.8-27b",
-          "llama-3.3-70b-versatile",
-          "llama-3.1-8b-instant"
-        ];
-        const chatModels = ids.filter(id => !/whisper|guard|orpheus|tts|embed/i.test(id));
-        activeModel = preferred.find(p => chatModels.includes(p)) || chatModels[0] || "openai/gpt-oss-20b";
-
-        keyDot.classList.add("ready");
-        statusEl.textContent = `Ready (${activeModel})`;
-        return activeModel;
-      } catch (e) {
-        keyDot.classList.remove("ready");
-        statusEl.textContent = `Key error: ${e.message}`;
-        return "openai/gpt-oss-20b";
-      }
-    }
-
-    function addBubble(text, role) {
-      const div = document.createElement("div");
-      div.className = `msg ${role}`;
-      div.textContent = text;
-      chatEl.appendChild(div);
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    function speak(text) {
-      if (!("speechSynthesis" in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.pitch = 0.72;
-      u.rate = 0.96;
-      const voices = window.speechSynthesis.getVoices();
-      const male = voices.find(v => /david|george|daniel|mark|male|english/i.test(v.name));
-      if (male) u.voice = male;
-      window.speechSynthesis.speak(u);
-    }
-
-    async function askJarvis(spokenText = "") {
-      if (busy) return;
-      const key = apiKeyEl.value.trim();
-      const q = (spokenText || promptEl.value).trim();
-      if (!q) return;
-
-      if (!key) {
-        addBubble("Pehle upar 'Put your API key' wale box mein apni API key paste karo.", "bot");
-        return;
-      }
-
-      if (!spokenText) promptEl.value = "";
-      busy = true;
-      addBubble(q, "user");
-      statusEl.textContent = "Thinking...";
-      sendEspExpression("thinking", "think");
-
-      try {
-        const model = await detectBestModel();
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${key}`
-          },
-          body: JSON.stringify({
-            model,
-            temperature: 0.6,
-            max_tokens: 240,
-            messages: [
-              {
-                role: "system",
-                content: "You are JARVIS, a crisp, intelligent AI assistant. Answer clearly and concisely in the same language the user asks (English, Hindi, or Hinglish)."
-              },
-              ...history.slice(-6),
-              { role: "user", content: q }
-            ]
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          activeModel = "";
-          throw new Error(data?.error?.message || "API request failed");
-        }
-
-        const reply = (data.choices?.[0]?.message?.content || "").trim();
-        history.push({ role: "user", content: q }, { role: "assistant", content: reply });
-        addBubble(reply, "bot");
-        sendEspSay(reply, "speaking");
-        speak(reply);
-        setTimeout(() => sendEspExpression("happy", "none"), 2000);
-        statusEl.textContent = `Ready (${model})`;
-      } catch (err) {
-        addBubble(`Error: ${err.message}`, "bot");
-        statusEl.textContent = "Error";
-        sendEspExpression("worried", "worried");
-      } finally {
-        busy = false;
-      }
-    }
-
-    function toggleMic() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        statusEl.textContent = "Mic not supported in this browser";
-        return;
-      }
-      if (listening && recognition) {
-        recognition.stop();
-        return;
-      }
-
-      window.speechSynthesis?.cancel();
-      const rec = new SR();
-      recognition = rec;
-      rec.lang = "en-IN";
-      rec.continuous = false;
-      rec.interimResults = false;
-      listening = true;
-      micBtn.classList.add("active");
-      micBtn.textContent = "Stop";
-      statusEl.textContent = "Listening...";
-
-      let done = false;
-      rec.onresult = (e) => {
-        if (done) return;
-        done = true;
-        const text = (e.results?.[0]?.[0]?.transcript || "").trim();
-        rec.stop();
-        if (text) askJarvis(text);
-      };
-
-      rec.onerror = (e) => {
-        statusEl.textContent = `Mic error: ${e.error}`;
-      };
-
-      rec.onend = () => {
-        listening = false;
-        recognition = null;
-        micBtn.classList.remove("active");
-        micBtn.textContent = "Mic";
-      };
-
-      rec.start();
-    }
-  </script>
-</body>
-</html>
+    // Populate
