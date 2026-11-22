@@ -26,7 +26,7 @@
     }
     .app {
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -51,24 +51,33 @@
       letter-spacing: 2px;
       color: var(--accent);
     }
-    .key-box {
+    .inputs-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+      justify-content: flex-end;
+    }
+    .box {
       display: flex;
       align-items: center;
       gap: 6px;
+      min-width: 195px;
       flex: 1;
-      max-width: 340px;
+      max-width: 260px;
     }
-    .key-box input {
+    .box input {
       width: 100%;
       background: #070d19;
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
+      padding: 8px 11px;
+      font-size: 0.84rem;
       outline: none;
     }
-    .key-box input:focus { border-color: var(--accent); }
+    .box input:focus { border-color: var(--accent); }
     .dot {
       width: 10px;
       height: 10px;
@@ -78,7 +87,7 @@
     }
     .dot.ready { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
     .chat {
-      height: 360px;
+      height: 350px;
       overflow-y: auto;
       background: rgba(6, 10, 18, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -117,207 +126,3 @@
       color: var(--text);
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 10px;
-      padding: 11px 14px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    .composer input:focus { border-color: var(--accent); }
-    button {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #03101d;
-      border: none;
-      border-radius: 10px;
-      padding: 0 16px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    button.mic {
-      background: #132038;
-      color: var(--accent);
-      border: 1px solid var(--border);
-    }
-    button.mic.active {
-      background: #dc2626;
-      color: #fff;
-      border-color: #dc2626;
-    }
-    .status {
-      font-size: 0.78rem;
-      color: var(--muted);
-      text-align: right;
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <div class="header">
-      <div class="title">JARVIS AI</div>
-      <div class="key-box">
-        <span class="dot" id="keyDot" title="API Key Status"></span>
-        <input id="apiKey" type="password" placeholder="Put your API key" oninput="handleKeyInput()" />
-      </div>
-    </div>
-
-    <div class="chat" id="chat">
-      <div class="msg bot">Put your API key above and start asking anything.</div>
-    </div>
-
-    <div class="composer">
-      <button class="mic" id="micBtn" onclick="toggleMic()">Mic</button>
-      <input id="prompt" type="text" placeholder="Ask JARVIS..." onkeydown="if(event.key==='Enter') askJarvis()" />
-      <button onclick="askJarvis()">Send</button>
-    </div>
-
-    <div class="status" id="status">Waiting for API key</div>
-  </div>
-
-  <script>
-    const apiKeyEl = document.getElementById("apiKey");
-    const keyDot = document.getElementById("keyDot");
-    const chatEl = document.getElementById("chat");
-    const promptEl = document.getElementById("prompt");
-    const statusEl = document.getElementById("status");
-    const micBtn = document.getElementById("micBtn");
-
-    let busy = false;
-    let listening = false;
-    let recognition = null;
-    let history = [];
-
-    apiKeyEl.value = localStorage.getItem("jarvis_key") || "";
-    updateKeyStatus();
-
-    function handleKeyInput() {
-      const val = apiKeyEl.value.trim();
-      localStorage.setItem("jarvis_key", val);
-      updateKeyStatus();
-    }
-
-    function updateKeyStatus() {
-      const hasKey = apiKeyEl.value.trim().length > 10;
-      keyDot.classList.toggle("ready", hasKey);
-      statusEl.textContent = hasKey ? "Ready" : "Put your API key above";
-    }
-
-    function addBubble(text, role) {
-      const div = document.createElement("div");
-      div.className = `msg ${role}`;
-      div.textContent = text;
-      chatEl.appendChild(div);
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    function speak(text) {
-      if (!("speechSynthesis" in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.pitch = 0.72;
-      u.rate = 0.96;
-      const voices = window.speechSynthesis.getVoices();
-      const male = voices.find(v => /david|george|daniel|mark|male|english/i.test(v.name));
-      if (male) u.voice = male;
-      window.speechSynthesis.speak(u);
-    }
-
-    async function askJarvis(spokenText = "") {
-      if (busy) return;
-      const key = apiKeyEl.value.trim();
-      const q = (spokenText || promptEl.value).trim();
-      if (!q) return;
-
-      if (!key) {
-        addBubble("Pehle upar 'Put your API key' wale box mein apni API key paste karo.", "bot");
-        return;
-      }
-
-      if (!spokenText) promptEl.value = "";
-      busy = true;
-      statusEl.textContent = "Thinking...";
-      addBubble(q, "user");
-
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${key}`
-          },
-          body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
-            temperature: 0.6,
-            max_tokens: 220,
-            messages: [
-              {
-                role: "system",
-                content: "You are JARVIS, a crisp, intelligent AI assistant. Answer clearly and concisely in the same language the user asks (English, Hindi, or Hinglish)."
-              },
-              ...history.slice(-6),
-              { role: "user", content: q }
-            ]
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error?.message || "Invalid or expired API key");
-
-        const reply = (data.choices?.[0]?.message?.content || "").trim();
-        history.push({ role: "user", content: q }, { role: "assistant", content: reply });
-        addBubble(reply, "bot");
-        speak(reply);
-        statusEl.textContent = "Ready";
-      } catch (err) {
-        addBubble(`Error: ${err.message}`, "bot");
-        statusEl.textContent = "Error";
-      } finally {
-        busy = false;
-      }
-    }
-
-    function toggleMic() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        statusEl.textContent = "Mic not supported in this browser";
-        return;
-      }
-      if (listening && recognition) {
-        recognition.stop();
-        return;
-      }
-
-      window.speechSynthesis?.cancel();
-      const rec = new SR();
-      recognition = rec;
-      rec.lang = "en-IN";
-      rec.continuous = false;
-      rec.interimResults = false;
-      listening = true;
-      micBtn.classList.add("active");
-      micBtn.textContent = "Stop";
-      statusEl.textContent = "Listening...";
-
-      let done = false;
-      rec.onresult = (e) => {
-        if (done) return;
-        done = true;
-        const text = (e.results?.[0]?.[0]?.transcript || "").trim();
-        rec.stop();
-        if (text) askJarvis(text);
-      };
-
-      rec.onerror = (e) => {
-        statusEl.textContent = `Mic error: ${e.error}`;
-      };
-
-      rec.onend = () => {
-        listening = false;
-        recognition = null;
-        micBtn.classList.remove("active");
-        micBtn.textContent = "Mic";
-      };
-
-      rec.start();
-    }
-  </script>
-</body>
-</html>
