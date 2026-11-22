@@ -1,725 +1,2167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JARVIS AI - Multi Voice</title>
-  <style>
-    :root {
-      --bg: #050911;
-      --panel: #0c1424;
-      --accent: #00e5ff;
-      --accent2: #2563eb;
-      --text: #eef5ff;
-      --muted: #8ea4c2;
-      --border: rgba(0, 229, 255, 0.25);
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    }
-    body {
-      background: radial-gradient(circle at top, #102447 0%, var(--bg) 70%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 14px;
-    }
-    .app {
-      width: 100%;
-      max-width: 820px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 0 40px rgba(0, 229, 255, 0.12);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-    }
-    .title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: var(--accent);
-    }
-    .top-inputs {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      flex: 1;
-      justify-content: flex-end;
-    }
-    .field {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-      min-width: 175px;
-      max-width: 240px;
-    }
-    .field input, .assistant-bar select {
-      width: 100%;
-      background: #070d19;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 11px;
-      font-size: 0.84rem;
-      outline: none;
-    }
-    .field input:focus, .assistant-bar select:focus {
-      border-color: var(--accent);
-    }
-    .assistant-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      background: rgba(7, 13, 25, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 8px 12px;
-    }
-    .assistant-bar label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .assistant-bar select {
-      flex: 1;
-      min-width: 220px;
-    }
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #ef4444;
-      flex-shrink: 0;
-    }
-    .dot.on {
-      background: #22c55e;
-      box-shadow: 0 0 8px #22c55e;
-    }
-    .chat {
-      height: 340px;
-      overflow-y: auto;
-      background: rgba(5, 9, 17, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .msg {
-      max-width: 85%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      line-height: 1.45;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
-    .msg.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #1d4ed8, #2563eb);
-      color: #ffffff;
-    }
-    .msg.bot {
-      align-self: flex-start;
-      background: #111d33;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .composer {
-      display: flex;
-      gap: 8px;
-    }
-    .composer input {
-      flex: 1;
-      background: #070d19;
-      color: var(--text);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 10px;
-      padding: 11px 14px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-    .composer input:focus {
-      border-color: var(--accent);
-    }
-    button {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #03101d;
-      border: none;
-      border-radius: 10px;
-      padding: 0 16px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    button.mic, button.small-btn {
-      background: #132038;
-      color: var(--accent);
-      border: 1px solid var(--border);
-      padding: 7px 12px;
-      font-size: 0.82rem;
-    }
-    button.mic.active {
-      background: #dc2626;
-      color: #ffffff;
-      border-color: #dc2626;
-    }
-    .footer-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI — Its_gamerht Ecosystem</title>
+
+<!-- PeerJS (WebRTC Wi-Fi Sync) & MediaPipe Hands (21-Landmark Finger Tracking) -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous" defer></script>
+
+<style>
+  :root {
+    --bg: #050912;
+    --bg2: #0a1222;
+    --panel: rgba(12, 22, 39, 0.84);
+    --border: rgba(0, 229, 255, 0.28);
+    --cyan: #00e5ff;
+    --cyan-dim: rgba(0, 229, 255, 0.14);
+    --purple: #9d4edd;
+    --green: #00f59b;
+    --amber: #ffb703;
+    --red: #ff3b5c;
+    --text: #e6f4ff;
+    --muted: #82a3bf;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: radial-gradient(circle at 20% 0%, #0d1d38 0%, var(--bg) 55%, #02050a 100%);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Subtle sci-fi grid backdrop */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===================== 1. CINEMATIC INTRO OVERLAY ===================== */
+  #introOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #08182e 0%, #030710 75%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #introOverlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #introCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .intro-content {
+    position: relative;
+    z-index: 2;
+    max-width: 820px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .intro-tag {
+    font-size: 0.78rem;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    border: 1px solid var(--border);
+    background: rgba(0, 229, 255, 0.08);
+    padding: 6px 16px;
+    border-radius: 99px;
+    text-transform: uppercase;
+  }
+  .intro-title {
+    font-size: clamp(1.35rem, 3.2vw, 2.35rem);
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    line-height: 1.35;
+    color: #fff;
+    text-shadow: 0 0 18px rgba(0, 229, 255, 0.75), 0 0 42px rgba(0, 229, 255, 0.35);
+    min-height: 4.2em;
+  }
+  .intro-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .intro-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* ===================== GESTURE HOLOGRAM OVERLAY ===================== */
+  #gestureHud {
+    position: fixed;
+    top: 86px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.92);
+    z-index: 5000;
+    background: linear-gradient(135deg, rgba(0, 32, 56, 0.92), rgba(22, 10, 48, 0.92));
+    border: 1.5px solid var(--cyan);
+    box-shadow: 0 0 34px rgba(0, 229, 255, 0.5), inset 0 0 22px rgba(0, 229, 255, 0.22);
+    border-radius: 16px;
+    padding: 16px 26px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    max-width: 92vw;
+  }
+  #gestureHud.active {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  #gestureHud h3 {
+    color: var(--cyan);
+    letter-spacing: 3px;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  #gestureHud p {
+    color: #fff;
+    font-size: 0.9rem;
+  }
+
+  /* ===================== APP SHELL & TOP BAR ===================== */
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 12px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .topbar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 24px rgba(0, 229, 255, 0.09);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: auto;
+  }
+  .arc-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan);
+    box-shadow: 0 0 14px var(--cyan), inset 0 0 10px var(--cyan);
+    display: grid;
+    place-items: center;
+    position: relative;
+    animation: pulseRing 2.6s infinite ease-in-out;
+  }
+  .arc-dot::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cyan);
+  }
+  @keyframes pulseRing {
+    0%, 100% { box-shadow: 0 0 10px var(--cyan), inset 0 0 8px var(--cyan); }
+    50% { box-shadow: 0 0 22px var(--cyan), inset 0 0 14px var(--cyan); }
+  }
+  .brand h1 {
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    color: #fff;
+  }
+  .brand small {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 1.4px;
+    color: var(--cyan);
+    text-transform: uppercase;
+  }
+
+  .top-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    flex: 1 1 460px;
+    justify-content: flex-end;
+  }
+  .field-wrap {
+    display: flex;
+    align-items: center;
+    background: rgba(3, 9, 19, 0.85);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0 8px;
+    gap: 6px;
+    flex: 1 1 190px;
+    max-width: 270px;
+  }
+  .field-wrap span {
+    font-size: 0.7rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+  .field-wrap input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 8px 4px;
+    font-size: 0.84rem;
+    outline: none;
+  }
+
+  /* ===================== BUTTONS & BADGES ===================== */
+  button, select {
+    background: rgba(8, 22, 40, 0.9);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    outline: none;
+  }
+  button:hover, select:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  }
+  .btn-cyan {
+    background: linear-gradient(135deg, #00e5ff, #0099cc);
+    color: #021018;
+    font-weight: 700;
+    border-color: var(--cyan);
+  }
+  .btn-cyan:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 18px rgba(0, 229, 255, 0.55);
+  }
+  .btn-purple {
+    background: linear-gradient(135deg, #9d4edd, #5a189a);
+    color: #fff;
+    font-weight: 600;
+    border-color: #c77dff;
+  }
+  .btn-danger {
+    border-color: rgba(255, 59, 92, 0.5);
+    color: #ff8fa3;
+  }
+  .btn-active {
+    background: var(--cyan);
+    color: #021018;
+    font-weight: 700;
+    border-color: var(--cyan);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(130, 163, 191, 0.35);
+    background: rgba(6, 15, 29, 0.85);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .badge.granted { color: var(--green); border-color: rgba(0, 245, 155, 0.45); background: rgba(0, 245, 155, 0.08); }
+  .badge.blocked { color: var(--red); border-color: rgba(255, 59, 92, 0.45); background: rgba(255, 59, 92, 0.08); }
+  .badge.info    { color: var(--cyan); border-color: var(--border); background: var(--cyan-dim); }
+  .badge.warn    { color: var(--amber); border-color: rgba(255, 183, 3, 0.45); background: rgba(255, 183, 3, 0.09); }
+
+  /* ===================== 2. PERMISSION HUB BAR ===================== */
+  .perm-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .perm-bar .label {
+    font-size: 0.76rem;
+    color: var(--cyan);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .perm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  /* ===================== MAIN GRID ===================== */
+  .grid-main {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 12px;
+  }
+  @media (max-width: 980px) {
+    .grid-main { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.14);
+    padding-bottom: 8px;
+  }
+  .card-head h2 {
+    font-size: 0.92rem;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  /* ===================== CHAT & VOICE PANEL ===================== */
+  .voice-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .voice-toolbar select {
+    flex: 1 1 155px;
+  }
+
+  .chat-log {
+    height: 350px;
+    overflow-y: auto;
+    background: rgba(3, 8, 17, 0.78);
+    border: 1px solid rgba(0, 229, 255, 0.16);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+  }
+  .msg {
+    max-width: 88%;
+    padding: 9px 12px;
+    border-radius: 11px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    word-wrap: break-word;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.22), rgba(0, 120, 180, 0.28));
+    border: 1px solid rgba(0, 229, 255, 0.35);
+  }
+  .msg.jarvis {
+    align-self: flex-start;
+    background: rgba(15, 29, 52, 0.92);
+    border: 1px solid rgba(157, 78, 221, 0.4);
+  }
+  .msg.sys {
+    align-self: center;
+    background: rgba(0, 229, 255, 0.08);
+    border: 1px dashed var(--border);
+    color: var(--cyan);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  .msg-meta {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input-row input {
+    flex: 1;
+    background: rgba(3, 8, 17, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .chat-input-row input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.22);
+  }
+
+  .quick-cmds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .quick-cmds button {
+    font-size: 0.74rem;
+    padding: 5px 9px;
+    color: var(--muted);
+  }
+
+  /* ===================== VISION, PEERJS & HAND TRACKING ===================== */
+  .role-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .room-input {
+    width: 96px;
+    background: rgba(3, 8, 17, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--cyan);
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.92rem;
+    outline: none;
+  }
+
+  .vision-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #02060d;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  #visionVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+  #visionVideo.rear { transform: none; }
+  #handCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .vision-hud {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .vision-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-align: center;
+    padding: 18px;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  /* ===================== ESP32 OLED EXPRESSION BAR ===================== */
+  .esp-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .esp-bar button {
+    font-size: 0.74rem;
+    padding: 5px 9px;
+  }
+
+  .status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <div class="title" id="brandTitle">JARVIS AI</div>
-      <div class="top-inputs">
-        <div class="field">
-          <span class="dot" id="keyDot" title="API Key"></span>
-          <input id="apiKey" type="password" placeholder="Put your API key" />
-        </div>
-        <div class="field">
-          <span class="dot" id="localDot" title="ESP32 Local Address"></span>
-          <input id="localAddr" type="text" placeholder="Put your local address" />
-        </div>
+
+<!-- ===================== 1. CINEMATIC INTRO OVERLAY ===================== -->
+<div id="introOverlay">
+  <canvas id="introCanvas"></canvas>
+  <div class="intro-content">
+    <div class="intro-tag">ITS_GAMERHT FULL ECOSYSTEM // CORE v5.0</div>
+    <div id="introTypeText" class="intro-title"></div>
+    <div class="intro-sub">PURE CHROME RUNTIME • ZERO BACKEND • MULTI-DEVICE SYNC</div>
+    <div class="intro-actions">
+      <button id="btnPlaySynth" class="btn-purple" onclick="playIntroSynth(true)">Play HUD Audio</button>
+      <button id="btnSkipIntro" class="btn-cyan" onclick="closeIntro()">Skip / Enter System</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOLOGRAPHIC WAVE GESTURE OVERLAY -->
+<div id="gestureHud">
+  <h3>HAND WAVE GESTURE DETECTED</h3>
+  <p>HELLO, I AM JARVIS — CREATED BY ITS_GAMERHT. VISION &amp; 21-POINT HAND TRACKING ONLINE.</p>
+</div>
+
+<!-- ===================== MAIN APPLICATION ===================== -->
+<div class="app">
+
+  <!-- TOP BAR: BRAND + API KEY + LOCAL ESP32 ADDRESS + REPLAY INTRO -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="arc-dot"></div>
+      <div>
+        <h1>JARVIS AI</h1>
+        <small>Created by Its_gamerht</small>
       </div>
     </div>
 
-    <div class="assistant-bar">
-      <label for="assistantSelect">Assistant Voice:</label>
-      <select id="assistantSelect"></select>
-      <button class="small-btn" id="testVoiceBtn" type="button">Test Voice</button>
-      <button class="small-btn" id="voiceBtn" type="button">Voice: ON</button>
+    <div class="top-inputs">
+      <div class="field-wrap" title="Groq Cloud API Key (auto-saved in browser)">
+        <span>API Key</span>
+        <input id="groqApiKey" type="password" placeholder="Put your API key" autocomplete="off">
+      </div>
+      <div class="field-wrap" title="ESP32-C3 Local IP for OLED /api/say & /api/expression">
+        <span>ESP32 IP</span>
+        <input id="espLocalAddr" type="text" placeholder="Put your local address" value="192.168.29.199">
+      </div>
+      <button onclick="replayIntro()">Replay Intro</button>
     </div>
+  </header>
 
-    <div class="chat" id="chat">
-      <div class="msg bot">JARVIS online. Choose any of the 10 voices above, put your API key, and ask in Hindi or English!</div>
+  <!-- 2. ONE-CLICK SYSTEM PERMISSION HUB -->
+  <section class="perm-bar">
+    <span class="label">System Permission Hub</span>
+    <button class="btn-cyan" onclick="authorizeAllPermissions()">Authorize All Permissions</button>
+    <button onclick="takeScreenshotCommand()">Screenshot Now</button>
+    <button onclick="testPopupPermission()">Test Pop-ups</button>
+
+    <div class="perm-badges">
+      <span id="permMic" class="badge">MIC: PENDING</span>
+      <span id="permCam" class="badge">CAM: PENDING</span>
+      <span id="permNotif" class="badge">NOTIF: PENDING</span>
+      <span id="permScreen" class="badge">SCREEN: READY</span>
+      <span id="permPopup" class="badge">POP-UP: PENDING</span>
     </div>
+  </section>
 
-    <div class="composer">
-      <button class="mic" id="micBtn" type="button">Mic</button>
-      <input id="prompt" type="text" placeholder="Ask in English, Hindi, or Hinglish..." />
-      <button id="sendBtn" type="button">Send</button>
-    </div>
+  <!-- MAIN TWO-COLUMN WORKSPACE -->
+  <main class="grid-main">
 
-    <div class="footer-bar">
-      <span id="voiceInfo">Language: Auto (Hindi + English)</span>
-      <span id="status">Waiting for API key</span>
-    </div>
-  </div>
+    <!-- LEFT COLUMN: HANDS-FREE WAKE WORD + 10 VOICES + AI CHAT + ESP32 MOOD -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Voice Core &amp; AI Command Console</h2>
+        <div class="status-strip">
+          <span id="wakeBadge" class="badge info">WAKE: OFF</span>
+          <span id="moodBadge" class="badge info">MOOD: NEUTRAL</span>
+          <span id="modelBadge" class="badge">GROQ: STANDBY</span>
+          <span id="espBadge" class="badge">ESP32: STANDBY</span>
+        </div>
+      </div>
 
-  <script>
-    const ASSISTANTS = [
-      {
-        id: "jarvis",
-        name: "1. JARVIS (Boy - Deep AI Tone)",
-        gender: "male",
-        pitch: 0.68,
-        rate: 0.94,
-        sample: "Hello! I am JARVIS. नमस्ते, मैं जार्विस हूँ और आपकी मदद के लिए तैयार हूँ।"
-      },
-      {
-        id: "aarav",
-        name: "2. Aarav (Boy - Clear Indian)",
-        gender: "male",
-        pitch: 0.92,
-        rate: 1.0,
-        sample: "Hi, I am Aarav. नमस्ते, मैं आरव बोल रहा हूँ, बताइए क्या काम है?"
-      },
-      {
-        id: "vikram",
-        name: "3. Vikram (Boy - Heavy Commander)",
-        gender: "male",
-        pitch: 0.60,
-        rate: 0.88,
-        sample: "Vikram reporting. नमस्ते, मैं विक्रम हूँ। आदेश दीजिए।"
-      },
-      {
-        id: "kabir",
-        name: "4. Kabir (Boy - Fast & Energetic)",
-        gender: "male",
-        pitch: 1.02,
-        rate: 1.12,
-        sample: "Hey! I am Kabir. नमस्ते, मैं कबीर हूँ, चलो शुरू करते हैं!"
-      },
-      {
-        id: "rohan",
-        name: "5. Rohan (Boy - Friendly Soft)",
-        gender: "male",
-        pitch: 1.08,
-        rate: 0.97,
-        sample: "Hello friend, I am Rohan. नमस्ते दोस्त, मैं रोहन हूँ।"
-      },
-      {
-        id: "friday",
-        name: "6. FRIDAY (Girl - Smart AI)",
-        gender: "female",
-        pitch: 1.15,
-        rate: 1.0,
-        sample: "Systems online. I am FRIDAY. नमस्ते, मैं फ्राइडे हूँ, सब तैयार है।"
-      },
-      {
-        id: "ananya",
-        name: "7. Ananya (Girl - Sweet & Clear)",
-        gender: "female",
-        pitch: 1.24,
-        rate: 0.98,
-        sample: "Hello! I am Ananya. नमस्ते, मैं अनन्या बोल रही हूँ।"
-      },
-      {
-        id: "diya",
-        name: "8. Diya (Girl - Lively High)",
-        gender: "female",
-        pitch: 1.35,
-        rate: 1.08,
-        sample: "Hi there! I am Diya. नमस्ते, मैं दीया हूँ, क्या पूछना है?"
-      },
-      {
-        id: "meera",
-        name: "9. Meera (Girl - Calm & Gentle)",
-        gender: "female",
-        pitch: 1.10,
-        rate: 0.90,
-        sample: "Greetings, I am Meera. नमस्ते, मैं मीरा हूँ, शांति से बात करते हैं।"
-      },
-      {
-        id: "zara",
-        name: "10. Zara (Girl - Modern Crisp)",
-        gender: "female",
-        pitch: 1.28,
-        rate: 1.05,
-        sample: "Hey! Zara here. नमस्ते, मैं ज़ारा हूँ, तुरंत जवाब मिलेगा।"
+      <!-- Wake Word + Manual Mic + Language + 10 Voices -->
+      <div class="voice-toolbar">
+        <button id="btnWakeToggle" class="btn-cyan" onclick="toggleWakeWord()">Start "Hey JARVIS"</button>
+        <button id="btnManualMic" onclick="triggerManualListen()">Manual Mic</button>
+        <select id="sttLang" title="Speech Recognition Language">
+          <option value="en-IN">Auto / English &amp; Hinglish (en-IN)</option>
+          <option value="hi-IN">Hindi (hi-IN)</option>
+          <option value="mr-IN">Marathi (mr-IN)</option>
+          <option value="bn-IN">Bengali (bn-IN)</option>
+          <option value="ta-IN">Tamil (ta-IN)</option>
+          <option value="te-IN">Telugu (te-IN)</option>
+          <option value="gu-IN">Gujarati (gu-IN)</option>
+          <option value="pa-IN">Punjabi (pa-IN)</option>
+          <option value="kn-IN">Kannada (kn-IN)</option>
+          <option value="ml-IN">Malayalam (ml-IN)</option>
+        </select>
+      </div>
+
+      <div class="voice-toolbar">
+        <select id="voiceSelect" title="10 Assistant Voices (5 Boys + 5 Girls)">
+          <optgroup label="Boys (5)">
+            <option value="jarvis">JARVIS (Deep British/Tech Male)</option>
+            <option value="aarav">Aarav (Warm Indian Male)</option>
+            <option value="vikram">Vikram (Bold Deep Male)</option>
+            <option value="kabir">Kabir (Fast Energetic Male)</option>
+            <option value="rohan">Rohan (Calm Friendly Male)</option>
+          </optgroup>
+          <optgroup label="Girls (5)">
+            <option value="friday">FRIDAY (Sharp AI Female)</option>
+            <option value="ananya">Ananya (Natural Indian Female)</option>
+            <option value="diya">Diya (Bright Expressive Female)</option>
+            <option value="meera">Meera (Soft Calm Female)</option>
+            <option value="zara">Zara (Futuristic Fast Female)</option>
+          </optgroup>
+        </select>
+        <button onclick="testSelectedVoice()">Test Voice</button>
+        <button class="btn-danger" onclick="stopSpeaking()">Mute TTS</button>
+      </div>
+
+      <!-- Chat Feed -->
+      <div id="chatLog" class="chat-log"></div>
+
+      <!-- Text Input -->
+      <div class="chat-input-row">
+        <input id="userInput" type="text" placeholder='Ask JARVIS in English, Hindi, Hinglish... or say "Open YouTube"' onkeydown="if(event.key==='Enter') handleTypedSubmit()">
+        <button class="btn-cyan" onclick="handleTypedSubmit()">Send</button>
+      </div>
+
+      <!-- Instant Local Voice Action Quick Triggers -->
+      <div class="quick-cmds">
+        <button onclick="processUserQuery('Open YouTube', 'quick')">Open YouTube</button>
+        <button onclick="processUserQuery('Open Gemini', 'quick')">Open Gemini</button>
+        <button onclick="processUserQuery('Open ChatGPT', 'quick')">Open ChatGPT</button>
+        <button onclick="processUserQuery('Search YouTube for Its_gamerht', 'quick')">Search YT: Its_gamerht</button>
+        <button onclick="processUserQuery('Take a screenshot', 'quick')">Take Screenshot</button>
+      </div>
+
+      <!-- Direct ESP32-C3 OLED Expression Controls -->
+      <div class="esp-bar">
+        <span class="badge info">ESP32 OLED:</span>
+        <button onclick="syncMood('neutral')">Neutral</button>
+        <button onclick="syncMood('happy')">Happy</button>
+        <button onclick="syncMood('thinking')">Thinking</button>
+        <button onclick="syncMood('speaking')">Speaking</button>
+        <button onclick="syncMood('skeptic')">Skeptic</button>
+        <button onclick="syncMood('surprised')">Surprised</button>
+        <button onclick="syncMood('worried')">Worried</button>
+        <button onclick="syncMood('sleepy')">Sleepy</button>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: WI-FI CAMERA SYNC (PEERJS) + MEDIAPIPE 21-LANDMARK HAND TRACKING -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Wi-Fi Vision Hub &amp; 21-Point Hand Tracking</h2>
+        <span id="peerBadge" class="badge">PEER: IDLE</span>
+      </div>
+
+      <!-- Mode Switcher & 4-Digit Room ID -->
+      <div class="role-bar">
+        <button id="btnRolePC" class="btn-active" onclick="setDeviceRole('pc')">Mode A: PC Main Hub</button>
+        <button id="btnRoleMobile" onclick="setDeviceRole('mobile')">Mode B: Mobile/Tablet Node</button>
+        <input id="roomIdInput" class="room-input" type="text" maxlength="4" value="2026" placeholder="4-DIG">
+      </div>
+
+      <!-- Role-Specific Action Controls -->
+      <div id="pcControls" class="role-bar">
+        <button class="btn-cyan" onclick="startPcHubPeer()">Host Wi-Fi Room</button>
+        <button onclick="startLocalWebcam()">Use PC Webcam (640x480)</button>
+        <button id="btnToggleHands" class="btn-purple" onclick="toggleHandTracking()">Hand Tracking: ON</button>
+        <button class="btn-danger" onclick="stopAllVision()">Stop Feed</button>
+      </div>
+
+      <div id="mobileControls" class="role-bar" style="display:none;">
+        <button class="btn-cyan" onclick="startMobileSender()">Stream Cam + Mic to PC</button>
+        <button onclick="flipMobileCamera()">Flip Cam (<span id="camFacingLabel">User</span>)</button>
+        <button onclick="sendRemoteVoiceToHub()">Send Voice Trigger</button>
+        <button class="btn-danger" onclick="stopAllVision()">Disconnect</button>
+      </div>
+
+      <!-- Live Video + Cyberpunk Hand Skeleton Canvas -->
+      <div class="vision-stage">
+        <video id="visionVideo" autoplay playsinline muted></video>
+        <canvas id="handCanvas" width="640" height="480"></canvas>
+        <div class="vision-hud">
+          <span id="visionSourceBadge" class="badge info">SOURCE: NONE</span>
+          <span id="handStatsBadge" class="badge">HANDS: 0 | FINGERS: 0</span>
+        </div>
+        <div id="visionPlaceholder" class="vision-placeholder">
+          <strong>VISION STANDBY</strong>
+          <span>Use <b>PC Webcam (640x480)</b> or pair a phone/tablet on the same Wi-Fi using the 4-digit Room ID.</span>
+          <span>Wave your hand in front of the camera to trigger the Holographic Gesture Intro.</span>
+        </div>
+      </div>
+
+      <div class="status-strip">
+        <span id="gestureStatus" class="badge">GESTURE: WAITING FOR WAVE</span>
+        <span id="detectedLangBadge" class="badge">LANG: AUTO</span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ============================================================================
+   JARVIS AI — ITS_GAMERHT FULL ECOSYSTEM (PURE CHROME / ZERO BACKEND)
+============================================================================ */
+
+const INTRO_MESSAGE = "HELLO, I AM JARVIS — CREATED BY ITS_GAMERHT. I CAN ASSIST, LISTEN, SEE, CONTROL WEB COMMANDS, AND CONNECT ACROSS YOUR DEVICES.";
+
+// Persistent Settings
+const STORAGE_KEYS = {
+  apiKey: "jarvis_itsgamerht_groq_key",
+  espAddr: "jarvis_itsgamerht_esp_addr",
+  voice: "jarvis_itsgamerht_voice",
+  room: "jarvis_itsgamerht_room"
+};
+
+// 10 Distinct Assistant Voices (5 Boys + 5 Girls)
+const VOICE_PROFILES = {
+  // 5 Boys
+  jarvis: { name: "JARVIS", gender: "male",   pitch: 0.78, rate: 0.96, hints: ["daniel", "george", "arthur", "david", "male", "uk", "en-gb"], sample: "Hello, I am JARVIS, created by Its_gamerht. All systems are online." },
+  aarav:  { name: "Aarav",  gender: "male",   pitch: 0.92, rate: 1.00, hints: ["rishi", "prabhat", "hemant", "madhur", "india", "en-in", "hi-in", "male"], sample: "Namaste! Main Aarav hoon, aapka JARVIS assistant ready hai." },
+  vikram: { name: "Vikram", gender: "male",   pitch: 0.72, rate: 0.93, hints: ["david", "mark", "rishi", "prabhat", "male"], sample: "Vikram voice online. Tell me your next command." },
+  kabir:  { name: "Kabir",  gender: "male",   pitch: 1.02, rate: 1.12, hints: ["rishi", "guy", "alex", "male", "en-in"], sample: "Hey! Kabir mode active — fast, sharp, and ready to assist." },
+  rohan:  { name: "Rohan",  gender: "male",   pitch: 0.88, rate: 0.98, hints: ["prabhat", "rishi", "mark", "male"], sample: "Rohan online. How can I help you today?" },
+  // 5 Girls
+  friday: { name: "FRIDAY", gender: "female", pitch: 1.08, rate: 1.04, hints: ["samantha", "zira", "hazel", "susan", "female", "en-gb"], sample: "FRIDAY tactical voice initialized for the Its_gamerht ecosystem." },
+  ananya: { name: "Ananya", gender: "female", pitch: 1.14, rate: 1.00, hints: ["heera", "neerja", "swara", "veena", "lekha", "india", "en-in", "hi-in", "female"], sample: "Namaste! Main Ananya hoon. Aap mujhse Hindi ya English mein kuch bhi pooch sakte hain." },
+  diya:   { name: "Diya",   gender: "female", pitch: 1.24, rate: 1.08, hints: ["swara", "neerja", "google हिन्दी", "zira", "female"], sample: "Hi there! Diya voice is active and listening!" },
+  meera:  { name: "Meera",  gender: "female", pitch: 1.02, rate: 0.92, hints: ["veena", "heera", "kalpana", "female", "en-in"], sample: "Meera mode ready. Calm, clear, and at your service." },
+  zara:   { name: "Zara",   gender: "female", pitch: 1.18, rate: 1.15, hints: ["aria", "jenny", "samantha", "zira", "female"], sample: "Zara neural voice ready. Systems locked and responsive." }
+};
+
+// Runtime State
+const state = {
+  introAnimId: null,
+  introTypingTimer: null,
+  audioCtx: null,
+  chatHistory: [],
+  groqModel: "",
+  groqModelForKey: "",
+  currentMood: "neutral",
+
+  // Speech & Wake Word
+  wakeActive: false,
+  awaitingCommand: false,
+  awaitingTimer: null,
+  recognition: null,
+  manualRec: null,
+  isSpeaking: false,
+  ignoreSpeechUntil: 0,
+  lastSpokenNormalized: "",
+  lastQueryText: "",
+  lastQueryAt: 0,
+
+  // Vision, PeerJS & MediaPipe Hands
+  deviceRole: "pc",
+  peer: null,
+  peerConn: null,
+  activeCall: null,
+  localStream: null,
+  mobileFacing: "user",
+  handTrackingEnabled: true,
+  handsModel: null,
+  handLoopRunning: false,
+  handFrameBusy: false,
+  waveSamples: [],
+  lastWaveTriggerAt: 0
+};
+
+// DOM References
+const $ = (id) => document.getElementById(id);
+
+/* ============================================================================
+   0. INITIALIZATION & TOP-BAR AUTO-SAVING
+============================================================================ */
+window.addEventListener("DOMContentLoaded", () => {
+  // Restore auto-saved settings
+  const savedKey = localStorage.getItem(STORAGE_KEYS.apiKey) || "";
+  const savedEsp = localStorage.getItem(STORAGE_KEYS.espAddr) || "192.168.29.199";
+  const savedVoice = localStorage.getItem(STORAGE_KEYS.voice) || "jarvis";
+  const savedRoom = localStorage.getItem(STORAGE_KEYS.room) || "2026";
+
+  $("groqApiKey").value = savedKey;
+  $("espLocalAddr").value = savedEsp;
+  $("voiceSelect").value = savedVoice;
+  $("roomIdInput").value = savedRoom;
+
+  $("groqApiKey").addEventListener("input", (e) => {
+    const val = e.target.value.trim();
+    localStorage.setItem(STORAGE_KEYS.apiKey, val);
+    state.groqModel = "";
+    if (val.length > 20) detectGroqModel(true);
+    else setBadge("modelBadge", "GROQ: STANDBY", "");
+  });
+
+  $("espLocalAddr").addEventListener("input", (e) => {
+    localStorage.setItem(STORAGE_KEYS.espAddr, e.target.value.trim());
+  });
+
+  $("voiceSelect").addEventListener("change", (e) => {
+    localStorage.setItem(STORAGE_KEYS.voice, e.target.value);
+  });
+
+  $("roomIdInput").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9A-Za-z]/g, "").slice(0, 4);
+    localStorage.setItem(STORAGE_KEYS.room, e.target.value);
+  });
+
+  // Warm up browser speech synthesis voices
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+
+  // Check initial passive permission states
+  refreshPassivePermissions();
+
+  // Welcome log entry
+  addChatMessage("sys", "JARVIS AI Ecosystem booted. Say 'Hey JARVIS', click Authorize All Permissions, or type below.");
+
+  // Auto-detect Groq model if key already saved
+  if (savedKey.length > 20) {
+    detectGroqModel(true);
+  }
+
+  // Start Cinematic Intro
+  startCinematicIntro();
+});
+
+function setBadge(id, text, cls) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = "badge" + (cls ? " " + cls : "");
+}
+
+/* ============================================================================
+   1. CINEMATIC INTRO & WEB AUDIO API SYNTH TONES
+============================================================================ */
+function getAudioCtx() {
+  if (!state.audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) state.audioCtx = new Ctx();
+  }
+  if (state.audioCtx && state.audioCtx.state === "suspended") {
+    state.audioCtx.resume().catch(() => {});
+  }
+  return state.audioCtx;
+}
+
+function playSynthTone(freqStart, freqEnd, durationSec, type = "sine", gainPeak = 0.08, delaySec = 0) {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime + delaySec;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freqStart, now);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(40, freqEnd), now + durationSec);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(gainPeak, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + durationSec + 0.02);
+  } catch (_) {}
+}
+
+function playIntroSynth(userClicked = false) {
+  if (userClicked) {
+    try { getAudioCtx(); } catch (_) {}
+  }
+  playSynthTone(110, 220, 0.7, "sine", 0.07, 0.00);
+  playSynthTone(440, 660, 0.22, "triangle", 0.05, 0.18);
+  playSynthTone(660, 990, 0.25, "sine", 0.05, 0.42);
+  playSynthTone(880, 1320, 0.45, "sine", 0.06, 0.68);
+}
+
+function playWakeChime() {
+  playSynthTone(680, 1040, 0.14, "sine", 0.08, 0.0);
+  playSynthTone(1040, 1480, 0.18, "triangle", 0.07, 0.11);
+}
+
+function playGestureWhoosh() {
+  playSynthTone(320, 1280, 0.35, "sine", 0.07, 0.0);
+  playSynthTone(920, 1640, 0.25, "triangle", 0.05, 0.15);
+}
+
+function startCinematicIntro() {
+  const overlay = $("introOverlay");
+  const canvas = $("introCanvas");
+  const typeEl = $("introTypeText");
+  overlay.classList.remove("hidden");
+
+  // Attempt soft synth (browsers may require click; user can click Play HUD Audio)
+  playIntroSynth(false);
+
+  // Typewriter animation for exact required branding text
+  clearInterval(state.introTypingTimer);
+  typeEl.textContent = "";
+  let charIdx = 0;
+  state.introTypingTimer = setInterval(() => {
+    charIdx += 2;
+    typeEl.textContent = INTRO_MESSAGE.slice(0, charIdx);
+    if (charIdx >= INTRO_MESSAGE.length) {
+      typeEl.textContent = INTRO_MESSAGE;
+      clearInterval(state.introTypingTimer);
+    }
+  }, 24);
+
+  // Sci-Fi Glowing HUD Rings on HTML5 Canvas
+  const ctx = canvas.getContext("2d");
+  const resize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  resize();
+
+  let angle = 0;
+  cancelAnimationFrame(state.introAnimId);
+
+  function drawHud() {
+    if (overlay.classList.contains("hidden")) return;
+    if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) resize();
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const baseR = Math.min(w, h) * 0.27;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Outer dashed ring
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle * 0.4);
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.35)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([18, 12]);
+    ctx.beginPath();
+    ctx.arc(0, 0, baseR * 1.25, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // Counter-rotating violet arc segments
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-angle * 0.75);
+    ctx.strokeStyle = "rgba(157, 78, 221, 0.55)";
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(0, 0, baseR * 0.98, i * Math.PI * 0.5, i * Math.PI * 0.5 + 0.75);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Inner glowing cyan core ring + ticks
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle * 1.15);
+    ctx.shadowColor = "#00e5ff";
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, baseR * 0.72, 0, Math.PI * 1.65);
+    ctx.stroke();
+
+    for (let t = 0; t < 24; t++) {
+      const a = (t / 24) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * baseR * 0.64, Math.sin(a) * baseR * 0.64);
+      ctx.lineTo(Math.cos(a) * baseR * 0.70, Math.sin(a) * baseR * 0.70);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    angle += 0.014;
+    state.introAnimId = requestAnimationFrame(drawHud);
+  }
+  drawHud();
+}
+
+function closeIntro() {
+  $("introOverlay").classList.add("hidden");
+  clearInterval(state.introTypingTimer);
+  cancelAnimationFrame(state.introAnimId);
+  playWakeChime();
+}
+
+function replayIntro() {
+  startCinematicIntro();
+}
+
+/* ============================================================================
+   2. ONE-CLICK SYSTEM PERMISSION HUB
+============================================================================ */
+async function refreshPassivePermissions() {
+  try {
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") setBadge("permNotif", "NOTIF: GRANTED", "granted");
+      else if (Notification.permission === "denied") setBadge("permNotif", "NOTIF: BLOCKED", "blocked");
+    }
+    if (navigator.permissions && navigator.permissions.query) {
+      for (const [name, id, label] of [
+        ["microphone", "permMic", "MIC"],
+        ["camera", "permCam", "CAM"]
+      ]) {
+        try {
+          const res = await navigator.permissions.query({ name });
+          if (res.state === "granted") setBadge(id, `${label}: GRANTED`, "granted");
+          else if (res.state === "denied") setBadge(id, `${label}: BLOCKED`, "blocked");
+        } catch (_) {}
       }
-    ];
-
-    const apiKeyEl = document.getElementById("apiKey");
-    const localAddrEl = document.getElementById("localAddr");
-    const keyDot = document.getElementById("keyDot");
-    const localDot = document.getElementById("localDot");
-    const chatEl = document.getElementById("chat");
-    const promptEl = document.getElementById("prompt");
-    const statusEl = document.getElementById("status");
-    const micBtn = document.getElementById("micBtn");
-    const sendBtn = document.getElementById("sendBtn");
-    const voiceBtn = document.getElementById("voiceBtn");
-    const assistantSelect = document.getElementById("assistantSelect");
-    const testVoiceBtn = document.getElementById("testVoiceBtn");
-    const brandTitle = document.getElementById("brandTitle");
-    const voiceInfo = document.getElementById("voiceInfo");
-
-    let busy = false;
-    let listening = false;
-    let voiceEnabled = true;
-    let recognition = null;
-    let activeModel = "";
-    let cachedVoices = [];
-    let history = [];
-
-    // Populate 10 Assistants
-    ASSISTANTS.forEach((a) => {
-      const opt = document.createElement("option");
-      opt.value = a.id;
-      opt.textContent = a.name;
-      assistantSelect.appendChild(opt);
-    });
-
-    const savedAssistant = localStorage.getItem("jarvis_assistant") || "jarvis";
-    assistantSelect.value = ASSISTANTS.some((a) => a.id === savedAssistant) ? savedAssistant : "jarvis";
-    updateBrandHeader();
-
-    function getCurrentAssistant() {
-      return ASSISTANTS.find((a) => a.id === assistantSelect.value) || ASSISTANTS[0];
     }
+  } catch (_) {}
+}
 
-    function updateBrandHeader() {
-      const current = getCurrentAssistant();
-      const shortName = current.name.split(".")[1].split("(")[0].trim().toUpperCase();
-      brandTitle.textContent = shortName + " AI";
-    }
+async function authorizeAllPermissions() {
+  playWakeChime();
 
-    assistantSelect.addEventListener("change", () => {
-      localStorage.setItem("jarvis_assistant", assistantSelect.value);
-      updateBrandHeader();
-      const current = getCurrentAssistant();
-      speakText(current.sample);
-    });
+  // 1) Microphone
+  try {
+    const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream.getTracks().forEach((t) => t.stop());
+    setBadge("permMic", "MIC: GRANTED", "granted");
+  } catch (_) {
+    setBadge("permMic", "MIC: BLOCKED", "blocked");
+  }
 
-    testVoiceBtn.addEventListener("click", () => {
-      const current = getCurrentAssistant();
-      speakText(current.sample);
-    });
+  // 2) Camera / Vision
+  try {
+    const camStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+    camStream.getTracks().forEach((t) => t.stop());
+    setBadge("permCam", "CAM: GRANTED", "granted");
+  } catch (_) {
+    setBadge("permCam", "CAM: BLOCKED", "blocked");
+  }
 
-    if ("speechSynthesis" in window) {
-      const loadVoices = () => {
-        cachedVoices = window.speechSynthesis.getVoices() || [];
-      };
-      loadVoices();
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    apiKeyEl.value = localStorage.getItem("jarvis_api_key") || "";
-    localAddrEl.value = localStorage.getItem("jarvis_local_addr") || "";
-    updateLocalDot();
-    if (apiKeyEl.value.trim().length > 10) {
-      detectModel();
-    }
-
-    apiKeyEl.addEventListener("input", () => {
-      const val = apiKeyEl.value.trim();
-      localStorage.setItem("jarvis_api_key", val);
-      activeModel = "";
-      if (val.length > 10) {
-        detectModel();
+  // 3) Notifications
+  try {
+    if ("Notification" in window) {
+      const p = await Notification.requestPermission();
+      if (p === "granted") {
+        setBadge("permNotif", "NOTIF: GRANTED", "granted");
+        try { new Notification("JARVIS AI Online", { body: "Created by Its_gamerht — Permissions Authorized." }); } catch (_) {}
       } else {
-        keyDot.classList.remove("on");
-        statusEl.textContent = "Put your API key above";
+        setBadge("permNotif", "NOTIF: BLOCKED", "blocked");
       }
-    });
+    } else {
+      setBadge("permNotif", "NOTIF: BLOCKED", "blocked");
+    }
+  } catch (_) {
+    setBadge("permNotif", "NOTIF: BLOCKED", "blocked");
+  }
 
-    localAddrEl.addEventListener("input", () => {
-      localStorage.setItem("jarvis_local_addr", localAddrEl.value.trim());
-      updateLocalDot();
-    });
+  // 4) Screen Capture availability (getDisplayMedia requires interactive pick on demand)
+  if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === "function") {
+    setBadge("permScreen", "SCREEN: GRANTED", "granted");
+  } else {
+    setBadge("permScreen", "SCREEN: BLOCKED", "blocked");
+  }
 
-    voiceBtn.addEventListener("click", () => {
-      voiceEnabled = !voiceEnabled;
-      voiceBtn.textContent = voiceEnabled ? "Voice: ON" : "Voice: OFF";
-      if (!voiceEnabled && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-    });
+  // 5) Pop-up Allowance Test
+  testPopupPermission();
 
-    sendBtn.addEventListener("click", () => askJarvis());
-    promptEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") askJarvis();
-    });
-    micBtn.addEventListener("click", toggleMic);
+  addChatMessage("sys", "Permission check complete. Voice commands and vision systems are ready.");
+}
 
-    function updateLocalDot() {
-      const hasAddr = localAddrEl.value.trim().length >= 7;
-      localDot.classList.toggle("on", hasAddr);
+function testPopupPermission() {
+  try {
+    const testWin = window.open("about:blank", "_blank", "width=220,height=140");
+    if (testWin && !testWin.closed) {
+      testWin.close();
+      setBadge("permPopup", "POP-UP: GRANTED", "granted");
+      return true;
+    }
+  } catch (_) {}
+  setBadge("permPopup", "POP-UP: BLOCKED", "blocked");
+  return false;
+}
+
+/* ============================================================================
+   3. MULTI-LANGUAGE DETECTION + 10 ASSISTANT VOICES (TTS)
+============================================================================ */
+function detectLanguageInfo(text) {
+  if (/[\u0900-\u097F]/.test(text)) return { code: "hi-IN", label: "HINDI / MARATHI" };
+  if (/[\u0980-\u09FF]/.test(text)) return { code: "bn-IN", label: "BENGALI" };
+  if (/[\u0A00-\u0A7F]/.test(text)) return { code: "pa-IN", label: "PUNJABI" };
+  if (/[\u0A80-\u0AFF]/.test(text)) return { code: "gu-IN", label: "GUJARATI" };
+  if (/[\u0B80-\u0BFF]/.test(text)) return { code: "ta-IN", label: "TAMIL" };
+  if (/[\u0C00-\u0C7F]/.test(text)) return { code: "te-IN", label: "TELUGU" };
+  if (/[\u0C80-\u0CFF]/.test(text)) return { code: "kn-IN", label: "KANNADA" };
+  if (/[\u0D00-\u0D7F]/.test(text)) return { code: "ml-IN", label: "MALAYALAM" };
+
+  // Detect Hinglish words in Latin script
+  if (/\b(kya|hai|kaise|kholo|batao|mera|tum|bhai|karo|nahi|haan|aaj|samjho|chalu|band|lo|dikhao|namaste|shukriya)\b/i.test(text)) {
+    return { code: "hi-IN", label: "HINGLISH" };
+  }
+  const sttChoice = $("sttLang").value || "en-IN";
+  return { code: sttChoice, label: "ENGLISH" };
+}
+
+function pickSystemVoice(profile, langCode) {
+  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  if (!voices || !voices.length) return null;
+
+  const langPrefix = (langCode || "en-IN").slice(0, 2).toLowerCase();
+
+  // First try matching exact language + profile hints
+  let match = voices.find((v) =>
+    v.lang.toLowerCase().startsWith(langPrefix) &&
+    profile.hints.some((h) => (v.name + " " + v.lang).toLowerCase().includes(h))
+  );
+  if (match) return match;
+
+  // For non-English Indian scripts, prioritize any voice matching that exact Indian language
+  if (langPrefix !== "en") {
+    match = voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix));
+    if (match) return match;
+  }
+
+  // Match profile hints across all voices
+  match = voices.find((v) =>
+    profile.hints.some((h) => (v.name + " " + v.lang).toLowerCase().includes(h))
+  );
+  if (match) return match;
+
+  // Fallback to en-IN or first English voice
+  return voices.find((v) => v.lang.toLowerCase() === "en-in") ||
+         voices.find((v) => v.lang.toLowerCase().startsWith("en")) ||
+         voices[0];
+}
+
+function speakText(text, forcedLang = null) {
+  try {
+    if (!("speechSynthesis" in window) || !text) return;
+    window.speechSynthesis.cancel();
+
+    const profileKey = $("voiceSelect").value || "jarvis";
+    const profile = VOICE_PROFILES[profileKey] || VOICE_PROFILES.jarvis;
+    const langInfo = forcedLang ? { code: forcedLang, label: forcedLang } : detectLanguageInfo(text);
+    setBadge("detectedLangBadge", `LANG: ${langInfo.label}`, "info");
+
+    const utt = new SpeechSynthesisUtterance(text);
+    const chosenVoice = pickSystemVoice(profile, langInfo.code);
+    if (chosenVoice) utt.voice = chosenVoice;
+    utt.lang = chosenVoice ? chosenVoice.lang : langInfo.code;
+    utt.pitch = profile.pitch;
+    utt.rate = profile.rate;
+    utt.volume = 1.0;
+
+    state.lastSpokenNormalized = text.toLowerCase().replace(/[^a-z0-9\u0900-\u0D7F]/g, "");
+
+    utt.onstart = () => {
+      state.isSpeaking = true;
+      state.ignoreSpeechUntil = Date.now() + 20000;
+    };
+    const done = () => {
+      state.isSpeaking = false;
+      // 650ms acoustic echo tail guard so mic never re-hears JARVIS
+      state.ignoreSpeechUntil = Date.now() + 650;
+    };
+    utt.onend = done;
+    utt.onerror = done;
+
+    window.speechSynthesis.speak(utt);
+  } catch (_) {
+    state.isSpeaking = false;
+  }
+}
+
+function stopSpeaking() {
+  try {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  } catch (_) {}
+  state.isSpeaking = false;
+  state.ignoreSpeechUntil = Date.now() + 300;
+}
+
+function testSelectedVoice() {
+  const key = $("voiceSelect").value || "jarvis";
+  const profile = VOICE_PROFILES[key] || VOICE_PROFILES.jarvis;
+  speakText(profile.sample);
+}
+
+/* ============================================================================
+   3B. HANDS-FREE WAKE WORD ("HEY JARVIS" / "जार्विस") + MANUAL MIC
+============================================================================ */
+const SpeechRecClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function toggleWakeWord() {
+  if (!SpeechRecClass) {
+    addChatMessage("sys", "SpeechRecognition API is not supported in this browser. Please use Google Chrome.");
+    return;
+  }
+  if (state.wakeActive) {
+    stopWakeWord();
+  } else {
+    startWakeWord();
+  }
+}
+
+function startWakeWord() {
+  if (!SpeechRecClass) return;
+  stopWakeWord();
+
+  state.wakeActive = true;
+  $("btnWakeToggle").textContent = 'Stop "Hey JARVIS"';
+  $("btnWakeToggle").classList.add("btn-danger");
+  $("btnWakeToggle").classList.remove("btn-cyan");
+  setBadge("wakeBadge", "WAKE: LISTENING", "granted");
+
+  const rec = new SpeechRecClass();
+  rec.continuous = true;
+  rec.interimResults = false;
+  rec.lang = $("sttLang").value || "en-IN";
+  state.recognition = rec;
+
+  rec.onresult = (event) => {
+    // Ignore while JARVIS is speaking (echo prevention)
+    if (state.isSpeaking || Date.now() < state.ignoreSpeechUntil) return;
+
+    const latest = event.results[event.results.length - 1];
+    if (!latest || !latest.isFinal) return;
+
+    const raw = (latest[0].transcript || "").trim();
+    if (!raw) return;
+
+    // Echo guard: skip if phrase closely matches what JARVIS just spoke
+    const norm = raw.toLowerCase().replace(/[^a-z0-9\u0900-\u0D7F]/g, "");
+    if (norm.length > 6 && state.lastSpokenNormalized && state.lastSpokenNormalized.includes(norm)) {
+      return;
     }
 
-    function normalizeUrl(raw) {
-      let url = (raw || "").trim().replace(/\/+$/, "");
-      if (!url) return "";
-      if (!/^https?:\/\//i.test(url)) {
-        url = "http://" + url;
+    // Wake-word pattern: "Hey JARVIS", "JARVIS", "जार्विस", "हे जार्विस"
+    const wakeRegex = /\b(?:hey|hi|ok|okay|yo|hello|हे|ओके)?\s*(?:jarvis|jarvish|jarves|जार्विस|जारविस)\b[,:\s]*/i;
+    const match = raw.match(wakeRegex);
+
+    if (match) {
+      playWakeChime();
+      const afterWake = raw.slice(match.index + match[0].length).trim();
+      if (afterWake.length >= 2) {
+        state.awaitingCommand = false;
+        clearTimeout(state.awaitingTimer);
+        setBadge("wakeBadge", "WAKE: COMMAND CAPTURED", "info");
+        processUserQuery(afterWake, "voice");
+        setTimeout(() => {
+          if (state.wakeActive) setBadge("wakeBadge", "WAKE: LISTENING", "granted");
+        }, 1200);
+      } else {
+        // Two-step wake: heard "Hey JARVIS", now wait up to 7s for query
+        state.awaitingCommand = true;
+        setBadge("wakeBadge", "WAKE: SPEAK QUERY...", "warn");
+        syncMood("surprised");
+        clearTimeout(state.awaitingTimer);
+        state.awaitingTimer = setTimeout(() => {
+          state.awaitingCommand = false;
+          if (state.wakeActive) setBadge("wakeBadge", "WAKE: LISTENING", "granted");
+        }, 7000);
       }
-      return url;
+      return;
     }
 
-    async function espPost(path, payload) {
-      const base = normalizeUrl(localAddrEl.value);
-      if (!base) return;
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2500);
-      try {
-        await fetch(base + path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-      } catch (_) {
-      } finally {
-        clearTimeout(timer);
+    // Capture query if already woken up
+    if (state.awaitingCommand) {
+      state.awaitingCommand = false;
+      clearTimeout(state.awaitingTimer);
+      setBadge("wakeBadge", "WAKE: LISTENING", "granted");
+      processUserQuery(raw, "voice");
+    }
+  };
+
+  rec.onerror = (e) => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+      setBadge("permMic", "MIC: BLOCKED", "blocked");
+      stopWakeWord();
+    }
+  };
+
+  rec.onend = () => {
+    // Auto-restart continuous passive wake listener cleanly
+    if (state.wakeActive) {
+      setTimeout(() => {
+        if (!state.wakeActive) return;
+        try {
+          rec.lang = $("sttLang").value || "en-IN";
+          rec.start();
+        } catch (_) {}
+      }, 320);
+    }
+  };
+
+  try {
+    rec.start();
+    setBadge("permMic", "MIC: GRANTED", "granted");
+  } catch (_) {}
+}
+
+function stopWakeWord() {
+  state.wakeActive = false;
+  state.awaitingCommand = false;
+  clearTimeout(state.awaitingTimer);
+  if (state.recognition) {
+    try { state.recognition.onend = null; state.recognition.stop(); } catch (_) {}
+    state.recognition = null;
+  }
+  $("btnWakeToggle").textContent = 'Start "Hey JARVIS"';
+  $("btnWakeToggle").classList.remove("btn-danger");
+  $("btnWakeToggle").classList.add("btn-cyan");
+  setBadge("wakeBadge", "WAKE: OFF", "info");
+}
+
+function triggerManualListen() {
+  if (!SpeechRecClass) {
+    addChatMessage("sys", "SpeechRecognition requires Chrome.");
+    return;
+  }
+  stopSpeaking();
+  playWakeChime();
+
+  // Temporarily pause continuous listener so Chrome doesn't collide
+  const resumeWakeAfter = state.wakeActive;
+  if (resumeWakeAfter && state.recognition) {
+    try { state.recognition.stop(); } catch (_) {}
+  }
+
+  const rec = new SpeechRecClass();
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.lang = $("sttLang").value || "en-IN";
+  state.manualRec = rec;
+
+  $("btnManualMic").textContent = "Listening...";
+  $("btnManualMic").classList.add("btn-active");
+
+  rec.onresult = (event) => {
+    const transcript = (event.results[0] && event.results[0][0] ? event.results[0][0].transcript : "").trim();
+    if (transcript) processUserQuery(transcript, "voice");
+  };
+  const cleanup = () => {
+    $("btnManualMic").textContent = "Manual Mic";
+    $("btnManualMic").classList.remove("btn-active");
+    if (resumeWakeAfter && state.wakeActive) {
+      setTimeout(() => startWakeWord(), 350);
+    }
+  };
+  rec.onerror = cleanup;
+  rec.onend = cleanup;
+
+  try { rec.start(); } catch (_) { cleanup(); }
+}
+
+/* ============================================================================
+   4. INSTANT LOCAL VOICE ACTION COMMANDS
+============================================================================ */
+function openWebTab(url, label) {
+  let win = null;
+  try { win = window.open(url, "_blank", "noopener,noreferrer"); } catch (_) {}
+  if (win) {
+    setBadge("permPopup", "POP-UP: GRANTED", "granted");
+    return `Opening ${label} right now.`;
+  }
+  setBadge("permPopup", "POP-UP: BLOCKED", "blocked");
+  return `Your browser blocked the ${label} pop-up. Click "Authorize All Permissions" or allow pop-ups for this page.`;
+}
+
+async function takeScreenshotCommand() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      setBadge("permScreen", "SCREEN: BLOCKED", "blocked");
+      return "Screen capture is not supported in this browser.";
+    }
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { cursor: "always" },
+      audio: false
+    });
+    setBadge("permScreen", "SCREEN: GRANTED", "granted");
+
+    const video = document.createElement("video");
+    video.srcObject = stream;
+    video.muted = true;
+    await video.play();
+
+    // Wait briefly so frame pixels populate cleanly
+    await new Promise((r) => setTimeout(r, 220));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Stop screen capture immediately
+    stream.getTracks().forEach((t) => t.stop());
+
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    link.download = `jarvis-screenshot-${stamp}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+
+    return "Screenshot captured and downloaded as PNG.";
+  } catch (_) {
+    setBadge("permScreen", "SCREEN: BLOCKED", "blocked");
+    return "Screenshot cancelled or permission denied.";
+  }
+}
+
+async function interceptLocalCommand(rawText) {
+  const q = rawText.trim();
+  const low = q.toLowerCase();
+
+  // 1) Search YouTube for [query]
+  const ytSearchMatch =
+    q.match(/(?:search\s+youtube\s+for|youtube\s+(?:pe|par|mein)\s+search\s+karo|youtube\s+search)\s+(.+)/i);
+  if (ytSearchMatch && ytSearchMatch[1]) {
+    const query = ytSearchMatch[1].trim();
+    const url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(query);
+    return { reply: openWebTab(url, `YouTube search for "${query}"`), mood: "happy" };
+  }
+
+  // 2) Open YouTube / YouTube kholo
+  if (/(?:open\s+youtube|youtube\s+kholo|यूट्यूब\s+खोलो|launch\s+youtube)/i.test(low)) {
+    return { reply: openWebTab("https://www.youtube.com", "YouTube"), mood: "happy" };
+  }
+
+  // 3) Open Gemini
+  if (/(?:open\s+gemini|gemini\s+kholo|जेमिनी\s+खोलो|launch\s+gemini)/i.test(low)) {
+    return { reply: openWebTab("https://gemini.google.com", "Google Gemini"), mood: "happy" };
+  }
+
+  // 4) Open OpenAI / Open ChatGPT
+  if (/(?:open\s+openai|open\s+chatgpt|chatgpt\s+kholo|openai\s+kholo|चैटजीपीटी\s+खोलो)/i.test(low)) {
+    return { reply: openWebTab("https://chatgpt.com", "ChatGPT"), mood: "happy" };
+  }
+
+  // 5) Take a screenshot / Screenshot lo
+  if (/(?:take\s+a?\s*screenshot|screenshot\s+lo|स्क्रीनशॉट\s+लो|capture\s+screen)/i.test(low)) {
+    const msg = await takeScreenshotCommand();
+    return { reply: msg, mood: msg.includes("downloaded") ? "happy" : "worried" };
+  }
+
+  return null;
+}
+
+/* ============================================================================
+   6. NONSENSE / WEIRD INPUT DETECTION + ESP32-C3 OLED SYNC
+============================================================================ */
+function analyzeInputOddness(text) {
+  const clean = text.trim();
+  const low = clean.toLowerCase();
+
+  // 1) Repeated character spam (e.g., "aaaaaaa", "hmmmmmm")
+  if (/(.)\1{4,}/i.test(clean)) {
+    return { odd: true, reason: "gibberish", mood: "skeptic" };
+  }
+
+  // 2) Pure punctuation/symbol noise
+  if (/^[^a-zA-Z0-9\u0900-\u0D7F]+$/.test(clean)) {
+    return { odd: true, reason: "gibberish", mood: "skeptic" };
+  }
+
+  // 3) Keyboard mash or ultra-low-vowel nonsense words (Latin only)
+  const latinWords = low.match(/[a-z]{5,}/g) || [];
+  if (latinWords.length > 0) {
+    let weirdWords = 0;
+    for (const w of latinWords) {
+      const vowels = (w.match(/[aeiouy]/g) || []).length;
+      const mash = /(asdf|qwer|zxcv|hjkl|yuio|dfgh|jkl|fghj|bnm|qwerty)/i.test(w);
+      if (mash || vowels === 0 || (w.length >= 7 && vowels / w.length < 0.16)) {
+        weirdWords++;
       }
     }
+    if (weirdWords / latinWords.length >= 0.5) {
+      return { odd: true, reason: "gibberish", mood: "skeptic" };
+    }
+  }
 
-    function sendEspExpression(expression, sound) {
-      espPost("/api/expression", {
-        expression: expression || "neutral",
-        sound: sound || "none"
+  // 4) Filler-only / nonsense utterances
+  if (/^(?:blah|blabla|bla|uh+|um+|hmm+|lolz|skibidi|bruh+|bleh|meep|boop|gaga|abracadabra|xyz|abc|12345+)[\s!?.,]*$/i.test(low)) {
+    return { odd: true, reason: "filler", mood: "skeptic" };
+  }
+
+  // 5) Bizarre / surreal / weird questions
+  if (/(?:can\s+a\s+(?:fish|dog|cat|cow|rock|potato|banana)\s+(?:drive|fly|code|marry)|eat\s+my\s+(?:laptop|phone|monitor|keyboard)|is\s+water\s+dry|do\s+rocks\s+(?:sleep|dream)|marry\s+a\s+(?:toaster|fridge|robot)|aliens\s+eating|banana\s+phone|purple\s+elephant\s+tax)/i.test(low)) {
+    return { odd: true, reason: "weird", mood: "surprised" };
+  }
+
+  return { odd: false, reason: null, mood: null };
+}
+
+function getEspBaseUrl() {
+  let addr = ($("espLocalAddr").value || "").trim();
+  if (!addr) return "";
+  if (!/^https?:\/\//i.test(addr)) addr = "http://" + addr;
+  return addr.replace(/\/+$/, "");
+}
+
+// Convert Devanagari/Unicode cleanly to ASCII so ESP32 1.3" SH1106 OLED never renders [] boxes
+function toOledAscii(text) {
+  const map = {
+    "अ":"a","आ":"aa","इ":"i","ई":"ee","उ":"u","ऊ":"oo","ए":"e","ऐ":"ai","ओ":"o","औ":"au",
+    "ा":"a","ि":"i","ी":"ee","ु":"u","ू":"oo","े":"e","ै":"ai","ो":"o","ौ":"au","ं":"n","ँ":"n","्":"",
+    "क":"k","ख":"kh","ग":"g","घ":"gh","च":"ch","छ":"chh","ज":"j","झ":"jh","ट":"t","ठ":"th",
+    "ड":"d","ढ":"dh","त":"t","थ":"th","द":"d","ध":"dh","न":"n","प":"p","फ":"ph","ब":"b",
+    "भ":"bh","म":"m","य":"y","र":"r","ल":"l","व":"v","श":"sh","ष":"sh","स":"s","ह":"h","।":"."
+  };
+  let s = "";
+  for (const ch of (text || "")) s += (map[ch] !== undefined ? map[ch] : ch);
+  s = s.normalize("NFKD").replace(/[^\x20-\x7E]/g, "").replace(/\s+/g, " ").trim();
+  return s.length > 74 ? s.slice(0, 71) + "..." : (s || "JARVIS Ready");
+}
+
+async function espPostSilent(path, payload) {
+  const base = getEspBaseUrl();
+  if (!base) return false;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2200);
+  try {
+    const res = await fetch(`${base}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    if (res.ok) {
+      setBadge("espBadge", "ESP32: SYNCED", "granted");
+      return true;
+    }
+  } catch (_) {
+    clearTimeout(timer);
+    // Silent fail: ESP32 offline or HTTPS->HTTP mixed content never breaks chat/voice
+    setBadge("espBadge", "ESP32: OFFLINE", "warn");
+  }
+  return false;
+}
+
+function syncMood(mood) {
+  state.currentMood = mood;
+  const cls = (mood === "worried") ? "blocked" :
+              (mood === "skeptic" || mood === "surprised") ? "warn" : "info";
+  setBadge("moodBadge", `MOOD: ${mood.toUpperCase()}`, cls);
+  espPostSilent("/api/expression", { expression: mood });
+}
+
+function syncEspSay(text, mood = "speaking") {
+  state.currentMood = mood;
+  setBadge("moodBadge", `MOOD: ${mood.toUpperCase()}`, "info");
+  espPostSilent("/api/say", {
+    text: toOledAscii(text),
+    expression: mood,
+    header: "JARVIS",
+    sound: mood === "happy" ? "happy" : "ai",
+    duration: 8000
+  });
+}
+
+/* ============================================================================
+   7. GROQ CLOUD API (AUTO AVAILABLE-MODEL DETECTION) & CHAT PIPELINE
+============================================================================ */
+async function detectGroqModel(silent = false) {
+  const apiKey = ($("groqApiKey").value || "").trim();
+  if (!apiKey) {
+    setBadge("modelBadge", "GROQ: NO KEY", "warn");
+    return "";
+  }
+  if (state.groqModel && state.groqModelForKey === apiKey) return state.groqModel;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const ids = (data.data || [])
+      .map((m) => m.id)
+      .filter((id) => !/(whisper|guard|tts|embed|playai|distil-whisper|orpheus)/i.test(id));
+
+    const preferred = [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+      "llama3-70b-8192",
+      "llama3-8b-8192",
+      "gemma2-9b-it",
+      "qwen-qwq-32b"
+    ];
+    let chosen = preferred.find((p) => ids.includes(p)) || ids[0] || "llama-3.1-8b-instant";
+    state.groqModel = chosen;
+    state.groqModelForKey = apiKey;
+    setBadge("modelBadge", `GROQ: ${chosen.slice(0, 18)}`, "granted");
+    return chosen;
+  } catch (err) {
+    clearTimeout(timer);
+    setBadge("modelBadge", "GROQ: CHECK KEY", "blocked");
+    if (!silent) syncMood("worried");
+    return "";
+  }
+}
+
+async function queryGroqAI(userText, oddInfo) {
+  const apiKey = ($("groqApiKey").value || "").trim();
+  if (!apiKey) {
+    syncMood("worried");
+    return "Please enter your Groq API key in the top bar first. Local voice commands like 'Open YouTube' still work without an API key.";
+  }
+
+  const model = await detectGroqModel(false);
+  if (!model) {
+    syncMood("worried");
+    return "I could not verify your Groq API key right now. Please check the key or your internet connection.";
+  }
+
+  const oddHint = oddInfo.odd
+    ? " Note: the user's message looks like gibberish or a bizarre joke—respond playfully and briefly."
+    : "";
+
+  const systemPrompt =
+    "You are JARVIS AI, created by Its_gamerht. Be smart, concise, witty, and helpful (2-3 short sentences max). " +
+    "Reply in the exact language/style the user uses (English, Hindi, Hinglish, or Indian regional language)." + oddHint;
+
+  const messages = [
+    { role: "system", content: systemPrompt },
+    ...state.chatHistory.slice(-8),
+    { role: "user", content: userText }
+  ];
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 18000);
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.65,
+        max_tokens: 220
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+
+    if (!res.ok) throw new Error("Groq HTTP " + res.status);
+    const data = await res.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
+    if (!reply) throw new Error("Empty reply");
+
+    state.chatHistory.push({ role: "user", content: userText });
+    state.chatHistory.push({ role: "assistant", content: reply });
+    return reply;
+  } catch (err) {
+    clearTimeout(timer);
+    syncMood("worried");
+    return "I hit a network error reaching Groq Cloud. Please try again in a moment.";
+  }
+}
+
+function addChatMessage(role, text, metaLabel = "") {
+  const log = $("chatLog");
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  if (role !== "sys") {
+    const meta = document.createElement("div");
+    meta.className = "msg-meta";
+    meta.textContent = metaLabel || (role === "user" ? "YOU" : "JARVIS");
+    div.appendChild(meta);
+  }
+  const body = document.createElement("div");
+  body.textContent = text;
+  div.appendChild(body);
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function handleTypedSubmit() {
+  const input = $("userInput");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  processUserQuery(text, "text");
+}
+
+async function processUserQuery(rawText, source = "text") {
+  const text = (rawText || "").trim();
+  if (!text) return;
+
+  // Deduplicate rapid double triggers within 1.2s
+  const now = Date.now();
+  if (text.toLowerCase() === state.lastQueryText && now - state.lastQueryAt < 1200) return;
+  state.lastQueryText = text.toLowerCase();
+  state.lastQueryAt = now;
+
+  // If currently in Mobile Sender mode, forward voice trigger wirelessly to PC Main Hub
+  if (state.deviceRole === "mobile" && state.peerConn && state.peerConn.open) {
+    try {
+      state.peerConn.send({ type: "voice_query", text });
+      addChatMessage("user", text, "SENT TO PC HUB");
+      return;
+    } catch (_) {}
+  }
+
+  addChatMessage("user", text, source === "voice" ? "YOU (VOICE)" : source === "remote" ? "MOBILE NODE" : "YOU");
+
+  // Step 1: Instant Local Voice Action Command interception (zero API delay)
+  const localAction = await interceptLocalCommand(text);
+  if (localAction) {
+    addChatMessage("jarvis", localAction.reply, "JARVIS • LOCAL ACTION");
+    syncEspSay(localAction.reply, localAction.mood);
+    speakText(localAction.reply);
+    return;
+  }
+
+  // Step 2: Nonsense / Weird input analysis -> immediate ESP32 OLED update
+  const oddInfo = analyzeInputOddness(text);
+  if (oddInfo.odd) {
+    syncMood(oddInfo.mood); // skeptic or surprised -> immediate POST /api/expression
+  } else {
+    syncMood("thinking");
+  }
+
+  // Step 3: Call Groq Cloud AI
+  const reply = await queryGroqAI(text, oddInfo);
+  const finalMood = oddInfo.odd ? oddInfo.mood : (state.currentMood === "worried" ? "worried" : "speaking");
+
+  addChatMessage("jarvis", reply, `JARVIS • ${finalMood.toUpperCase()}`);
+  syncEspSay(reply, finalMood);
+  speakText(reply);
+}
+
+/* ============================================================================
+   5. WEBSITE-TO-WEBSITE WI-FI CAMERA SYNC (PEERJS) + MEDIAPIPE HANDS
+============================================================================ */
+function setDeviceRole(role) {
+  state.deviceRole = role;
+  $("btnRolePC").className = role === "pc" ? "btn-active" : "";
+  $("btnRoleMobile").className = role === "mobile" ? "btn-active" : "";
+  $("pcControls").style.display = role === "pc" ? "flex" : "none";
+  $("mobileControls").style.display = role === "mobile" ? "flex" : "none";
+}
+
+function getRoomPeerId() {
+  const code = ($("roomIdInput").value || "2026").trim().padEnd(4, "0");
+  return "itsgamerht-jarvis-hub-" + code;
+}
+
+function cleanupPeer() {
+  try { if (state.activeCall) state.activeCall.close(); } catch (_) {}
+  try { if (state.peerConn) state.peerConn.close(); } catch (_) {}
+  try { if (state.peer) state.peer.destroy(); } catch (_) {}
+  state.activeCall = null;
+  state.peerConn = null;
+  state.peer = null;
+}
+
+function attachVideoStream(stream, sourceLabel, isRear = false) {
+  const video = $("visionVideo");
+  video.srcObject = stream;
+  video.className = isRear ? "rear" : "";
+  $("visionPlaceholder").style.display = "none";
+  setBadge("visionSourceBadge", `SOURCE: ${sourceLabel}`, "granted");
+
+  video.onloadedmetadata = () => {
+    video.play().catch(() => {});
+    if (state.deviceRole === "pc" && state.handTrackingEnabled) {
+      startHandTrackingLoop();
+    }
+  };
+}
+
+// MODE A — PC MAIN HUB (RECEIVER + LOCAL 640x480 WEBCAM)
+function startPcHubPeer() {
+  if (typeof Peer === "undefined") {
+    setBadge("peerBadge", "PEER: CDN LOADING", "warn");
+    return;
+  }
+  cleanupPeer();
+  const hubId = getRoomPeerId();
+  setBadge("peerBadge", `HUB ROOM ${$("roomIdInput").value}...`, "warn");
+
+  try {
+    const peer = new Peer(hubId, { debug: 0 });
+    state.peer = peer;
+
+    peer.on("open", () => {
+      setBadge("peerBadge", `HUB READY: ${$("roomIdInput").value}`, "granted");
+      addChatMessage("sys", `PC Main Hub listening on Room ID ${$("roomIdInput").value}. Open this site on your phone in Mode B to stream wirelessly.`);
+    });
+
+    // Receive live video stream from Mobile/Tablet Node
+    peer.on("call", (call) => {
+      state.activeCall = call;
+      call.answer(); // Receiver answers without needing local camera
+      call.on("stream", (remoteStream) => {
+        attachVideoStream(remoteStream, "WI-FI MOBILE STREAM", false);
+        setBadge("peerBadge", "MOBILE VIDEO LIVE", "granted");
       });
-    }
-
-    function sendEspSay(text) {
-      const safeOled = String(text || "")
-        .replace(/[^\x20-\x7E]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 72) || "JARVIS";
-      espPost("/api/say", {
-        text: safeOled,
-        header: "JARVIS",
-        expression: "speaking",
-        sound: "ai",
-        duration: 8000
+      call.on("close", () => {
+        setBadge("peerBadge", `HUB READY: ${$("roomIdInput").value}`, "info");
       });
-    }
+    });
 
-    async function detectModel() {
-      const key = apiKeyEl.value.trim();
-      if (!key) return "";
-      if (activeModel) return activeModel;
-
-      statusEl.textContent = "Connecting...";
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/models", {
-          headers: { "Authorization": "Bearer " + key }
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error((data && data.error && data.error.message) || "Invalid API key");
+    // Receive wireless voice triggers from Mobile/Tablet Node
+    peer.on("connection", (conn) => {
+      state.peerConn = conn;
+      conn.on("data", (msg) => {
+        if (msg && msg.type === "voice_query" && msg.text) {
+          processUserQuery(msg.text, "remote");
         }
-
-        const ids = (data.data || []).map((m) => m.id).filter(Boolean);
-        const chatModels = ids.filter(
-          (id) => !/whisper|guard|tts|orpheus|embed|playai/i.test(id)
-        );
-        const preferred = [
-          "openai/gpt-oss-20b",
-          "openai/gpt-oss-120b",
-          "llama-3.3-70b-versatile",
-          "qwen/qwen3-32b",
-          "llama-3.1-8b-instant"
-        ];
-        activeModel =
-          preferred.find((p) => chatModels.includes(p)) ||
-          chatModels[0] ||
-          "openai/gpt-oss-20b";
-
-        keyDot.classList.add("on");
-        statusEl.textContent = "Ready (" + activeModel + ")";
-        return activeModel;
-      } catch (err) {
-        keyDot.classList.remove("on");
-        statusEl.textContent = "Key error: " + err.message;
-        return "";
-      }
-    }
-
-    function addBubble(text, role) {
-      const div = document.createElement("div");
-      div.className = "msg " + role;
-      div.textContent = text;
-      chatEl.appendChild(div);
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    function pickBestVoice(isHindi, gender) {
-      const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices();
-      if (!voices.length) return null;
-
-      const femaleHints = /female|zira|heera|kalpana|swara|neerja|aria|jenny|samantha|google हिन्दी|google uk english female/i;
-      const maleHints = /male|david|ravi|hemant|madhur|prabhat|george|daniel|mark|google uk english male/i;
-
-      if (isHindi) {
-        const hindiVoices = voices.filter((v) => /hi|hindi|हिन्दी/i.test(v.lang + " " + v.name));
-        if (hindiVoices.length) {
-          const genderMatch = hindiVoices.find((v) =>
-            gender === "female" ? femaleHints.test(v.name) : maleHints.test(v.name)
-          );
-          return genderMatch || hindiVoices[0];
-        }
-        const indianVoices = voices.filter((v) => /in/i.test(v.lang));
-        if (indianVoices.length) return indianVoices[0];
-      }
-
-      const enVoices = voices.filter((v) => /^en/i.test(v.lang));
-      const pool = enVoices.length ? enVoices : voices;
-      const genderMatch = pool.find((v) =>
-        gender === "female" ? femaleHints.test(v.name) : maleHints.test(v.name)
-      );
-      return genderMatch || pool[0];
-    }
-
-    function speakText(text) {
-      if (!voiceEnabled || !("speechSynthesis" in window)) return;
-      const clean = String(text || "")
-        .replace(/[*#`_~]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-      if (!clean) return;
-
-      window.speechSynthesis.cancel();
-
-      const assistant = getCurrentAssistant();
-      // Split sentences so Hindi (Devanagari) and English parts speak smoothly
-      const chunks = clean.match(/[^।.!?]+[।.!?]*/g) || [clean];
-
-      chunks.forEach((chunk) => {
-        const part = chunk.trim();
-        if (!part) return;
-        const isHindi = /[\u0900-\u097F]/.test(part);
-        const u = new SpeechSynthesisUtterance(part);
-        u.lang = isHindi ? "hi-IN" : "en-IN";
-        u.pitch = assistant.pitch;
-        u.rate = assistant.rate;
-
-        const chosenVoice = pickBestVoice(isHindi, assistant.gender);
-        if (chosenVoice) {
-          u.voice = chosenVoice;
-        }
-        voiceInfo.textContent = `Voice: ${assistant.name.split(".")[1].trim()} | Lang: ${isHindi ? "Hindi (hi-IN)" : "English (en-IN)"}`;
-        window.speechSynthesis.speak(u);
       });
+    });
+
+    peer.on("error", () => {
+      setBadge("peerBadge", "PEER: RETRY ROOM ID", "blocked");
+    });
+  } catch (_) {
+    setBadge("peerBadge", "PEER: ERROR", "blocked");
+  }
+}
+
+async function startLocalWebcam() {
+  try {
+    if (state.localStream) state.localStream.getTracks().forEach((t) => t.stop());
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+      audio: false
+    });
+    state.localStream = stream;
+    setBadge("permCam", "CAM: GRANTED", "granted");
+    attachVideoStream(stream, "PC WEBCAM 640x480", false);
+  } catch (_) {
+    setBadge("permCam", "CAM: BLOCKED", "blocked");
+    addChatMessage("sys", "Unable to access PC webcam. Check Chrome camera permission.");
+  }
+}
+
+// MODE B — MOBILE / TABLET CAMERA & MIC NODE (SENDER)
+async function startMobileSender() {
+  if (typeof Peer === "undefined") {
+    setBadge("peerBadge", "PEER: CDN LOADING", "warn");
+    return;
+  }
+  cleanupPeer();
+
+  try {
+    if (state.localStream) state.localStream.getTracks().forEach((t) => t.stop());
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: state.mobileFacing },
+      audio: true
+    });
+    state.localStream = stream;
+    setBadge("permCam", "CAM: GRANTED", "granted");
+    setBadge("permMic", "MIC: GRANTED", "granted");
+    attachVideoStream(stream, `MOBILE (${state.mobileFacing.toUpperCase()})`, state.mobileFacing === "environment");
+
+    const hubId = getRoomPeerId();
+    const peer = new Peer(undefined, { debug: 0 });
+    state.peer = peer;
+    setBadge("peerBadge", `LINKING ${$("roomIdInput").value}...`, "warn");
+
+    peer.on("open", () => {
+      const conn = peer.connect(hubId);
+      state.peerConn = conn;
+      conn.on("open", () => {
+        setBadge("peerBadge", `STREAMING -> ${$("roomIdInput").value}`, "granted");
+        addChatMessage("sys", `Connected wirelessly to PC Main Hub (Room ${$("roomIdInput").value}).`);
+      });
+
+      const call = peer.call(hubId, stream);
+      state.activeCall = call;
+    });
+
+    peer.on("error", () => {
+      setBadge("peerBadge", "HUB NOT FOUND", "blocked");
+    });
+  } catch (_) {
+    setBadge("permCam", "CAM: BLOCKED", "blocked");
+    addChatMessage("sys", "Camera/Mic access required on mobile node.");
+  }
+}
+
+function flipMobileCamera() {
+  state.mobileFacing = state.mobileFacing === "user" ? "environment" : "user";
+  $("camFacingLabel").textContent = state.mobileFacing === "user" ? "User" : "Rear";
+  if (state.localStream) startMobileSender();
+}
+
+function sendRemoteVoiceToHub() {
+  triggerManualListen();
+}
+
+function stopAllVision() {
+  state.handLoopRunning = false;
+  cleanupPeer();
+  if (state.localStream) {
+    state.localStream.getTracks().forEach((t) => t.stop());
+    state.localStream = null;
+  }
+  const video = $("visionVideo");
+  video.srcObject = null;
+  const ctx = $("handCanvas").getContext("2d");
+  ctx.clearRect(0, 0, $("handCanvas").width, $("handCanvas").height);
+  $("visionPlaceholder").style.display = "flex";
+  setBadge("visionSourceBadge", "SOURCE: NONE", "info");
+  setBadge("peerBadge", "PEER: IDLE", "");
+  setBadge("handStatsBadge", "HANDS: 0 | FINGERS: 0", "");
+}
+
+/* ============================================================================
+   5B. MEDIAPIPE HANDS (21 LANDMARKS + CYBERPUNK SKELETON + WAVE GESTURE HUD)
+============================================================================ */
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],
+  [0,5],[5,6],[6,7],[7,8],
+  [5,9],[9,10],[10,11],[11,12],
+  [9,13],[13,14],[14,15],[15,16],
+  [13,17],[17,18],[18,19],[19,20],[0,17]
+];
+
+function toggleHandTracking() {
+  state.handTrackingEnabled = !state.handTrackingEnabled;
+  $("btnToggleHands").textContent = "Hand Tracking: " + (state.handTrackingEnabled ? "ON" : "OFF");
+  if (state.handTrackingEnabled && $("visionVideo").srcObject) {
+    startHandTrackingLoop();
+  } else {
+    const ctx = $("handCanvas").getContext("2d");
+    ctx.clearRect(0, 0, $("handCanvas").width, $("handCanvas").height);
+  }
+}
+
+function initMediaPipeHands() {
+  if (state.handsModel || typeof Hands === "undefined") return;
+  try {
+    const hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 0, // Lite model for ultra-fast smooth FPS on integrated GPU
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.55
+    });
+    hands.onResults(onHandResults);
+    state.handsModel = hands;
+  } catch (_) {}
+}
+
+function countExtendedFingers(lm) {
+  let count = 0;
+  // Thumb horizontal distance from palm center
+  const palmX = (lm[5].x + lm[17].x) * 0.5;
+  if (Math.abs(lm[4].x - palmX) > Math.abs(lm[3].x - palmX) + 0.02) count++;
+  // Index, Middle, Ring, Pinky vertical tip vs PIP
+  const pairs = [[8, 6], [12, 10], [16, 14], [20, 18]];
+  for (const [tip, pip] of pairs) {
+    if (lm[tip].y < lm[pip].y - 0.015) count++;
+  }
+  return count;
+}
+
+function detectWaveGesture(lm, fingersUp) {
+  const now = Date.now();
+  // Require open palm (at least 3 fingers extended)
+  if (fingersUp < 3) return;
+
+  state.waveSamples.push({ x: lm[9].x, t: now });
+  state.waveSamples = state.waveSamples.filter((s) => now - s.t <= 1250);
+  if (state.waveSamples.length < 7) return;
+
+  // Count significant horizontal direction reversals
+  let reversals = 0;
+  let lastDir = 0;
+  let lastPivotX = state.waveSamples[0].x;
+  let minX = 1, maxX = 0;
+
+  for (let i = 1; i < state.waveSamples.length; i++) {
+    const x = state.waveSamples[i].x;
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    const dx = x - lastPivotX;
+    if (Math.abs(dx) >= 0.055) {
+      const dir = dx > 0 ? 1 : -1;
+      if (lastDir !== 0 && dir !== lastDir) reversals++;
+      lastDir = dir;
+      lastPivotX = x;
+    }
+  }
+
+  if (reversals >= 2 && (maxX - minX) >= 0.11 && (now - state.lastWaveTriggerAt) > 6500) {
+    state.lastWaveTriggerAt = now;
+    state.waveSamples = [];
+    triggerGestureIntroHud();
+  }
+}
+
+function triggerGestureIntroHud() {
+  const hud = $("gestureHud");
+  hud.classList.add("active");
+  setBadge("gestureStatus", "GESTURE: WAVE DETECTED!", "granted");
+  playGestureWhoosh();
+  syncMood("happy");
+  speakText("Hello! Wave detected. I am JARVIS, created by Its_gamerht.");
+
+  setTimeout(() => {
+    hud.classList.remove("active");
+    setBadge("gestureStatus", "GESTURE: WAITING FOR WAVE", "");
+  }, 4200);
+}
+
+function onHandResults(results) {
+  const canvas = $("handCanvas");
+  const video = $("visionVideo");
+  const ctx = canvas.getContext("2d");
+
+  const w = video.videoWidth || 640;
+  const h = video.videoHeight || 480;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+
+  ctx.clearRect(0, 0, w, h);
+  const allHands = results.multiHandLandmarks || [];
+  if (!allHands.length) {
+    setBadge("handStatsBadge", "HANDS: 0 | FINGERS: 0", "");
+    return;
+  }
+
+  const mirrored = !video.classList.contains("rear");
+  let totalFingers = 0;
+
+  for (const lm of allHands) {
+    const fingersUp = countExtendedFingers(lm);
+    totalFingers += fingersUp;
+    detectWaveGesture(lm, fingersUp);
+
+    // Cyberpunk glowing skeleton bones
+    ctx.save();
+    ctx.strokeStyle = "#00e5ff";
+    ctx.lineWidth = 3;
+    ctx.shadowColor = "#00e5ff";
+    ctx.shadowBlur = 12;
+
+    for (const [a, b] of HAND_CONNECTIONS) {
+      const ax = (mirrored ? 1 - lm[a].x : lm[a].x) * w;
+      const ay = lm[a].y * h;
+      const bx = (mirrored ? 1 - lm[b].x : lm[b].x) * w;
+      const by = lm[b].y * h;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
     }
 
-    async function askJarvis(spokenText) {
-      if (busy) return;
-      const q = (spokenText || promptEl.value || "").trim();
-      if (!q) return;
+    // 21 Glowing Landmark Nodes (fingertips highlighted in magenta)
+    const tipIndices = new Set([4, 8, 12, 16, 20]);
+    for (let i = 0; i < lm.length; i++) {
+      const px = (mirrored ? 1 - lm[i].x : lm[i].x) * w;
+      const py = lm[i].y * h;
+      const isTip = tipIndices.has(i);
+      ctx.fillStyle = isTip ? "#ff2a85" : "#00f59b";
+      ctx.shadowColor = isTip ? "#ff2a85" : "#00f59b";
+      ctx.shadowBlur = isTip ? 14 : 8;
+      ctx.beginPath();
+      ctx.arc(px, py, isTip ? 5.5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
 
-      const key = apiKeyEl.value.trim();
-      if (!key) {
-        addBubble("Pehle upar 'Put your API key' mein apni Groq API key paste karo.", "bot");
-        return;
-      }
+  setBadge("handStatsBadge", `HANDS: ${allHands.length} | FINGERS: ${totalFingers}`, "granted");
+}
 
-      if (!spokenText) promptEl.value = "";
-      busy = true;
-      addBubble(q, "user");
-      statusEl.textContent = "Thinking...";
-      sendEspExpression("thinking", "think");
+function startHandTrackingLoop() {
+  initMediaPipeHands();
+  if (state.handLoopRunning) return;
+  state.handLoopRunning = true;
 
-      try {
-        const model = await detectModel();
-        if (!model) {
-          throw new Error("API key invalid ya expire hai. Nayi Groq API key daalo.");
-        }
-
-        const assistant = getCurrentAssistant();
-        const shortName = assistant.name.split(".")[1].split("(")[0].trim();
-
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + key
-          },
-          body: JSON.stringify({
-            model: model,
-            temperature: 0.6,
-            max_tokens: 240,
-            messages: [
-              {
-                role: "system",
-                content:
-                  `You are ${shortName}, a smart and helpful AI assistant. Reply clearly in 1 to 3 concise sentences in the exact same language or script the user asks in (Hindi Devanagari, English, or Hinglish). Avoid emojis so text-to-speech reads smoothly.`
-              },
-              ...history.slice(-6),
-              { role: "user", content: q }
-            ]
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          activeModel = "";
-          throw new Error((data && data.error && data.error.message) || "API request failed");
-        }
-
-        const reply =
-          (data.choices &&
-            data.choices[0] &&
-            data.choices[0].message &&
-            data.choices[0].message.content ||
-            "").trim() || "No response received.";
-
-        history.push({ role: "user", content: q });
-        history.push({ role: "assistant", content: reply });
-
-        addBubble(reply, "bot");
-        sendEspSay(reply);
-        speakText(reply);
-        setTimeout(() => sendEspExpression("happy", "none"), 2200);
-        statusEl.textContent = "Ready (" + model + ")";
-      } catch (err) {
-        addBubble("Error: " + err.message, "bot");
-        statusEl.textContent = "Error";
-        sendEspExpression("worried", "worried");
-      } finally {
-        busy = false;
+  async function step() {
+    if (!state.handLoopRunning) return;
+    const video = $("visionVideo");
+    if (state.handTrackingEnabled && video.srcObject && video.readyState >= 2) {
+      if (!state.handsModel) initMediaPipeHands();
+      if (state.handsModel && !state.handFrameBusy) {
+        state.handFrameBusy = true;
+        try {
+          await state.handsModel.send({ image: video });
+        } catch (_) {}
+        state.handFrameBusy = false;
       }
     }
-
-    function toggleMic() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        statusEl.textContent = "Mic is browser mein supported nahi hai";
-        return;
-      }
-
-      if (listening && recognition) {
-        recognition.stop();
-        return;
-      }
-
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-
-      const rec = new SR();
-      recognition = rec;
-      rec.lang = "hi-IN";
-      rec.continuous = false;
-      rec.interimResults = false;
-
-      listening = true;
-      micBtn.classList.add("active");
-      micBtn.textContent = "Stop";
-      statusEl.textContent = "Listening (Hindi / English)...";
-
-      let done = false;
-      rec.onresult = (event) => {
-        if (done) return;
-        done = true;
-        const transcript = (
-          (event.results &&
-            event.results[0] &&
-            event.results[0][0] &&
-            event.results[0][0].transcript) ||
-          ""
-        ).trim();
-        rec.stop();
-        if (transcript) {
-          askJarvis(transcript);
-        }
-      };
-
-      rec.onerror = (event) => {
-        statusEl.textContent = "Mic error: " + event.error;
-      };
-
-      rec.onend = () => {
-        listening = false;
-        recognition = null;
-        micBtn.classList.remove("active");
-        micBtn.textContent = "Mic";
-      };
-
-      rec.start();
-    }
-  </script>
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+</script>
 </body>
 </html>
