@@ -2,2286 +2,768 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>JARVIS AI — Its_gamerht Spatial Command OS</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLSS 5 BETA — Ultra Detail & Live Capture Studio</title>
   <style>
     :root {
-      --bg-base: #04070f;
-      --bg-panel: rgba(11, 17, 30, 0.78);
-      --bg-elevated: rgba(17, 25, 43, 0.88);
-      --bg-input: rgba(7, 12, 22, 0.92);
-      --border-hairline: rgba(148, 179, 224, 0.14);
-      --border-accent: rgba(56, 189, 248, 0.34);
-      --cyan: #38bdf8;
-      --cyan-deep: #0284c7;
-      --gold: #eab308;
-      --gold-soft: rgba(234, 179, 8, 0.16);
-      --crimson: #ef4444;
-      --emerald: #10b981;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --radius-lg: 16px;
-      --radius-md: 12px;
+      --bg-void: #05070c;
+      --bg-panel: rgba(15, 21, 34, 0.84);
+      --bg-card: rgba(22, 31, 49, 0.78);
+      --bg-input: #0b0f19;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --border-glow: rgba(34, 197, 94, 0.45);
+      --green-neon: #22c55e;
+      --green-bright: #4ade80;
+      --blue-neon: #38bdf8;
+      --blue-primary: #2563eb;
+      --purple-accent: #8b5cf6;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --text-mute: #64748b;
       --radius-sm: 8px;
-      --shadow-glass: 0 18px 45px rgba(0, 0, 0, 0.55);
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      --font-mono: 'Consolas', 'Fira Code', monospace;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.09), transparent 38%),
-        radial-gradient(circle at 85% 85%, rgba(234, 179, 8, 0.06), transparent 40%),
-        var(--bg-base);
+      font-family: var(--font-sans);
+      background-color: var(--bg-void);
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(34, 197, 94, 0.10), transparent 36%),
+        radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.11), transparent 38%),
+        radial-gradient(circle at 50% 90%, rgba(139, 92, 246, 0.07), transparent 45%);
       color: var(--text-main);
       min-height: 100vh;
-      overflow-x: hidden;
-      line-height: 1.5;
-    }
-
-    body.eco-mode * {
-      backdrop-filter: none !important;
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.05s !important;
-    }
-
-    /* Cinematic Intro Overlay */
-    #introOverlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: radial-gradient(circle at center, #081226 0%, #02040a 100%);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-      transition: opacity 0.45s ease, visibility 0.45s ease;
+      overflow-x: hidden;
     }
 
-    #introOverlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    #introCanvas {
-      width: 240px;
-      height: 240px;
-      max-width: 55vw;
-      max-height: 55vw;
-      margin-bottom: 18px;
-    }
-
-    .intro-badge {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.28em;
-      color: var(--gold);
-      border: 1px solid rgba(234, 179, 8, 0.35);
-      background: rgba(234, 179, 8, 0.08);
-      padding: 5px 14px;
-      border-radius: 999px;
-      margin-bottom: 16px;
-    }
-
-    .intro-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(15px, 2.3vw, 23px);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      line-height: 1.55;
-      max-width: 860px;
-      color: #f8fafc;
-      text-shadow: 0 0 24px rgba(56, 189, 248, 0.28);
-      margin-bottom: 24px;
-    }
-
-    .intro-title span {
-      color: var(--cyan);
-    }
-
-    .btn-enter {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      padding: 13px 28px;
-      border-radius: 999px;
-      border: 1px solid var(--cyan);
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(2, 132, 199, 0.32));
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-    }
-
-    .btn-enter:hover {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(2, 132, 199, 0.48));
-    }
-
-    /* Top Command Bar */
-    .topbar {
+    /* Premium Top Header */
+    header.top-bar {
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(6, 10, 20, 0.88);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-hairline);
-      padding: 10px 18px;
+      z-index: 40;
+      background: rgba(9, 13, 22, 0.9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.8rem 1.4rem;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 0.9rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     }
 
-    .brand-group {
+    .brand-block {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 0.75rem;
     }
 
-    .arc-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #e0f2fe 15%, var(--cyan) 60%, transparent 100%);
-      box-shadow: 0 0 12px var(--cyan);
-    }
-
-    .brand-name {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 800;
-      font-size: 15px;
-      letter-spacing: 0.12em;
-    }
-
-    .brand-sub {
-      font-size: 11px;
-      color: var(--gold);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .top-inputs {
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #22c55e 0%, #06b6d4 55%, #3b82f6 100%);
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      flex: 1;
       justify-content: center;
-      min-width: 260px;
+      font-weight: 900;
+      font-size: 0.82rem;
+      color: #041008;
+      letter-spacing: -0.03em;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
     }
 
-    .top-field {
+    .brand-title-wrap {
       display: flex;
       align-items: center;
-      background: var(--bg-input);
-      border: 1px solid var(--border-hairline);
-      border-radius: var(--radius-sm);
-      padding: 4px 10px;
-      gap: 6px;
+      gap: 0.55rem;
+      flex-wrap: wrap;
     }
 
-    .top-field label {
-      font-size: 10px;
-      font-weight: 600;
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 850;
+      letter-spacing: 0.03em;
+      background: linear-gradient(90deg, #ffffff 0%, #86efac 55%, #7dd3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      white-space: nowrap;
     }
 
-    .top-field input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      width: 155px;
+    .beta-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 0.18rem 0.52rem;
+      border-radius: 999px;
+      color: #4ade80;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.15);
     }
 
-    .top-actions {
+    /* Mode Switcher */
+    .mode-switcher {
       display: flex;
       flex-wrap: wrap;
+      background: var(--bg-input);
+      padding: 0.28rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      gap: 0.25rem;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: 1.5px solid transparent;
+      color: var(--text-dim);
+      padding: 0.48rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      font-weight: 650;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .mode-btn:hover,
+    .mode-btn:focus-visible {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(56, 189, 248, 0.45);
+      outline: none;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #ffffff;
+      border-color: rgba(125, 211, 252, 0.4);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    /* Telemetry Strip */
+    .telemetry-strip {
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 0.95rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--bg-input);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .metric {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .metric-label {
+      color: var(--text-mute);
+    }
+
+    .metric-val {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-mute);
+      transition: all 0.2s ease;
+    }
+
+    .led.live {
+      background: var(--green-neon);
+      box-shadow: 0 0 10px var(--green-neon);
+    }
+
+    /* Main Layout */
+    .app-shell {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      flex: 1;
+      min-height: calc(100vh - 66px);
+    }
+
+    @media (max-width: 980px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside.sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .stage-box,
+      canvas#glCanvas {
+        max-height: 62vh;
+      }
+    }
+
+    /* Sidebar Controls */
+    aside.sidebar {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border-subtle);
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 0.95rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.78rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .panel-card:hover {
+      border-color: rgba(148, 163, 184, 0.28);
+    }
+
+    .panel-head {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drop-area {
+      border: 1.5px dashed rgba(74, 222, 128, 0.35);
+      border-radius: var(--radius-md);
+      padding: 1.05rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(11, 15, 25, 0.65);
+      transition: all 0.2s ease;
+    }
+
+    .drop-area:hover,
+    .drop-area.dragover {
+      border-color: var(--green-bright);
+      background: rgba(34, 197, 94, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .drop-area p {
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+
+    .drop-area strong {
+      color: var(--green-bright);
+    }
+
+    input[type="file"] {
+      display: none;
     }
 
     .btn {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-hairline);
-      color: var(--text-main);
-      padding: 7px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      font-weight: 500;
+      width: 100%;
+      padding: 0.65rem 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1.5px solid transparent;
+      font-size: 0.86rem;
+      font-weight: 700;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .btn:hover {
-      border-color: var(--border-accent);
-      background: rgba(24, 36, 61, 0.95);
-    }
-
-    .btn-cyan {
-      border-color: rgba(56, 189, 248, 0.45);
-      background: rgba(56, 189, 248, 0.14);
-      color: #e0f2fe;
-    }
-
-    .btn-gold {
-      border-color: rgba(234, 179, 8, 0.45);
-      background: rgba(234, 179, 8, 0.13);
-      color: #fef08a;
-    }
-
-    .btn-danger {
-      border-color: rgba(239, 68, 68, 0.4);
-      background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
-    }
-
-    /* Two-Page Architecture */
-    .page-view {
-      display: none;
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .page-view.active {
-      display: block;
-    }
-
-    .grid-chat-layout {
-      display: grid;
-      grid-template-columns: 1.45fr 0.95fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 980px) {
-      .grid-chat-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .glass-card {
-      background: var(--bg-panel);
-      backdrop-filter: blur(14px);
-      border: 1px solid var(--border-hairline);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      box-shadow: var(--shadow-glass);
-    }
-
-    .card-header {
+      transition: all 0.16s ease;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border-hairline);
+      justify-content: center;
+      gap: 0.45rem;
     }
 
-    .card-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      color: var(--cyan);
-      text-transform: uppercase;
+    .btn:focus-visible {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.45);
+      outline: none;
     }
 
-    .status-pill {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--border-hairline);
-      background: rgba(15, 23, 42, 0.8);
-      color: var(--text-muted);
+    .btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    .status-pill.ok {
-      border-color: rgba(16, 185, 129, 0.45);
-      color: #6ee7b7;
-      background: rgba(16, 185, 129, 0.12);
+    .btn-blue {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
     }
 
-    .status-pill.warn {
-      border-color: rgba(234, 179, 8, 0.45);
-      color: #fde047;
-      background: rgba(234, 179, 8, 0.12);
+    .btn-blue:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
-    .status-pill.bad {
+    .btn-green {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(16, 185, 129, 0.14));
+      border-color: rgba(74, 222, 128, 0.45);
+      color: #86efac;
+    }
+
+    .btn-green:hover:not(:disabled) {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.32), rgba(16, 185, 129, 0.22));
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      background: var(--bg-input);
+      border-color: var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-dark:hover:not(:disabled) {
+      border-color: rgba(148, 163, 184, 0.4);
+      background: #131b2e;
+    }
+
+    .btn-red {
+      background: rgba(239, 68, 68, 0.16);
       border-color: rgba(239, 68, 68, 0.45);
       color: #fca5a5;
-      background: rgba(239, 68, 68, 0.12);
     }
 
-    /* Chat Area */
-    .chat-box {
-      height: 410px;
-      overflow-y: auto;
+    .btn-red:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.28);
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .slider-row-head {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-right: 4px;
-      margin-bottom: 12px;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.83rem;
+      color: var(--text-main);
+      margin-bottom: 0.32rem;
     }
 
-    .msg {
-      max-width: 86%;
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 13.5px;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .val-chip {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green-bright);
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      padding: 0.08rem 0.42rem;
+      border-radius: 5px;
     }
 
-    .msg.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.28), rgba(14, 116, 144, 0.25));
-      border: 1px solid rgba(56, 189, 248, 0.35);
-    }
-
-    .msg.ai {
-      align-self: flex-start;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--border-hairline);
-    }
-
-    .msg-meta {
-      font-size: 10px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-dim);
-      margin-bottom: 4px;
-    }
-
-    .quick-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .chip {
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid var(--border-hairline);
-      color: var(--text-muted);
+    select {
+      width: 100%;
+      padding: 0.56rem 0.72rem;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      outline: none;
       cursor: pointer;
     }
 
-    .chip:hover {
-      border-color: var(--cyan);
-      color: var(--text-main);
+    select:focus,
+    select:focus-visible {
+      border-color: var(--blue-neon);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
     }
 
-    .chat-input-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .chat-input-row input {
-      flex: 1;
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 7px;
       background: var(--bg-input);
-      border: 1px solid var(--border-hairline);
-      border-radius: var(--radius-md);
-      padding: 11px 14px;
-      color: var(--text-main);
-      font-size: 13.5px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
       outline: none;
     }
 
-    .chat-input-row input:focus {
-      border-color: var(--cyan);
+    input[type="range"]:focus-visible {
+      border-color: var(--green-bright);
+      box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.3);
     }
 
-    .mic-active {
-      border-color: var(--emerald) !important;
-      background: rgba(16, 185, 129, 0.2) !important;
-      color: #a7f3d0 !important;
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.55);
     }
 
-    /* Voice & Controls Grid */
-    .voice-bar {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
+    input[type="range"]::-moz-range-thumb {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid #ffffff;
+      cursor: pointer;
     }
 
-    select, input[type="text"].mini-input {
-      background: var(--bg-input);
-      border: 1px solid var(--border-hairline);
-      color: var(--text-main);
-      border-radius: var(--radius-sm);
-      padding: 7px 10px;
-      font-size: 12px;
-      outline: none;
-    }
-
-    /* Permission List */
-    .perm-list {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin-top: 10px;
-    }
-
-    .perm-row {
+    .toggle-line {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      padding-top: 0.15rem;
+    }
+
+    .toggle-line input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--green-neon);
+      cursor: pointer;
+    }
+
+    .caption-note {
+      font-size: 0.74rem;
+      color: var(--text-mute);
+      line-height: 1.42;
+    }
+
+    .tv-card-note {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: var(--radius-sm);
-      background: rgba(7, 12, 22, 0.72);
-      border: 1px solid var(--border-hairline);
-      font-size: 12px;
+      padding: 0.6rem 0.7rem;
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      line-height: 1.42;
     }
 
-    /* Minecraft Queue */
-    .mc-queue {
-      max-height: 150px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
+    .tv-card-note strong {
+      color: #7dd3fc;
     }
 
-    .mc-item {
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      background: rgba(7, 12, 22, 0.85);
-      border-left: 3px solid var(--gold);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    /* Hand-Cam Vision Studio (Page 2) */
-    .vision-grid {
-      display: grid;
-      grid-template-columns: 1.55fr 0.85fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 980px) {
-      .vision-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .spatial-stage {
+    /* Viewport Canvas Area */
+    main.viewport {
       position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      min-height: 360px;
-      background: #030711;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-accent);
+      background-color: #04060a;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
       overflow: hidden;
-      box-shadow: inset 0 0 60px rgba(2, 132, 199, 0.14);
     }
 
-    #hiddenVideo {
+    .alert-toast {
+      display: none;
       position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 35;
+      background: rgba(127, 29, 29, 0.94);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--danger);
+      color: #fecaca;
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      max-width: 90%;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+      align-items: center;
+      gap: 0.6rem;
     }
 
-    #threeCanvas, #hudOverlayCanvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+    .alert-toast.visible {
+      display: flex;
+    }
+
+    .alert-dismiss {
+      background: none;
+      border: none;
+      color: #fecaca;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 0.35rem;
+    }
+
+    .welcome-card {
+      text-align: center;
+      max-width: 460px;
+      padding: 2.1rem 1.8rem;
+      background: rgba(15, 21, 34, 0.86);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .welcome-card h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 0.55rem;
+      color: var(--text-main);
+    }
+
+    .welcome-card p {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin-bottom: 1.2rem;
+    }
+
+    .stage-box {
+      position: relative;
+      display: none;
+      max-width: 100%;
+      max-height: calc(100vh - 115px);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 24px 65px rgba(0, 0, 0, 0.75);
+      user-select: none;
+      touch-action: none;
+    }
+
+    .stage-box.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#glCanvas {
       display: block;
+      max-width: 100%;
+      max-height: calc(100vh - 115px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
     }
 
-    #hudOverlayCanvas {
-      pointer-events: none;
+    .divider-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2.5px;
+      background: linear-gradient(180deg, #4ade80, #ffffff, #38bdf8);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.95);
+      cursor: ew-resize;
+      z-index: 15;
+      transform: translateX(-50%);
     }
 
-    .stage-hud-top {
+    .divider-knob {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #22c55e);
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65);
+    }
+
+    .corner-tag {
       position: absolute;
       top: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px;
+      padding: 0.25rem 0.62rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(6, 9, 15, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f8fafc;
       pointer-events: none;
-      z-index: 5;
+      z-index: 12;
     }
 
-    .stage-hud-bottom {
-      position: absolute;
-      bottom: 12px;
+    .corner-tag.orig {
       left: 12px;
+    }
+
+    .corner-tag.dlss {
       right: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      z-index: 5;
+      border-color: rgba(74, 222, 128, 0.55);
+      color: #86efac;
     }
 
-    .care-banner {
-      position: absolute;
-      bottom: 58px;
-      left: 12px;
-      right: 12px;
-      background: rgba(6, 12, 24, 0.92);
-      border: 1px solid rgba(56, 189, 248, 0.45);
-      border-radius: var(--radius-md);
-      padding: 10px 14px;
-      font-size: 12px;
-      display: none;
-      z-index: 6;
-    }
-
-    .care-banner.show {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .stack-col {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .row-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .small-note {
-      font-size: 11px;
-      color: var(--text-muted);
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
 
-  <!-- CINEMATIC INTRO -->
-  <div id="introOverlay">
-    <canvas id="introCanvas" width="260" height="260"></canvas>
-    <div class="intro-badge">SPATIAL COMMAND OS // ITS_GAMERHT</div>
-    <h1 class="intro-title">
-      HELLO, I AM <span>JARVIS</span> — CREATED BY <span>ITS_GAMERHT</span>. I CAN ASSIST, LISTEN, SEE, CONTROL WEB COMMANDS, PLAY &amp; AUTOMATE MINECRAFT, AND CONNECT ACROSS YOUR DEVICES.
-    </h1>
-    <button class="btn-enter" id="enterSystemBtn">SKIP / ENTER SYSTEM</button>
-  </div>
-
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="brand-group">
-      <div class="arc-dot"></div>
-      <div>
-        <div class="brand-name">JARVIS AI</div>
-        <div class="brand-sub">BY ITS_GAMERHT</div>
+  <!-- Top Navigation Header -->
+  <header class="top-bar">
+    <div class="brand-block">
+      <div class="brand-logo">D5</div>
+      <div class="brand-title-wrap">
+        <h1 class="brand-title">DLSS 5 BETA</h1>
+        <span class="beta-pill">4K UHD ENGINE</span>
       </div>
     </div>
 
-    <div class="top-inputs">
-      <div class="top-field">
-        <label for="groqKeyInput">Groq Key</label>
-        <input type="password" id="groqKeyInput" placeholder="Put your API key" autocomplete="off" />
-      </div>
-      <div class="top-field">
-        <label for="espIpInput">ESP32 IP</label>
-        <input type="text" id="espIpInput" placeholder="Put your local address" value="192.168.29.199" />
-      </div>
+    <div class="mode-switcher" role="tablist">
+      <button class="mode-btn active" id="tabPhoto" role="tab" aria-selected="true">
+        Photo HD Enhancer
+      </button>
+      <button class="mode-btn" id="tabLive" role="tab" aria-selected="false">
+        Live Screen Capture
+      </button>
+      <button class="mode-btn" id="tabTv" role="tab" aria-selected="false">
+        TV / Pen Drive Media
+      </button>
     </div>
 
-    <div class="top-actions">
-      <span class="status-pill" id="moodBadge">MOOD: READY</span>
-      <button class="btn btn-cyan" id="togglePageBtn">Hand-Cam Page</button>
-      <button class="btn" id="ecoToggleBtn">Eco Mode: OFF</button>
-      <button class="btn" id="replayIntroBtn">Replay Intro</button>
+    <div class="telemetry-strip">
+      <div class="metric">
+        <span class="led" id="engineLed"></span>
+        <span class="metric-label">STATUS:</span>
+        <span class="metric-val" id="statEngine">IDLE</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">OUT:</span>
+        <span class="metric-val" id="statRes">—</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">FPS:</span>
+        <span class="metric-val" id="statFps">0</span>
+      </div>
     </div>
   </header>
 
-  <!-- PAGE 1: COMMAND & CHAT HUB -->
-  <main id="pageChat" class="page-view active">
-    <div class="grid-chat-layout">
-      <!-- Left: Chat & Voice Engine -->
-      <section class="glass-card">
-        <div class="card-header">
-          <span class="card-title">JARVIS Neural Command &amp; Chat</span>
-          <div class="row-wrap">
-            <span class="status-pill" id="modelBadge">MODEL: AUTO</span>
-            <span class="status-pill" id="wakeBadge">WAKE: STANDBY</span>
-          </div>
+  <div class="app-shell">
+
+    <!-- Sidebar Controls -->
+    <aside class="sidebar">
+
+      <!-- Photo Enhancer Mode -->
+      <div class="panel-card" id="photoControlsGroup">
+        <div class="panel-head">
+          <span>1. Source Image</span>
+          <span id="photoSourceDims" style="font-family: var(--font-mono); color: #4ade80;"></span>
         </div>
 
-        <div class="chat-box" id="chatBox"></div>
+        <label class="drop-area" id="dropZone" for="imageInput">
+          <div style="font-size: 1.35rem;">🖼️</div>
+          <p><strong>Tap or click to upload</strong> photo</p>
+          <p style="font-size: 0.73rem; color: var(--text-mute);">PNG, JPG, WEBP, BMP</p>
+        </label>
+        <input type="file" id="imageInput" accept="image/*" />
 
-        <div class="quick-chips">
-          <button class="chip" data-cmd="Hey JARVIS, mine wood">Mine Wood</button>
-          <button class="chip" data-cmd="patthar tod">Mine Stone</button>
-          <button class="chip" data-cmd="ghar bana de">Build House</button>
-          <button class="chip" data-cmd="Open YouTube">Open YouTube</button>
-          <button class="chip" data-cmd="Take a screenshot">Screenshot</button>
-          <button class="chip" data-cmd="Open handcam">Open Hand-Cam</button>
-          <button class="chip" data-cmd="Study burst: Give me 5 quick revision bullet points on Photosynthesis">Study Burst</button>
+        <div class="btn-grid">
+          <button class="btn btn-blue" id="btnExportPng" disabled>Save PNG</button>
+          <button class="btn btn-dark" id="btnExportJpg" disabled>Save JPEG</button>
         </div>
-
-        <div class="chat-input-row">
-          <input type="text" id="chatInput" placeholder="Ask JARVIS in English, Hindi, or Hinglish..." />
-          <button class="btn btn-cyan" id="sendBtn">Send</button>
-          <button class="btn" id="micBtn">Mic</button>
-          <button class="btn btn-gold" id="wakeToggleBtn">Wake Word: OFF</button>
-        </div>
-
-        <div class="voice-bar">
-          <select id="voiceSelect" title="Select Assistant Voice"></select>
-          <button class="btn" id="testVoiceBtn">Test Voice</button>
-          <button class="btn" id="copyLastBtn">Copy Last Reply</button>
-        </div>
-
-        <div class="row-wrap" style="margin-top: 10px; justify-content: space-between;">
-          <div class="row-wrap">
-            <button class="btn" id="studyModeBtn">Study Burst Mode: OFF</button>
-            <button class="btn" id="resetMemBtn">Reset Memory</button>
-            <button class="btn" id="exportChatBtn">Export Chat</button>
-            <button class="btn btn-danger" id="clearChatBtn">Clear</button>
-          </div>
-          <span class="small-note" id="langStatus">Lang: Auto (EN / HI / Indic)</span>
-        </div>
-      </section>
-
-      <!-- Right: Permissions, Minecraft Automation & ESP32 Hardware -->
-      <div class="stack-col">
-        <!-- Permission Hub -->
-        <section class="glass-card">
-          <div class="card-header">
-            <span class="card-title">System Permission Hub</span>
-            <button class="btn btn-cyan" id="authAllBtn">Authorize All Permissions</button>
-          </div>
-          <div class="perm-list">
-            <div class="perm-row">
-              <span>Microphone (Voice &amp; Wake)</span>
-              <span class="status-pill" id="permMic">PENDING</span>
-            </div>
-            <div class="perm-row">
-              <span>Camera / 3D Vision</span>
-              <span class="status-pill" id="permCam">PENDING</span>
-            </div>
-            <div class="perm-row">
-              <span>System Notifications</span>
-              <span class="status-pill" id="permNotif">PENDING</span>
-            </div>
-            <div class="perm-row">
-              <span>Screen Capture (PNG)</span>
-              <span class="status-pill" id="permScreen">READY</span>
-            </div>
-            <div class="perm-row">
-              <span>Pop-up Tabs (YouTube / AI)</span>
-              <div class="row-wrap">
-                <span class="status-pill" id="permPopup">UNTESTED</span>
-                <button class="btn" id="testPopupBtn" style="padding:3px 8px;font-size:11px;">Test</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Minecraft Voice Automation -->
-        <section class="glass-card">
-          <div class="card-header">
-            <span class="card-title">Minecraft Automation Bridge</span>
-            <span class="status-pill" id="bridgeStatus">BRIDGE: OFFLINE</span>
-          </div>
-          <div class="row-wrap" style="margin-bottom: 8px;">
-            <input type="text" id="bridgeUrlInput" class="mini-input" style="flex:1;" value="ws://localhost:8765" placeholder="ws://localhost:8765" />
-            <button class="btn btn-cyan" id="connectBridgeBtn">Connect Bridge</button>
-          </div>
-          <div class="mc-queue" id="mcQueue">
-            <div class="mc-item"><span>IDLE — Say "mine wood", "patthar tod", "walk forward", or "ghar bana de"</span></div>
-          </div>
-        </section>
-
-        <!-- ESP32-C3 OLED Sync -->
-        <section class="glass-card">
-          <div class="card-header">
-            <span class="card-title">ESP32-C3 Small OLED Sync</span>
-            <span class="status-pill" id="espStatus">ESP32: STANDBY</span>
-          </div>
-          <div class="row-wrap" style="margin-bottom: 8px;">
-            <select id="oledSizeSelect">
-              <option value="128x128">1.3" OLED (128x128)</option>
-              <option value="128x64">0.96" OLED (128x64)</option>
-            </select>
-            <select id="espSoundSelect">
-              <option value="ai">Sound: AI</option>
-              <option value="think">Sound: Think</option>
-              <option value="worried">Sound: Worried</option>
-              <option value="none">Sound: Mute (None)</option>
-            </select>
-          </div>
-          <div class="row-wrap">
-            <input type="text" id="oledTextInput" class="mini-input" style="flex:1;" placeholder="Short ASCII text for OLED..." maxlength="48" />
-            <button class="btn btn-gold" id="sendOledBtn">Send to OLED</button>
-          </div>
-        </section>
       </div>
-    </div>
-  </main>
 
-  <!-- PAGE 2: HAND-CAM VISION STUDIO -->
-  <main id="pageVision" class="page-view">
-    <div class="vision-grid">
-      <!-- 3D Spatial Hand Viewport -->
-      <section class="glass-card" style="padding: 12px;">
-        <div class="card-header">
-          <span class="card-title">Spatial Hand-Cam Vision Studio (Background Masked)</span>
-          <div class="row-wrap">
-            <button class="btn btn-gold" id="ironManToggleBtn">Iron Man Hand: OFF</button>
-            <button class="btn btn-cyan" id="backToChatBtn">Back to Chat</button>
-          </div>
+      <!-- Live Screen Capture Mode -->
+      <div class="panel-card hidden" id="liveControlsGroup">
+        <div class="panel-head">
+          <span>1. Live Display Stream</span>
+          <span id="liveSourceDims" style="font-family: var(--font-mono); color: #4ade80;"></span>
         </div>
 
-        <div class="spatial-stage" id="spatialStage">
-          <video id="hiddenVideo" playsinline muted></video>
-          <canvas id="threeCanvas"></canvas>
-          <canvas id="hudOverlayCanvas"></canvas>
+        <button class="btn btn-blue" id="btnStartCapture">
+          Start Screen / Window Capture
+        </button>
+        <button class="btn btn-red hidden" id="btnStopCapture">
+          Stop Live Capture
+        </button>
 
-          <div class="stage-hud-top">
-            <span class="status-pill ok" id="handModeBadge">MODE: VISION PRO 3D BLUE</span>
-            <span class="status-pill" id="handTrackBadge">HAND: SEARCHING</span>
-            <span class="status-pill" id="gestureStateBadge">GESTURE: NEUTRAL</span>
-          </div>
-
-          <div class="care-banner" id="careBanner">
-            <div>
-              <strong style="color:var(--cyan);">HUD Daily Care Scan Complete:</strong>
-              <span id="careTipText">Stay hydrated with fresh water, cleanse gently after outdoor dust, apply daily sun protection, and aim for 7–8 hours of restful sleep.</span>
-            </div>
-            <button class="btn" id="closeCareBtn">Dismiss</button>
-          </div>
-
-          <div class="stage-hud-bottom">
-            <div class="row-wrap">
-              <button class="btn btn-cyan" id="startLocalCamBtn">Start Webcam</button>
-              <button class="btn btn-danger" id="stopCamBtn">Stop Cam</button>
-              <button class="btn btn-gold" id="hudScanBtn">HUD Scan</button>
-            </div>
-            <div class="row-wrap">
-              <button class="btn" id="gestureControlToggleBtn">Gesture Control: ON</button>
-              <button class="btn" id="testGestureBtn">Test Gestures</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right: Wi-Fi PeerJS Pairing, IP Cam & Telemetry -->
-      <div class="stack-col">
-        <section class="glass-card">
-          <div class="card-header">
-            <span class="card-title">Website-to-Website Wi-Fi Camera Sync</span>
-            <span class="status-pill" id="peerStatus">PEER: IDLE</span>
-          </div>
-          <p class="small-note" style="margin-bottom: 10px;">
-            Open this same GitHub Pages site on your PC and Phone over Wi-Fi, enter the same Room Code, and stream mobile camera frames into 3D Hand Tracking.
-          </p>
-          <div class="row-wrap" style="margin-bottom: 8px;">
-            <input type="text" id="roomCodeInput" class="mini-input" style="flex:1;" placeholder="Room Code (e.g. JARVIS77)" value="JARVIS77" />
-          </div>
-          <div class="row-wrap" style="margin-bottom: 12px;">
-            <button class="btn btn-cyan" id="peerHubBtn">PC Hub (Receive)</button>
-            <button class="btn btn-gold" id="peerMobileBtn">Mobile Cam (Send)</button>
-          </div>
-
-          <div class="card-header" style="margin-top: 8px;">
-            <span class="card-title">Optional IP Camera Fallback</span>
-          </div>
-          <div class="row-wrap">
-            <input type="text" id="ipCamInput" class="mini-input" style="flex:1;" placeholder="http://192.168.29.45:8080/video" />
-            <button class="btn" id="connectIpCamBtn">Connect IP</button>
-          </div>
-          <img id="ipCamImg" crossorigin="anonymous" style="display:none;" alt="" />
-        </section>
-
-        <section class="glass-card">
-          <div class="card-header">
-            <span class="card-title">Finger Gesture Game Mapping</span>
-          </div>
-          <div class="perm-list">
-            <div class="perm-row"><span>Open Palm / Wave</span><span class="status-pill">WALK_FORWARD</span></div>
-            <div class="perm-row"><span>Index Point Left/Right</span><span class="status-pill">TURN_LEFT / RIGHT</span></div>
-            <div class="perm-row"><span>Pinch / Closed Fist</span><span class="status-pill">MINE / ACTION</span></div>
-            <div class="perm-row"><span>Two Fingers Up</span><span class="status-pill">STOP</span></div>
-          </div>
-        </section>
+        <p class="caption-note">
+          Capture any monitor, game window, or browser tab in real time via local WebGL shaders.
+        </p>
       </div>
-    </div>
-  </main>
 
-  <script>
-    (() => {
-      "use strict";
-
-      /* =========================================================
-         1. STATE & LOCALSTORAGE PERSISTENCE
-      ========================================================= */
-      const LS = {
-        get(k, def = "") { try { return localStorage.getItem(k) ?? def; } catch { return def; } },
-        set(k, v) { try { localStorage.setItem(k, v); } catch {} }
-      };
-
-      const state = {
-        activePage: "chat",
-        isBusy: false,
-        lastHandledText: "",
-        lastHandledTime: 0,
-        lastReplyText: "",
-        chatMemory: [],
-        resolvedGroqModel: "",
-        ecoMode: LS.get("jarvis_eco", "0") === "1",
-        studyMode: false,
-        wakeEnabled: false,
-        manualListening: false,
-        isSpeaking: false,
-        ironManMode: false,
-        gestureControl: true,
-        testGestureActive: false,
-        handPresent: false,
-        lastHandSyncTime: 0,
-        lastGesture: "NEUTRAL",
-        hudScanAnim: 0,
-        waveRingAnim: 0,
-        mcWs: null,
-        mediaStream: null,
-        peer: null,
-        peerCall: null,
-        handBusy: false,
-        lastFrameTime: 0,
-        latestLandmarks: null,
-        trailPoints: []
-      };
-
-      const VOICES_CONFIG = [
-        { id: "jarvis", name: "JARVIS (Boy - Calm British/Tech)", gender: "male", pitch: 0.92, rate: 1.02 },
-        { id: "aarav", name: "Aarav (Boy - Warm Indian)", gender: "male", pitch: 1.0, rate: 1.04 },
-        { id: "vikram", name: "Vikram (Boy - Deep Commander)", gender: "male", pitch: 0.84, rate: 0.98 },
-        { id: "kabir", name: "Kabir (Boy - Energetic)", gender: "male", pitch: 1.08, rate: 1.08 },
-        { id: "rohan", name: "Rohan (Boy - Crisp Neutral)", gender: "male", pitch: 0.96, rate: 1.03 },
-        { id: "friday", name: "FRIDAY (Girl - AI Tactical)", gender: "female", pitch: 1.12, rate: 1.04 },
-        { id: "ananya", name: "Ananya (Girl - Clear Indian)", gender: "female", pitch: 1.18, rate: 1.02 },
-        { id: "diya", name: "Diya (Girl - Friendly Bright)", gender: "female", pitch: 1.24, rate: 1.06 },
-        { id: "meera", name: "Meera (Girl - Calm Studio)", gender: "female", pitch: 1.08, rate: 0.98 },
-        { id: "zara", name: "Zara (Girl - Futuristic)", gender: "female", pitch: 1.16, rate: 1.07 }
-      ];
-
-      const $ = (id) => document.getElementById(id);
-
-      /* =========================================================
-         2. CINEMATIC INTRO & WEB AUDIO SYNTH
-      ========================================================= */
-      let introRaf = null;
-      function playIntroTone() {
-        try {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          const ctx = new AudioCtx();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(190, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(520, ctx.currentTime + 0.45);
-          gain.gain.setValueAtTime(0.05, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.55);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.56);
-          setTimeout(() => { try { ctx.close(); } catch {} }, 700);
-        } catch {}
-      }
-
-      function startIntroAnimation() {
-        const canvas = $("introCanvas");
-        const ctx = canvas.getContext("2d");
-        let angle = 0;
-        function draw() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          const cx = canvas.width / 2;
-          const cy = canvas.height / 2;
-          angle += 0.03;
-
-          ctx.strokeStyle = "rgba(56, 189, 248, 0.75)";
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(cx, cy, 88, angle, angle + Math.PI * 1.35);
-          ctx.stroke();
-
-          ctx.strokeStyle = "rgba(234, 179, 8, 0.65)";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(cx, cy, 66, -angle * 1.4, -angle * 1.4 + Math.PI * 1.1);
-          ctx.stroke();
-
-          ctx.fillStyle = "rgba(56, 189, 248, 0.16)";
-          ctx.beginPath();
-          ctx.arc(cx, cy, 34 + Math.sin(angle * 2) * 3, 0, Math.PI * 2);
-          ctx.fill();
-
-          introRaf = requestAnimationFrame(draw);
-        }
-        draw();
-      }
-
-      function hideIntro() {
-        $("introOverlay").classList.add("hidden");
-        if (introRaf) cancelAnimationFrame(introRaf);
-      }
-
-      $("enterSystemBtn").addEventListener("click", () => {
-        playIntroTone();
-        hideIntro();
-      });
-
-      $("replayIntroBtn").addEventListener("click", () => {
-        $("introOverlay").classList.remove("hidden");
-        playIntroTone();
-        startIntroAnimation();
-      });
-
-      startIntroAnimation();
-      setTimeout(hideIntro, 4200);
-
-      /* =========================================================
-         3. TOP BAR AUTO-SAVE & PAGE NAVIGATION
-      ========================================================= */
-      $("groqKeyInput").value = LS.get("jarvis_groq_key", "");
-      $("espIpInput").value = LS.get("jarvis_esp_ip", "192.168.29.199");
-      $("roomCodeInput").value = LS.get("jarvis_room_code", "JARVIS77");
-      $("bridgeUrlInput").value = LS.get("jarvis_bridge_url", "ws://localhost:8765");
-
-      $("groqKeyInput").addEventListener("input", (e) => {
-        LS.set("jarvis_groq_key", e.target.value.trim());
-        state.resolvedGroqModel = "";
-      });
-      $("espIpInput").addEventListener("input", (e) => LS.set("jarvis_esp_ip", e.target.value.trim()));
-      $("roomCodeInput").addEventListener("input", (e) => LS.set("jarvis_room_code", e.target.value.trim()));
-      $("bridgeUrlInput").addEventListener("input", (e) => LS.set("jarvis_bridge_url", e.target.value.trim()));
-
-      function applyEcoMode() {
-        document.body.classList.toggle("eco-mode", state.ecoMode);
-        $("ecoToggleBtn").textContent = `Eco Mode: ${state.ecoMode ? "ON" : "OFF"}`;
-        LS.set("jarvis_eco", state.ecoMode ? "1" : "0");
-      }
-      applyEcoMode();
-
-      $("ecoToggleBtn").addEventListener("click", () => {
-        state.ecoMode = !state.ecoMode;
-        applyEcoMode();
-      });
-
-      function switchPage(targetPage, announce = true) {
-        if (state.activePage === targetPage) return;
-        state.activePage = targetPage;
-        $("pageChat").classList.toggle("active", targetPage === "chat");
-        $("pageVision").classList.toggle("active", targetPage === "vision");
-        $("togglePageBtn").textContent = targetPage === "chat" ? "Hand-Cam Page" : "Back to Chat";
-
-        if (targetPage === "vision") {
-          initThreeHandScene();
-          syncEsp32HandState("PAGE: HANDCAM", "happy", true);
-          if (announce) speakText("Opening Hand-Cam Vision Studio.", "en-IN");
-        } else {
-          syncEsp32HandState("PAGE: CHAT", "neutral", true);
-          if (announce) speakText("Returning to JARVIS Command and Chat.", "en-IN");
-        }
-      }
-
-      $("togglePageBtn").addEventListener("click", () => {
-        switchPage(state.activePage === "chat" ? "vision" : "chat", true);
-      });
-      $("backToChatBtn").addEventListener("click", () => switchPage("chat", true));
-
-      /* =========================================================
-         4. MULTI-LANGUAGE DETECTION & 10-VOICE TTS ENGINE
-      ========================================================= */
-      function populateVoices() {
-        const sel = $("voiceSelect");
-        sel.innerHTML = "";
-        const saved = LS.get("jarvis_voice_id", "jarvis");
-        VOICES_CONFIG.forEach((v) => {
-          const opt = document.createElement("option");
-          opt.value = v.id;
-          opt.textContent = v.name;
-          if (v.id === saved) opt.selected = true;
-          sel.appendChild(opt);
-        });
-      }
-      populateVoices();
-
-      $("voiceSelect").addEventListener("change", (e) => LS.set("jarvis_voice_id", e.target.value));
-
-      function detectLanguageTag(text) {
-        if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
-        if (/[\u0980-\u09FF]/.test(text)) return "bn-IN";
-        if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN";
-        if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN";
-        if (/[\u0A80-\u0AFF]/.test(text)) return "gu-IN";
-        if (/[\u0A00-\u0A7F]/.test(text)) return "pa-IN";
-        if (/[\u0C80-\u0CFF]/.test(text)) return "kn-IN";
-        if (/[\u0D00-\u0D7F]/.test(text)) return "ml-IN";
-        if (/\b(kya|kaise|kholo|tod|bana|karo|bhai|aage|patthar|lakdi|ghar|hai|hoon)\b/i.test(text)) return "hi-IN";
-        return "en-IN";
-      }
-
-      function speakText(text, langOverride = null) {
-        if (!("speechSynthesis" in window) || !text) return;
-        try {
-          window.speechSynthesis.cancel();
-          const clean = text.replace(/[*#_`~]/g, "").slice(0, 420);
-          const utter = new SpeechSynthesisUtterance(clean);
-          const preset = VOICES_CONFIG.find((v) => v.id === $("voiceSelect").value) || VOICES_CONFIG[0];
-          const lang = langOverride || detectLanguageTag(clean);
-          utter.lang = lang;
-          utter.pitch = preset.pitch;
-          utter.rate = preset.rate;
-
-          const sysVoices = window.speechSynthesis.getVoices();
-          if (sysVoices.length) {
-            const langVoices = sysVoices.filter((sv) => sv.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
-            const pool = langVoices.length ? langVoices : sysVoices;
-            const genderMatch = pool.find((sv) =>
-              preset.gender === "female"
-                ? /female|zira|heera|kalpana|priya|google हिन्दी|samantha|victoria/i.test(sv.name)
-                : /male|david|ravi|hemant|daniel|alex|google uk english male/i.test(sv.name)
-            );
-            utter.voice = genderMatch || pool[0];
-          }
-
-          utter.onstart = () => { state.isSpeaking = true; };
-          utter.onend = () => { state.isSpeaking = false; };
-          utter.onerror = () => { state.isSpeaking = false; };
-          window.speechSynthesis.speak(utter);
-        } catch {
-          state.isSpeaking = false;
-        }
-      }
-
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-      }
-
-      $("testVoiceBtn").addEventListener("click", () => {
-        const preset = VOICES_CONFIG.find((v) => v.id === $("voiceSelect").value) || VOICES_CONFIG[0];
-        speakText(`Voice check active. ${preset.name.split("(")[0].trim()} online and ready.`, "en-IN");
-      });
-
-      /* =========================================================
-         5. ESP32-C3 SMALL OLED SANITIZED SYNC
-      ========================================================= */
-      function sanitizeForOled(raw) {
-        const size = $("oledSizeSelect").value;
-        const maxLen = size === "128x64" ? 36 : 64;
-        return String(raw || "")
-          .replace(/[^\x20-\x7E]/g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-          .slice(0, maxLen) || "JARVIS READY";
-      }
-
-      async function postEsp32(endpoint, payload) {
-        const ip = $("espIpInput").value.trim();
-        if (!ip) return;
-        const base = ip.startsWith("http") ? ip.replace(/\/+$/, "") : `http://${ip}`;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 1800);
-        try {
-          const res = await fetch(`${base}${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            signal: controller.signal
-          });
-          clearTimeout(timer);
-          if (res.ok) {
-            $("espStatus").textContent = "ESP32: ONLINE";
-            $("espStatus").className = "status-pill ok";
-          }
-        } catch {
-          clearTimeout(timer);
-          $("espStatus").textContent = "ESP32: OFFLINE";
-          $("espStatus").className = "status-pill warn";
-        }
-      }
-
-      function updateMoodAndEsp(mood, oledMessage) {
-        $("moodBadge").textContent = `MOOD: ${mood.toUpperCase()}`;
-        const sound = $("espSoundSelect").value;
-        const cleanMsg = sanitizeForOled(oledMessage);
-        postEsp32("/api/expression", { expression: mood, mood, sound });
-        postEsp32("/api/say", { text: cleanMsg, message: cleanMsg, sound });
-      }
-
-      function syncEsp32HandState(label, mood = "happy", immediate = false) {
-        const now = Date.now();
-        if (!immediate && now - state.lastHandSyncTime < 2500) return;
-        state.lastHandSyncTime = now;
-        updateMoodAndEsp(mood, label);
-      }
-
-      $("sendOledBtn").addEventListener("click", () => {
-        const txt = $("oledTextInput").value.trim() || "JARVIS ONLINE";
-        updateMoodAndEsp("happy", txt);
-        appendMessage("ai", `Sent to ESP32 OLED: "${sanitizeForOled(txt)}"`);
-      });
-
-      /* =========================================================
-         6. PERMISSION HUB
-      ========================================================= */
-      function setPermBadge(id, granted) {
-        const el = $(id);
-        el.textContent = granted ? "GRANTED" : "BLOCKED";
-        el.className = `status-pill ${granted ? "ok" : "bad"}`;
-      }
-
-      async function requestMicPerm() {
-        try {
-          const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-          s.getTracks().forEach((t) => t.stop());
-          setPermBadge("permMic", true);
-          return true;
-        } catch {
-          setPermBadge("permMic", false);
-          return false;
-        }
-      }
-
-      async function requestCamPerm() {
-        try {
-          const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-          s.getTracks().forEach((t) => t.stop());
-          setPermBadge("permCam", true);
-          return true;
-        } catch {
-          setPermBadge("permCam", false);
-          return false;
-        }
-      }
-
-      async function requestNotifPerm() {
-        try {
-          if (!("Notification" in window)) return false;
-          const res = await Notification.requestPermission();
-          const ok = res === "granted";
-          setPermBadge("permNotif", ok);
-          return ok;
-        } catch {
-          setPermBadge("permNotif", false);
-          return false;
-        }
-      }
-
-      function testPopupPerm() {
-        const w = window.open("about:blank", "_blank", "width=320,height=220");
-        if (w) {
-          w.close();
-          setPermBadge("permPopup", true);
-        } else {
-          setPermBadge("permPopup", false);
-        }
-      }
-
-      $("testPopupBtn").addEventListener("click", testPopupPerm);
-
-      $("authAllBtn").addEventListener("click", async () => {
-        await requestMicPerm();
-        await requestCamPerm();
-        await requestNotifPerm();
-        testPopupPerm();
-        appendMessage("ai", "System Permission Hub scan completed.");
-      });
-
-      /* =========================================================
-         7. MINECRAFT AUTOMATION QUEUE & WEBSOCKET BRIDGE
-      ========================================================= */
-      function connectMcBridge() {
-        const url = $("bridgeUrlInput").value.trim() || "ws://localhost:8765";
-        if (state.mcWs) {
-          try { state.mcWs.close(); } catch {}
-        }
-        try {
-          const ws = new WebSocket(url);
-          ws.onopen = () => {
-            state.mcWs = ws;
-            $("bridgeStatus").textContent = "BRIDGE: CONNECTED";
-            $("bridgeStatus").className = "status-pill ok";
-          };
-          ws.onclose = ws.onerror = () => {
-            state.mcWs = null;
-            $("bridgeStatus").textContent = "BRIDGE: OFFLINE";
-            $("bridgeStatus").className = "status-pill warn";
-          };
-        } catch {
-          $("bridgeStatus").textContent = "BRIDGE: OFFLINE";
-        }
-      }
-
-      $("connectBridgeBtn").addEventListener("click", connectMcBridge);
-
-      function queueMinecraftAction(action, detail) {
-        const q = $("mcQueue");
-        if (q.children.length === 1 && q.children[0].textContent.startsWith("IDLE")) {
-          q.innerHTML = "";
-        }
-        const item = document.createElement("div");
-        item.className = "mc-item";
-        item.innerHTML = `<span><strong>${action}</strong> — ${detail}</span><span>${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>`;
-        q.prepend(item);
-        while (q.children.length > 14) q.removeChild(q.lastChild);
-
-        const payload = JSON.stringify({
-          source: "JARVIS_ITS_GAMERHT",
-          action,
-          detail,
-          timestamp: Date.now()
-        });
-
-        if (state.mcWs && state.mcWs.readyState === WebSocket.OPEN) {
-          try { state.mcWs.send(payload); } catch {}
-        }
-      }
-
-      /* =========================================================
-         8. SCREENSHOT & LOCAL COMMAND ROUTER
-      ========================================================= */
-      async function captureScreenshot() {
-        try {
-          const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-          setPermBadge("permScreen", true);
-          const video = document.createElement("video");
-          video.srcObject = stream;
-          await video.play();
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth || 1280;
-          canvas.height = video.videoHeight || 720;
-          canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-          stream.getTracks().forEach((t) => t.stop());
-
-          const link = document.createElement("a");
-          link.download = `JARVIS_Capture_${Date.now()}.png`;
-          link.href = canvas.toDataURL("image/png");
-          link.click();
-          return true;
-        } catch {
-          setPermBadge("permScreen", false);
-          return false;
-        }
-      }
-
-      function detectWeirdOrNonsense(text) {
-        const clean = text.trim();
-        if (clean.length < 2) return true;
-        if (/^([a-zA-Z])\1{3,}$/.test(clean)) return true;
-        if (/\b(asdf|qwerty|zxcv|blabla|gibberish|skibidi|bruhhh+|hahaha+|ummm+)\b/i.test(clean)) return true;
-        const vowels = (clean.match(/[aeiouAEIOU\u0900-\u097F]/g) || []).length;
-        if (clean.length > 7 && vowels === 0) return true;
-        return false;
-      }
-
-      async function tryLocalCommands(rawText) {
-        const lower = rawText.toLowerCase().trim();
-        const lang = detectLanguageTag(rawText);
-
-        // Page navigation commands
-        if (/(open\s+hand\s*cam|open\s+vision|हैंडकैम\s*खोलो|handcam\s*kholo)/i.test(lower)) {
-          switchPage("vision", false);
-          return {
-            handled: true,
-            reply: lang === "hi-IN" ? "Hand-Cam Vision Studio खोल दिया है।" : "Switching to Hand-Cam Vision Studio.",
-            mood: "happy",
-            oled: "HANDCAM STUDIO"
-          };
-        }
-        if (/(close\s+hand\s*cam|back\s+to\s+chat|चैट\s*पर\s*जाओ|handcam\s*band)/i.test(lower)) {
-          switchPage("chat", false);
-          return {
-            handled: true,
-            reply: lang === "hi-IN" ? "Command Chat पर वापस आ गए हैं।" : "Returning to JARVIS Command Chat.",
-            mood: "neutral",
-            oled: "CHAT HUB"
-          };
-        }
-
-        // HUD Scan command
-        if (/(hud\s*scan|daily\s*care\s*scan|फेस\s*स्कैन|स्कैन\s*करो)/i.test(lower)) {
-          if (state.activePage !== "vision") switchPage("vision", false);
-          triggerHudScan();
-          return {
-            handled: true,
-            reply: "Running spatial HUD scan. Remember daily hydration, gentle cleansing, sun protection, and proper rest.",
-            mood: "happy",
-            oled: "HUD SCAN ACTIVE"
-          };
-        }
-
-        // Instant Web Commands
-        const ytSearch = rawText.match(/search\s+youtube\s+for\s+(.+)/i) || rawText.match(/youtube\s+par\s+(.+)\s+search/i);
-        if (ytSearch && ytSearch[1]) {
-          const q = encodeURIComponent(ytSearch[1].trim());
-          window.open(`https://www.youtube.com/results?search_query=${q}`, "_blank");
-          return {
-            handled: true,
-            reply: `Searching YouTube for ${ytSearch[1].trim()}.`,
-            mood: "happy",
-            oled: "YT SEARCH"
-          };
-        }
-        if (/(open\s+youtube|youtube\s+kholo|यूट्यूब\s+खोलो)/i.test(lower)) {
-          window.open("https://www.youtube.com", "_blank");
-          return {
-            handled: true,
-            reply: lang === "hi-IN" ? "YouTube खोल रहा हूँ।" : "Opening YouTube.",
-            mood: "happy",
-            oled: "OPEN YOUTUBE"
-          };
-        }
-        if (/(open\s+gemini|gemini\s+kholo)/i.test(lower)) {
-          window.open("https://gemini.google.com", "_blank");
-          return { handled: true, reply: "Opening Google Gemini.", mood: "happy", oled: "OPEN GEMINI" };
-        }
-        if (/(open\s+openai|open\s+chatgpt|chatgpt\s+kholo)/i.test(lower)) {
-          window.open("https://chatgpt.com", "_blank");
-          return { handled: true, reply: "Opening ChatGPT.", mood: "happy", oled: "OPEN CHATGPT" };
-        }
-        if (/(take\s+a?\s*screenshot|screenshot\s+lo|स्क्रीनशॉट\s+लो)/i.test(lower)) {
-          const ok = await captureScreenshot();
-          return {
-            handled: true,
-            reply: ok ? "Screen captured and saved as PNG." : "Screen capture permission was cancelled or blocked.",
-            mood: ok ? "happy" : "worried",
-            oled: ok ? "SCREENSHOT SAVED" : "CAPTURE BLOCKED"
-          };
-        }
-
-        // Minecraft Voice Automation Commands (EN / HI / Hinglish)
-        if (/(mine\s+wood|chop\s+wood|wood\s+tod|lakdi\s+tod|लकड़ी\s+तोड़)/i.test(lower)) {
-          queueMinecraftAction("MINE_WOOD", "Harvesting timber blocks");
-          return {
-            handled: true,
-            reply: lang === "hi-IN" ? "Minecraft में लकड़ी तोड़ने की कमांड भेज दी है।" : "Queued MINE_WOOD action for Minecraft.",
-            mood: "happy",
-            oled: "MC: MINE WOOD"
-          };
-        }
-        if (/(mine\s+stone|stone\s+tod|patthar\s+tod|पत्थर\s+तोड़)/i.test(lower)) {
-          queueMinecraftAction("MINE_STONE", "Mining cobblestone/stone blocks");
-          return {
-            handled: true,
-            reply: lang === "hi-IN" ? "पत्थर तोड़ने की कमांड Minecraft ब्रिज को भेज दी है।" : "Queued MINE_STONE action for Minecraft.",
-            mood: "happy",
-            oled: "MC: MINE STONE"
-          };
-        }
-        if (/(build\s+a?\s*house|make\s+a?\s*shelter|ghar\s+bana|pura\s+ghar|घर\s+बना)/i.test(lower)) {
-          const steps = [
-            "1/6 Clear build site",
-            "2/6 Lay foundation floor",
-            "3/6 Raise perimeter walls",
-            "4/6 Install entrance door",
-            "5/6 Construct roof",
-            "6/6 Place interior torches"
-          ];
-          steps.forEach((st) => queueMinecraftAction("BUILD_HOUSE", st));
-          return {
-            handled: true,
-            reply: lang === "hi-IN"
-              ? "पूरा घर बनाने का 6-स्टेप प्लान Minecraft क्यू में जोड़ दिया है।"
-              : "Queued 6-step BUILD_HOUSE blueprint: clear site, floor, walls, door, roof, and lighting.",
-            mood: "happy",
-            oled: "MC: BUILD HOUSE"
-          };
-        }
-        if (/(walk\s+forward|move\s+forward|aage\s+chal|आगे\s+चल)/i.test(lower)) {
-          queueMinecraftAction("WALK_FORWARD", "Advancing forward");
-          return { handled: true, reply: "Moving forward in Minecraft.", mood: "happy", oled: "MC: WALK" };
-        }
-        if (/(turn\s+left|move\s+left|baaye\s+mud|बाएं\s+मुड़)/i.test(lower)) {
-          queueMinecraftAction("TURN_LEFT", "Turning left");
-          return { handled: true, reply: "Turning left.", mood: "happy", oled: "MC: LEFT" };
-        }
-        if (/(turn\s+right|move\s+right|daaye\s+mud|दाएं\s+मुड़)/i.test(lower)) {
-          queueMinecraftAction("TURN_RIGHT", "Turning right");
-          return { handled: true, reply: "Turning right.", mood: "happy", oled: "MC: RIGHT" };
-        }
-        if (/(\bstop\b|ruk\s+ja|रुक\s+जा)/i.test(lower)) {
-          queueMinecraftAction("STOP", "Halting all movement");
-          return { handled: true, reply: "Stopping Minecraft movement.", mood: "neutral", oled: "MC: STOP" };
-        }
-
-        return { handled: false };
-      }
-
-      /* =========================================================
-         9. BUG-FREE GROQ CLOUD ENGINE WITH AUTO MODEL DISCOVERY
-      ========================================================= */
-      async function discoverGroqModel(apiKey) {
-        if (state.resolvedGroqModel) return state.resolvedGroqModel;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3500);
-        try {
-          const res = await fetch("https://api.groq.com/openai/v1/models", {
-            headers: { Authorization: `Bearer ${apiKey}` },
-            signal: controller.signal
-          });
-          clearTimeout(timer);
-          if (!res.ok) throw new Error("models_err");
-          const data = await res.json();
-          const list = Array.isArray(data.data) ? data.data.map((m) => m.id) : [];
-          const preferred = ["openai/gpt-oss-20b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
-          const chosen =
-            preferred.find((p) => list.includes(p)) ||
-            list.find((id) => !/whisper|guard|tts|vision/i.test(id)) ||
-            "openai/gpt-oss-20b";
-          state.resolvedGroqModel = chosen;
-          $("modelBadge").textContent = `MODEL: ${chosen.split("/").pop().toUpperCase()}`;
-          $("modelBadge").className = "status-pill ok";
-          return chosen;
-        } catch {
-          clearTimeout(timer);
-          state.resolvedGroqModel = "openai/gpt-oss-20b";
-          $("modelBadge").textContent = "MODEL: GPT-OSS-20B";
-          return state.resolvedGroqModel;
-        }
-      }
-
-      async function askGroqCloud(userPrompt, isWeird) {
-        const apiKey = $("groqKeyInput").value.trim();
-        if (!apiKey) {
-          return "Please enter your Groq Cloud API key in the top bar first, or use offline voice/Minecraft/Hand-Cam commands.";
-        }
-
-        const model = await discoverGroqModel(apiKey);
-        const sysPrompt = state.studyMode
-          ? "You are JARVIS created by Its_gamerht. Respond in crisp, structured Study Burst revision bullet points and key formulas matching the user's language (English, Hindi, or Hinglish)."
-          : "You are JARVIS, a futuristic AI assistant created by Its_gamerht. Reply concisely, clearly, and naturally in the user's language (English, Hindi, or Hinglish).";
-
-        const messages = [
-          { role: "system", content: sysPrompt },
-          ...state.chatMemory.slice(-6),
-          {
-            role: "user",
-            content: isWeird
-              ? `[User sent a playful/nonsense input: "${userPrompt}". Respond briefly with light JARVIS wit.]`
-              : userPrompt
-          }
-        ];
-
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 12000);
-        try {
-          const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-              model,
-              messages,
-              temperature: 0.65,
-              max_tokens: 450
-            }),
-            signal: controller.signal
-          });
-          clearTimeout(timer);
-          if (!res.ok) throw new Error("groq_http_error");
-          const data = await res.json();
-          const reply = data?.choices?.[0]?.message?.content?.trim();
-          if (!reply) throw new Error("empty_reply");
-
-          state.chatMemory.push({ role: "user", content: userPrompt });
-          state.chatMemory.push({ role: "assistant", content: reply });
-          if (state.chatMemory.length > 8) state.chatMemory = state.chatMemory.slice(-8);
-          return reply;
-        } catch {
-          clearTimeout(timer);
-          updateMoodAndEsp("worried", "GROQ NETWORK ERR");
-          return "I have a network error reaching Groq cloud, please try again in a moment";
-        }
-      }
-
-      /* =========================================================
-         10. CHAT UI & ANTI-REPETITION PIPELINE
-      ========================================================= */
-      function appendMessage(sender, text) {
-        const box = $("chatBox");
-        const div = document.createElement("div");
-        div.className = `msg ${sender}`;
-        const label = sender === "user" ? "YOU" : "JARVIS";
-        div.innerHTML = `<div class="msg-meta">${label} • ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>`;
-        const body = document.createElement("div");
-        body.textContent = text;
-        div.appendChild(body);
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-        if (sender === "ai") state.lastReplyText = text;
-      }
-
-      async function handleUserCommand(rawText) {
-        const text = (rawText || "").trim();
-        if (!text) return;
-
-        // Strict anti-repetition & busy lock
-        const now = Date.now();
-        if (state.isBusy) return;
-        if (text.toLowerCase() === state.lastHandledText.toLowerCase() && now - state.lastHandledTime < 3500) {
-          return;
-        }
-
-        state.isBusy = true;
-        state.lastHandledText = text;
-        state.lastHandledTime = now;
-
-        const lang = detectLanguageTag(text);
-        $("langStatus").textContent = `Lang: ${lang}`;
-        appendMessage("user", text);
-
-        try {
-          const localRes = await tryLocalCommands(text);
-          if (localRes.handled) {
-            appendMessage("ai", localRes.reply);
-            updateMoodAndEsp(localRes.mood || "happy", localRes.oled || "CMD OK");
-            speakText(localRes.reply, lang);
-            return;
-          }
-
-          const isWeird = detectWeirdOrNonsense(text);
-          if (isWeird) {
-            updateMoodAndEsp("skeptic", "HUH? WEIRD INPUT");
-          } else {
-            updateMoodAndEsp("thinking", "THINKING...");
-          }
-
-          const reply = await askGroqCloud(text, isWeird);
-          appendMessage("ai", reply);
-          if (!reply.startsWith("I have a network error")) {
-            updateMoodAndEsp(isWeird ? "surprised" : "happy", reply.slice(0, 32));
-          }
-          speakText(reply, lang);
-        } finally {
-          state.isBusy = false;
-        }
-      }
-
-      $("sendBtn").addEventListener("click", () => {
-        const val = $("chatInput").value;
-        $("chatInput").value = "";
-        handleUserCommand(val);
-      });
-
-      $("chatInput").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const val = $("chatInput").value;
-          $("chatInput").value = "";
-          handleUserCommand(val);
-        }
-      });
-
-      document.querySelectorAll(".chip").forEach((chip) => {
-        chip.addEventListener("click", () => handleUserCommand(chip.dataset.cmd));
-      });
-
-      $("studyModeBtn").addEventListener("click", () => {
-        state.studyMode = !state.studyMode;
-        $("studyModeBtn").textContent = `Study Burst Mode: ${state.studyMode ? "ON" : "OFF"}`;
-        $("studyModeBtn").classList.toggle("btn-gold", state.studyMode);
-      });
-
-      $("resetMemBtn").addEventListener("click", () => {
-        state.chatMemory = [];
-        appendMessage("ai", "Short-term conversation memory cleared.");
-      });
-
-      $("clearChatBtn").addEventListener("click", () => {
-        $("chatBox").innerHTML = "";
-      });
-
-      $("copyLastBtn").addEventListener("click", async () => {
-        if (!state.lastReplyText) return;
-        try {
-          await navigator.clipboard.writeText(state.lastReplyText);
-          $("copyLastBtn").textContent = "Copied!";
-          setTimeout(() => { $("copyLastBtn").textContent = "Copy Last Reply"; }, 1400);
-        } catch {}
-      });
-
-      $("exportChatBtn").addEventListener("click", () => {
-        const text = $("chatBox").innerText;
-        const blob = new Blob([text], { type: "text/plain" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `JARVIS_Log_${Date.now()}.txt`;
-        a.click();
-      });
-
-      /* =========================================================
-         11. CONTINUOUS WAKE WORD ("Hey JARVIS" / "हे जार्विस") + MIC
-      ========================================================= */
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      let recognition = null;
-
-      function setupSpeechRecognition() {
-        if (!SpeechRec) return null;
-        const rec = new SpeechRec();
-        rec.continuous = true;
-        rec.interimResults = false;
-        rec.lang = "en-IN";
-
-        rec.onresult = (event) => {
-          if (state.isSpeaking || state.isBusy) return;
-          const res = event.results[event.results.length - 1];
-          if (!res || !res.isFinal) return;
-          const transcript = res[0].transcript.trim();
-          if (!transcript) return;
-
-          if (state.manualListening) {
-            state.manualListening = false;
-            $("micBtn").classList.remove("mic-active");
-            $("micBtn").textContent = "Mic";
-            handleUserCommand(transcript);
-            return;
-          }
-
-          if (state.wakeEnabled) {
-            const wakeRegex = /(hey\s*jarvis|ok\s*jarvis|jarvis|हे\s*जार्विस|जार्विस)/i;
-            if (wakeRegex.test(transcript)) {
-              const stripped = transcript.replace(wakeRegex, "").replace(/^[,.\s-]+/, "").trim();
-              if (stripped.length > 1) {
-                handleUserCommand(stripped);
-              } else {
-                speakText("Yes, I am listening.", "en-IN");
-                state.manualListening = true;
-                $("micBtn").classList.add("mic-active");
-                $("micBtn").textContent = "Listening...";
-              }
-            }
-          }
-        };
-
-        rec.onend = () => {
-          if (state.wakeEnabled || state.manualListening) {
-            setTimeout(() => {
-              try { rec.start(); } catch {}
-            }, 350);
-          }
-        };
-
-        rec.onerror = () => {};
-        return rec;
-      }
-
-      recognition = setupSpeechRecognition();
-
-      $("micBtn").addEventListener("click", async () => {
-        if (!recognition) {
-          appendMessage("ai", "Speech recognition is not supported in this browser. Please use Google Chrome.");
-          return;
-        }
-        await requestMicPerm();
-        state.manualListening = !state.manualListening;
-        $("micBtn").classList.toggle("mic-active", state.manualListening);
-        $("micBtn").textContent = state.manualListening ? "Listening..." : "Mic";
-        if (state.manualListening) {
-          try { recognition.start(); } catch {}
-        }
-      });
-
-      $("wakeToggleBtn").addEventListener("click", async () => {
-        if (!recognition) {
-          appendMessage("ai", "Wake-word speech recognition requires Chrome.");
-          return;
-        }
-        await requestMicPerm();
-        state.wakeEnabled = !state.wakeEnabled;
-        $("wakeToggleBtn").textContent = `Wake Word: ${state.wakeEnabled ? "ON" : "OFF"}`;
-        $("wakeBadge").textContent = `WAKE: ${state.wakeEnabled ? "ACTIVE" : "STANDBY"}`;
-        $("wakeBadge").className = `status-pill ${state.wakeEnabled ? "ok" : ""}`;
-        if (state.wakeEnabled) {
-          try { recognition.start(); } catch {}
-        }
-      });
-
-      /* =========================================================
-         12. THREE.JS VISION PRO 3D BLUE HAND & IRON MAN ARMOR MODE
-      ========================================================= */
-      let threeScene = null;
-      let threeCamera = null;
-      let threeRenderer = null;
-      let jointMeshes = [];
-      let boneMeshes = [];
-      let palmCoreMesh = null;
-      let spatialRingMesh = null;
-
-      const HAND_CONNECTIONS = [
-        [0,1],[1,2],[2,3],[3,4],
-        [0,5],[5,6],[6,7],[7,8],
-        [5,9],[9,10],[10,11],[11,12],
-        [9,13],[13,14],[14,15],[15,16],
-        [13,17],[0,17],[17,18],[18,19],[19,20]
-      ];
-
-      function initThreeHandScene() {
-        if (threeRenderer) return;
-        const canvas = $("threeCanvas");
-        if (!window.THREE) return;
-
-        threeScene = new THREE.Scene();
-        threeCamera = new THREE.PerspectiveCamera(45, canvas.clientWidth / (canvas.clientHeight || 1), 0.1, 100);
-        threeCamera.position.set(0, 0, 5.2);
-
-        threeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !state.ecoMode });
-        threeRenderer.setPixelRatio(state.ecoMode ? 1 : Math.min(window.devicePixelRatio || 1, 2));
-        threeRenderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-
-        const ambient = new THREE.AmbientLight(0xffffff, 0.75);
-        const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
-        dirLight.position.set(2, 3, 4);
-        threeScene.add(ambient, dirLight);
-
-        // 21 Joints
-        for (let i = 0; i < 21; i++) {
-          const isTip = [4, 8, 12, 16, 20].includes(i);
-          const geo = new THREE.SphereGeometry(isTip ? 0.11 : 0.085, 16, 16);
-          const mat = new THREE.MeshStandardMaterial({
-            color: 0x38bdf8,
-            emissive: 0x0284c7,
-            emissiveIntensity: 0.9,
-            roughness: 0.25,
-            metalness: 0.3
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.visible = false;
-          threeScene.add(mesh);
-          jointMeshes.push(mesh);
-        }
-
-        // 21 Bone Segments
-        for (let i = 0; i < HAND_CONNECTIONS.length; i++) {
-          const geo = new THREE.CylinderGeometry(0.055, 0.068, 1, 12);
-          const mat = new THREE.MeshStandardMaterial({
-            color: 0x0ea5e9,
-            emissive: 0x0369a1,
-            emissiveIntensity: 0.65,
-            transparent: true,
-            opacity: 0.88,
-            roughness: 0.2,
-            metalness: 0.4
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.visible = false;
-          threeScene.add(mesh);
-          boneMeshes.push(mesh);
-        }
-
-        // Palm Repulsor / Spatial Core
-        palmCoreMesh = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.24, 0.24, 0.06, 24),
-          new THREE.MeshStandardMaterial({
-            color: 0x38bdf8,
-            emissive: 0x38bdf8,
-            emissiveIntensity: 1.2,
-            transparent: true,
-            opacity: 0.65
-          })
-        );
-        palmCoreMesh.rotation.x = Math.PI / 2;
-        palmCoreMesh.visible = false;
-        threeScene.add(palmCoreMesh);
-
-        // Spatial Palm Ring
-        spatialRingMesh = new THREE.Mesh(
-          new THREE.RingGeometry(0.42, 0.47, 36),
-          new THREE.MeshBasicMaterial({
-            color: 0x38bdf8,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.55
-          })
-        );
-        spatialRingMesh.visible = false;
-        threeScene.add(spatialRingMesh);
-
-        applyHandVisualTheme();
-        animateSpatialViewport();
-      }
-
-      function applyHandVisualTheme() {
-        const iron = state.ironManMode;
-        $("ironManToggleBtn").textContent = `Iron Man Hand: ${iron ? "ON" : "OFF"}`;
-        $("handModeBadge").textContent = iron ? "MODE: IRON MAN ARMOR" : "MODE: VISION PRO 3D BLUE";
-        $("handModeBadge").className = `status-pill ${iron ? "warn" : "ok"}`;
-
-        jointMeshes.forEach((m, idx) => {
-          const isTip = [4, 8, 12, 16, 20].includes(idx);
-          if (iron) {
-            m.material.color.setHex(isTip ? 0x38bdf8 : 0xeab308);
-            m.material.emissive.setHex(isTip ? 0x0284c7 : 0xb45309);
-            m.material.metalness = 0.85;
-          } else {
-            m.material.color.setHex(isTip ? 0xe0f2fe : 0x38bdf8);
-            m.material.emissive.setHex(0x0284c7);
-            m.material.metalness = 0.3;
-          }
-        });
-
-        boneMeshes.forEach((m) => {
-          if (iron) {
-            m.material.color.setHex(0xdc2626);
-            m.material.emissive.setHex(0x7f1d1d);
-            m.material.metalness = 0.88;
-            m.material.opacity = 0.96;
-          } else {
-            m.material.color.setHex(0x0ea5e9);
-            m.material.emissive.setHex(0x0369a1);
-            m.material.metalness = 0.3;
-            m.material.opacity = 0.86;
-          }
-        });
-
-        if (palmCoreMesh) {
-          palmCoreMesh.material.color.setHex(iron ? 0xe0f2fe : 0x38bdf8);
-          palmCoreMesh.material.emissive.setHex(0x38bdf8);
-        }
-        if (spatialRingMesh) {
-          spatialRingMesh.material.color.setHex(iron ? 0xeab308 : 0x38bdf8);
-        }
-      }
-
-      $("ironManToggleBtn").addEventListener("click", () => {
-        state.ironManMode = !state.ironManMode;
-        applyHandVisualTheme();
-        syncEsp32HandState(state.ironManMode ? "HAND: IRONMAN" : "HAND: 3D BLUE", "happy", true);
-      });
-
-      function update3DHandLandmarks(landmarks) {
-        if (!threeRenderer || !landmarks || landmarks.length < 21) return;
-        const pts = landmarks.map((lm) => new THREE.Vector3(
-          (0.5 - lm.x) * 4.6,
-          (0.5 - lm.y) * 3.3,
-          -(lm.z || 0) * 3.5
-        ));
-
-        pts.forEach((p, i) => {
-          jointMeshes[i].visible = true;
-          jointMeshes[i].position.lerp(p, 0.55);
-        });
-
-        const up = new THREE.Vector3(0, 1, 0);
-        HAND_CONNECTIONS.forEach(([a, b], i) => {
-          const start = jointMeshes[a].position;
-          const end = jointMeshes[b].position;
-          const dist = start.distanceTo(end);
-          const bone = boneMeshes[i];
-          bone.visible = true;
-          bone.position.copy(start).add(end).multiplyScalar(0.5);
-          bone.scale.set(state.ironManMode ? 1.25 : 1, dist, state.ironManMode ? 1.25 : 1);
-          bone.quaternion.setFromUnitVectors(up, end.clone().sub(start).normalize());
-        });
-
-        const palmCenter = jointMeshes[0].position.clone()
-          .add(jointMeshes[5].position)
-          .add(jointMeshes[9].position)
-          .add(jointMeshes[17].position)
-          .multiplyScalar(0.25);
-
-        palmCoreMesh.visible = true;
-        palmCoreMesh.position.copy(palmCenter);
-        spatialRingMesh.visible = true;
-        spatialRingMesh.position.copy(palmCenter);
-        spatialRingMesh.rotation.z += 0.03;
-
-        // Motion Trail
-        const indexTip = jointMeshes[8].position;
-        state.trailPoints.push({ x: indexTip.x, y: indexTip.y, life: 1.0 });
-        if (state.trailPoints.length > 18) state.trailPoints.shift();
-      }
-
-      function hide3DHand() {
-        jointMeshes.forEach((m) => { m.visible = false; });
-        boneMeshes.forEach((m) => { m.visible = false; });
-        if (palmCoreMesh) palmCoreMesh.visible = false;
-        if (spatialRingMesh) spatialRingMesh.visible = false;
-      }
-
-      /* =========================================================
-         13. MEDIAPIPE HANDS + GESTURE GAME CONTROL + HUD SCAN
-      ========================================================= */
-      let mpHands = null;
-      if (window.Hands) {
-        mpHands = new window.Hands({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-        });
-        mpHands.setOptions({
-          maxNumHands: 1,
-          modelComplexity: 0,
-          minDetectionConfidence: 0.6,
-          minTrackingConfidence: 0.55
-        });
-        mpHands.onResults((results) => {
-          state.handBusy = false;
-          const lms = results?.multiHandLandmarks?.[0] || null;
-          onHandLandmarksFrame(lms);
-        });
-      }
-
-      function classifyHandGesture(lm) {
-        const indexUp = lm[8].y < lm[6].y;
-        const middleUp = lm[12].y < lm[10].y;
-        const ringUp = lm[16].y < lm[14].y;
-        const pinkyUp = lm[20].y < lm[18].y;
-        const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
-
-        if (pinchDist < 0.055 || (!indexUp && !middleUp && !ringUp && !pinkyUp)) {
-          return "MINE / ACTION";
-        }
-        if (indexUp && middleUp && ringUp && pinkyUp) {
-          return "WALK_FORWARD";
-        }
-        if (indexUp && middleUp && !ringUp && !pinkyUp) {
-          return "STOP";
-        }
-        if (indexUp && !middleUp && !ringUp) {
-          return lm[8].x < lm[5].x ? "TURN_RIGHT" : "TURN_LEFT";
-        }
-        return "NEUTRAL";
-      }
-
-      function onHandLandmarksFrame(lms) {
-        if (lms) {
-          if (!state.handPresent) {
-            state.handPresent = true;
-            state.waveRingAnim = 1.0;
-            $("handTrackBadge").textContent = "HAND: LOCKED (3D)";
-            $("handTrackBadge").className = "status-pill ok";
-            syncEsp32HandState(state.ironManMode ? "HAND: IRONMAN" : "HAND: 3D BLUE", "happy", true);
-          } else {
-            syncEsp32HandState(state.ironManMode ? "HAND: IRONMAN" : "HAND: 3D BLUE", "happy", false);
-          }
-
-          update3DHandLandmarks(lms);
-          const gest = classifyHandGesture(lms);
-          $("gestureStateBadge").textContent = `GESTURE: ${gest}`;
-
-          if (state.gestureControl && gest !== "NEUTRAL" && gest !== state.lastGesture) {
-            state.lastGesture = gest;
-            if (gest === "WALK_FORWARD") queueMinecraftAction("WALK_FORWARD", "Gesture: Open Palm");
-            if (gest === "STOP") queueMinecraftAction("STOP", "Gesture: Two-Finger Halt");
-            if (gest === "TURN_LEFT") queueMinecraftAction("TURN_LEFT", "Gesture: Index Left");
-            if (gest === "TURN_RIGHT") queueMinecraftAction("TURN_RIGHT", "Gesture: Index Right");
-            if (gest === "MINE / ACTION") queueMinecraftAction("MINE_STONE", "Gesture: Pinch/Fist Mine");
-          }
-        } else if (state.handPresent) {
-          state.handPresent = false;
-          state.lastGesture = "NEUTRAL";
-          hide3DHand();
-          $("handTrackBadge").textContent = "HAND: SEARCHING";
-          $("handTrackBadge").className = "status-pill";
-          $("gestureStateBadge").textContent = "GESTURE: NEUTRAL";
-          syncEsp32HandState("HAND LOST", "neutral", true);
-        }
-      }
-
-      function triggerHudScan() {
-        state.hudScanAnim = 1.0;
-        const tips = [
-          "Hydration check: Drink a glass of fresh water, cleanse gently after screen/outdoor time, use daily sun protection, and get 7–8 hours of sleep.",
-          "Daily care reminder: Stay hydrated, wash up with a mild cleanser, protect from harsh sunlight, and rest your eyes regularly."
-        ];
-        $("careTipText").textContent = tips[Math.floor(Math.random() * tips.length)];
-        $("careBanner").classList.add("show");
-        syncEsp32HandState("HUD SCAN OK", "happy", true);
-      }
-
-      $("hudScanBtn").addEventListener("click", triggerHudScan);
-      $("closeCareBtn").addEventListener("click", () => $("careBanner").classList.remove("show"));
-
-      $("gestureControlToggleBtn").addEventListener("click", () => {
-        state.gestureControl = !state.gestureControl;
-        $("gestureControlToggleBtn").textContent = `Gesture Control: ${state.gestureControl ? "ON" : "OFF"}`;
-      });
-
-      $("testGestureBtn").addEventListener("click", () => {
-        state.testGestureActive = !state.testGestureActive;
-        $("testGestureBtn").textContent = state.testGestureActive ? "Stop Test" : "Test Gestures";
-        if (!state.testGestureActive) onHandLandmarksFrame(null);
-      });
-
-      function generateSimulatedHand(t) {
-        const wave = Math.sin(t * 2.4) * 0.08;
-        const curl = (Math.sin(t * 1.8) + 1) * 0.04;
-        const wrist = { x: 0.5 + wave, y: 0.78, z: 0 };
-        const base = [
-          wrist,
-          { x: 0.42 + wave, y: 0.7, z: -0.02 }, { x: 0.37 + wave, y: 0.62, z: -0.03 }, { x: 0.33 + wave, y: 0.55, z: -0.04 }, { x: 0.3 + wave, y: 0.49, z: -0.05 },
-          { x: 0.45 + wave, y: 0.56, z: 0 }, { x: 0.44 + wave, y: 0.44 + curl, z: -0.02 }, { x: 0.44 + wave, y: 0.35 + curl, z: -0.03 }, { x: 0.44 + wave, y: 0.27 + curl, z: -0.04 },
-          { x: 0.5 + wave, y: 0.54, z: 0 }, { x: 0.5 + wave, y: 0.41 + curl, z: -0.02 }, { x: 0.5 + wave, y: 0.31 + curl, z: -0.03 }, { x: 0.5 + wave, y: 0.23 + curl, z: -0.04 },
-          { x: 0.55 + wave, y: 0.56, z: 0 }, { x: 0.56 + wave, y: 0.44 + curl, z: -0.02 }, { x: 0.56 + wave, y: 0.34 + curl, z: -0.03 }, { x: 0.56 + wave, y: 0.26 + curl, z: -0.04 },
-          { x: 0.6 + wave, y: 0.6, z: 0 }, { x: 0.62 + wave, y: 0.49 + curl, z: -0.02 }, { x: 0.63 + wave, y: 0.41 + curl, z: -0.03 }, { x: 0.64 + wave, y: 0.34 + curl, z: -0.04 }
-        ];
-        return base;
-      }
-
-      function animateSpatialViewport(now = 0) {
-        requestAnimationFrame(animateSpatialViewport);
-        if (state.activePage !== "vision") return;
-
-        const threeCanvas = $("threeCanvas");
-        if (threeRenderer && threeCanvas.clientWidth > 0 && threeCanvas.clientHeight > 0) {
-          threeRenderer.setSize(threeCanvas.clientWidth, threeCanvas.clientHeight, false);
-          threeCamera.aspect = threeCanvas.clientWidth / threeCanvas.clientHeight;
-          threeCamera.updateProjectionMatrix();
-        }
-
-        const minInterval = state.ecoMode ? 75 : 34;
-        if (now - state.lastFrameTime >= minInterval) {
-          state.lastFrameTime = now;
-          const video = $("hiddenVideo");
-          const ipImg = $("ipCamImg");
-
-          if (state.testGestureActive) {
-            onHandLandmarksFrame(generateSimulatedHand(now * 0.001));
-          } else if (mpHands && !state.handBusy) {
-            if (video.readyState >= 2 && !video.paused) {
-              state.handBusy = true;
-              mpHands.send({ image: video }).catch(() => { state.handBusy = false; });
-            } else if (ipImg.style.display !== "none" && ipImg.complete && ipImg.naturalWidth > 0) {
-              state.handBusy = true;
-              mpHands.send({ image: ipImg }).catch(() => { state.handBusy = false; });
-            }
-          }
-        }
-
-        if (threeRenderer && threeScene && threeCamera) {
-          threeRenderer.render(threeScene, threeCamera);
-        }
-
-        // 2D Spatial HUD Overlay (Grid, Trail, Scan Reticle)
-        const hud = $("hudOverlayCanvas");
-        const ctx = hud.getContext("2d");
-        hud.width = hud.clientWidth || 640;
-        hud.height = hud.clientHeight || 400;
-        ctx.clearRect(0, 0, hud.width, hud.height);
-
-        // Subtle spatial horizon lines
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.08)";
-        ctx.lineWidth = 1;
-        for (let x = 40; x < hud.width; x += 60) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, hud.height); ctx.stroke();
-        }
-
-        // Motion trail
-        state.trailPoints.forEach((pt) => {
-          pt.life -= 0.04;
-          if (pt.life > 0) {
-            const sx = (pt.x / 4.6 + 0.5) * hud.width;
-            const sy = (0.5 - pt.y / 3.3) * hud.height;
-            ctx.fillStyle = state.ironManMode
-              ? `rgba(234, 179, 8, ${pt.life * 0.45})`
-              : `rgba(56, 189, 248, ${pt.life * 0.5})`;
-            ctx.beginPath();
-            ctx.arc(sx, sy, 5 * pt.life, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        });
-        state.trailPoints = state.trailPoints.filter((p) => p.life > 0);
-
-        // Hand-entry spatial ring pulse
-        if (state.waveRingAnim > 0) {
-          state.waveRingAnim -= 0.025;
-          ctx.strokeStyle = `rgba(56, 189, 248, ${state.waveRingAnim})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(hud.width / 2, hud.height / 2, (1 - state.waveRingAnim) * 180 + 30, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-
-        // HUD Scan Frame Reticle
-        if (state.hudScanAnim > 0) {
-          state.hudScanAnim -= 0.008;
-          const cx = hud.width / 2;
-          const cy = hud.height / 2;
-          const boxW = Math.min(260, hud.width * 0.55);
-          const boxH = Math.min(220, hud.height * 0.62);
-          ctx.strokeStyle = "rgba(56, 189, 248, 0.85)";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(cx - boxW / 2, cy - boxH / 2, boxW, boxH);
-
-          const sweepY = cy - boxH / 2 + ((1 - state.hudScanAnim) * 2 % 1) * boxH;
-          ctx.strokeStyle = "rgba(234, 179, 8, 0.9)";
-          ctx.beginPath();
-          ctx.moveTo(cx - boxW / 2, sweepY);
-          ctx.lineTo(cx + boxW / 2, sweepY);
-          ctx.stroke();
-        }
-      }
-
-      /* =========================================================
-         14. WEBCAM, PEERJS WI-FI CAMERA SYNC & IP CAM FALLBACK
-      ========================================================= */
-      function stopAllCameras() {
-        if (state.mediaStream) {
-          state.mediaStream.getTracks().forEach((t) => t.stop());
-          state.mediaStream = null;
-        }
-        const video = $("hiddenVideo");
-        video.srcObject = null;
-        $("ipCamImg").style.display = "none";
-        $("ipCamImg").src = "";
-        state.testGestureActive = false;
-        $("testGestureBtn").textContent = "Test Gestures";
-        onHandLandmarksFrame(null);
-      }
-
-      $("startLocalCamBtn").addEventListener("click", async () => {
-        stopAllCameras();
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 640, height: 480, facingMode: "user" },
-            audio: false
-          });
-          state.mediaStream = stream;
-          setPermBadge("permCam", true);
-          const video = $("hiddenVideo");
-          video.srcObject = stream;
-          await video.play();
-          initThreeHandScene();
-        } catch {
-          setPermBadge("permCam", false);
-          appendMessage("ai", "Unable to access local webcam. Please allow Camera permission in Chrome.");
-        }
-      });
-
-      $("stopCamBtn").addEventListener("click", stopAllCameras);
-
-      $("peerHubBtn").addEventListener("click", () => {
-        if (!window.Peer) return;
-        stopAllCameras();
-        if (state.peer) { try { state.peer.destroy(); } catch {} }
-        const code = ($("roomCodeInput").value.trim() || "JARVIS77").replace(/[^a-zA-Z0-9_-]/g, "");
-        $("peerStatus").textContent = "PEER: HOSTING...";
-        const peer = new Peer(`jarvis_hub_${code}`);
-        state.peer = peer;
-
-        peer.on("open", () => {
-          $("peerStatus").textContent = `HUB READY (${code})`;
-          $("peerStatus").className = "status-pill ok";
-        });
-        peer.on("call", (call) => {
-          call.answer();
-          call.on("stream", async (remoteStream) => {
-            state.mediaStream = remoteStream;
-            const video = $("hiddenVideo");
-            video.srcObject = remoteStream;
-            await video.play();
-            initThreeHandScene();
-            $("peerStatus").textContent = "PEER: STREAM LIVE";
-          });
-        });
-        peer.on("error", () => {
-          $("peerStatus").textContent = "PEER: RETRY";
-          $("peerStatus").className = "status-pill warn";
-        });
-      });
-
-      $("peerMobileBtn").addEventListener("click", async () => {
-        if (!window.Peer) return;
-        stopAllCameras();
-        if (state.peer) { try { state.peer.destroy(); } catch {} }
-        const code = ($("roomCodeInput").value.trim() || "JARVIS77").replace(/[^a-zA-Z0-9_-]/g, "");
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 640, height: 480, facingMode: "environment" },
-            audio: false
-          });
-          state.mediaStream = stream;
-          const video = $("hiddenVideo");
-          video.srcObject = stream;
-          await video.play();
-          initThreeHandScene();
-
-          const peer = new Peer();
-          state.peer = peer;
-          peer.on("open", () => {
-            $("peerStatus").textContent = "PEER: SENDING...";
-            const call = peer.call(`jarvis_hub_${code}`, stream);
-            state.peerCall = call;
-            $("peerStatus").textContent = `MOBILE LIVE (${code})`;
-            $("peerStatus").className = "status-pill ok";
-          });
-        } catch {
-          $("peerStatus").textContent = "CAM BLOCKED";
-          $("peerStatus").className = "status-pill bad";
-        }
-      });
-
-      $("connectIpCamBtn").addEventListener("click", () => {
-        const url = $("ipCamInput").value.trim();
-        if (!url) return;
-        stopAllCameras();
-        const img = $("ipCamImg");
-        img.style.display = "block";
-        img.src = url;
-        initThreeHandScene();
-      });
-
-      /* =========================================================
-         15. INITIAL GREETING & CLEAN UNLOAD
-      ========================================================= */
-      appendMessage(
-        "ai",
-        "JARVIS Spatial OS online. Enter your Groq API key above for cloud intelligence, or use instant voice/text commands for YouTube, Screenshots, Minecraft automation, ESP32-C3 OLED sync, and Hand-Cam 3D Vision."
-      );
-
-      window.addEventListener("beforeunload", () => {
-        stopAllCameras();
-        if ("speechSynthesis" in window) {
-          try { window.speechSynthesis.cancel(); } catch {}
-        }
-        if (state.mcWs) {
-          try { state.mcWs.close(); } catch {}
-        }
-      });
-    })();
-  </script>
-</body>
-</html>
+      <!-- TV / Pen Drive Local Media Mode -->
+      <div class="panel-card hidden" id="tvControlsGroup">
+        <div class="panel-head">
+          <span>1. Local Photo / Video</span>
+          <span id="tvSourceDims" style="font-family: var(--font-mono); color: #4ade80;"></span>
+        </div>
+
+        <label class="drop-area" id="tvDropZone" for="tvMediaInput">
+          <div style="font-size: 1.35rem;">📺</div>
+          <p><strong>Select Photo or Video</strong> file</p>
+          <p style="font-size: 0.73rem; color: var(--text-mute);">JPG, PNG, WEBP, MP4, WEBM</p>
+        </label>
+        <input type="file" id="tvMediaInput" accept="image/*,video/*" />
+
+        <div class="btn-grid">
+          <button class="btn btn-blue" id="btnTvPlayPause" disabled>Play / Pause</button>
+          <button class="btn btn-dark" id="btnTvMute" disabled>Unmute</button>
+        </div>
+
+        <button class="btn btn-dark" id="btnTvFullscreen" disabled>
+          Toggle Fullscreen
+        </button>
+
+        <div class="tv-card-note">
+          <strong>PC &amp; TV Tip:</strong> Host <code>index.html</code> on local Wi-Fi (<code>localhost</code> or LAN IP) for smooth browser/TV access, or use HDMI/screen cast from PC.
+        </div>
+      </div>
+
+      <!-- Output Resolution & iGPU Pacing -->
+      <div class="panel-card">
+        <div class="panel-head">
+          <span>2. Output Resolution</span>
+        </div>
+
+        <div>
+          <div class="slider-row-head">
+       
