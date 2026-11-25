@@ -1,623 +1,2543 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>macOS TV Direct Launch Hub · Clean Your TV + macOS Launcher</title>
-<style>
-  :root {
-    --bg: #0b0e14;
-    --card: rgba(20, 24, 34, 0.84);
-    --border: rgba(255, 255, 255, 0.16);
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --accent: #0a84ff;
-    --green: #30d158;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLSS 5 AI Studio — Real-Time Neural Upscaler &amp; 4K/8K Photo AI</title>
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-  }
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  body {
-    min-height: 100vh;
-    background:
-      radial-gradient(circle at 15% 15%, rgba(217, 179, 130, 0.22), transparent 45%),
-      radial-gradient(circle at 85% 80%, rgba(10, 132, 255, 0.22), transparent 50%),
-      var(--bg);
-    color: var(--text);
-    padding: 18px;
-  }
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  .app-shell {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 18px;
-  }
-
-  @media (max-width: 980px) {
-    .app-shell { grid-template-columns: 1fr; }
-  }
-
-  .panel {
-    background: var(--card);
-    backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-  }
-
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .tv-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    background: rgba(48, 209, 88, 0.14);
-    border: 1px solid rgba(48, 209, 88, 0.4);
-    color: #86efac;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-  }
-
-  h1 { font-size: 18px; font-weight: 700; }
-  h2 { font-size: 15px; font-weight: 700; color: #e2e8f0; }
-  p.desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
-
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: #cbd5e1;
-    margin-bottom: 5px;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 9px 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.38);
-    color: #fff;
-    font-size: 13px;
-  }
-
-  .drop {
-    border: 1.5px dashed rgba(10, 132, 255, 0.65);
-    background: rgba(10, 132, 255, 0.08);
-    border-radius: 15px;
-    padding: 14px 12px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 12.5px;
-  }
-
-  .chk {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    font-size: 12.5px;
-    color: #e2e8f0;
-    cursor: pointer;
-  }
-
-  .btn-main {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 14px;
-    border: none;
-    background: linear-gradient(135deg, #0a84ff, #2563eb);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .btn-sub {
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.09);
-    color: #fff;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .tv-stage {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: #05070b;
-  }
-
-  iframe#tv-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-
-  .remote-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .key-btn {
-    padding: 6px 11px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 8px;
-  }
-
-  .tab {
-    padding: 6px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .tab.active {
-    background: rgba(10, 132, 255, 0.25);
-    color: #fff;
-    border-color: var(--accent);
-  }
-
-  pre.code-out {
-    background: rgba(0, 0, 0, 0.48);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px;
-    font-size: 12px;
-    line-height: 1.55;
-    color: #a7f3d0;
-    max-height: 220px;
-    overflow: auto;
-    white-space: pre-wrap;
-  }
-
-  .msg {
-    font-size: 12.5px;
-    color: #93c5fd;
-  }
-</style>
-</head>
-<body>
-  <div class="app-shell">
-    <aside class="panel">
-      <div class="header-row">
-        <h1>macOS TV Direct Launch</h1>
-        <span class="tv-pill" id="tv-status-pill">
-          <span class="dot"></span>
-          <span id="tv-status-text">Android TV Connected · 192.168.29.45</span>
-        </span>
-      </div>
-
-      <p class="desc">
-        GitHub Pages ya local HTTP par chalne wala hub. Apni macOS HTML file ya GitHub link daalein, TV scan/check karein, purani TV settings ka backup save rakhein, aur <b>Launch</b> dabayein.
-      </p>
-
-      <div class="field">
-        <label for="tv-ip">TV IP (Scan / Connect Target)</label>
-        <input type="text" id="tv-ip" value="192.168.29.45" />
-      </div>
-
-      <div class="field">
-        <label for="tv-url">GitHub Pages / HTTP Launcher URL</label>
-        <input type="text" id="tv-url" placeholder="https://username.github.io/repo/macos_tv_launcher_mi_tv_192_168_29_45.html" />
-      </div>
-
-      <div class="drop" id="drop-box" onclick="document.getElementById('file-picker').click()">
-        <div id="picked-name" style="font-weight:700;">macOS HTML File Upload Karein (.html)</div>
-        <div id="picked-info" style="font-size:11.5px;color:#94a3b8;margin-top:3px;">Built-in macOS TV preview loaded</div>
-        <input type="file" id="file-picker" accept=".html,.htm,text/html" hidden />
-      </div>
-
-      <label class="chk">
-        <input type="checkbox" id="chk-backup" checked />
-        <span><b>Purani TV File / Restore Backup Save Rakhein:</b> <code>restore.sh</code> aur <code>restore.ps1</code> (Clean Your TV 0.4.8 style) tayaar rakhein taaki TV kharab na ho aur purani state wapas aa sake.</span>
-      </label>
-
-      <label class="chk">
-        <input type="checkbox" id="chk-youtube" checked />
-        <span><b>YouTube &amp; TV App Bridge:</b> YouTube (<code>com.google.android.youtube.tv</code>), Netflix, Hotstar aur HDMI buttons ko direct Android TV intent se jorein.</span>
-      </label>
-
-      <div class="grid-2">
-        <button class="btn-sub" id="btn-scan" type="button">Scan TV (192.168.29.45)</button>
-        <button class="btn-sub" id="btn-copy" type="button">Copy Commands</button>
-      </div>
-
-      <button class="btn-main" id="btn-launch" type="button">▶ Launch on TV</button>
-
-      <div class="msg" id="status-msg">Android TV target ready: 192.168.29.45:5555</div>
-    </aside>
-
-    <main class="panel">
-      <div class="header-row">
-        <h2>Live Launcher &amp; Remote Controls</h2>
-        <span style="font-size:12px;color:#94a3b8;">Arrow Keys / OK / Back</span>
-      </div>
-
-      <div class="tv-stage">
-        <iframe id="tv-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-      </div>
-
-      <div class="remote-bar">
-        <button class="key-btn" data-key="ArrowLeft" type="button">◀ Left</button>
-        <button class="key-btn" data-key="ArrowRight" type="button">Right ▶</button>
-        <button class="key-btn" data-key="Enter" type="button">OK / Open</button>
-        <button class="key-btn" data-key="Escape" type="button">Back</button>
-        <button class="key-btn" id="btn-test-yt" type="button">Open YouTube</button>
-      </div>
-
-      <div class="header-row">
-        <div class="tabs">
-          <button class="tab active" data-tab="launch" type="button">Launch &amp; ADB</button>
-          <button class="tab" data-tab="restore-sh" type="button">restore.sh (Backup/Undo)</button>
-          <button class="tab" data-tab="restore-ps1" type="button">restore.ps1 (Windows)</button>
-        </div>
-        <button class="key-btn" id="btn-save-file" type="button">Save Current Tab File</button>
-      </div>
-
-      <pre class="code-out" id="code-out"></pre>
-    </main>
-  </div>
-
-<script>
-(() => {
-  const APP_INTENTS = {
-    youtube: "com.google.android.youtube.tv",
-    netflix: "com.netflix.ninja",
-    prime: "com.amazon.amazonvideo.livingroom",
-    googletv: "com.google.android.videos",
-    hotstar: "in.startv.hotstar",
-    spotify: "com.spotify.tv.android",
-    plex: "com.plexapp.android",
-    settings: "com.android.tv.settings"
-  };
-
-  const DEFAULT_MAC_HTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>macOS TV Launcher</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; user-select: none; }
-  html, body { width: 100%; height: 100%; overflow: hidden; color: #fff; background: #0b0e14; }
-  .bg {
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(110% 90% at 15% 18%, rgba(231, 207, 168, 0.65), transparent 55%),
-      radial-gradient(100% 95% at 85% 20%, rgba(168, 147, 120, 0.45), transparent 55%),
-      linear-gradient(145deg, #2b2623 0%, #161a24 55%, #090b10 100%);
-  }
-  .ui { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 36px; }
-  .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-  .pill { padding: 7px 14px; border-radius: 999px; background: rgba(20, 24, 34, 0.55); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(16px); }
-  .center-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
-  .center-sub { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 18px; }
-  .shelf { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; padding-bottom: 10px; }
-  .tile {
-    width: 136px; height: 92px; border-radius: 20px;
-    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.22);
-    backdrop-filter: blur(18px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    cursor: pointer; color: #fff; font-weight: 600; font-size: 13px; transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-  .tile.focused, .tile:hover { transform: translateY(-8px) scale(1.06); border-color: #fff; background: rgba(255,255,255,0.22); outline: none; }
-  .dock-wrap { display: flex; justify-content: center; }
-  .dock { display: inline-flex; gap: 10px; padding: 9px 14px; border-radius: 22px; background: rgba(20,24,34,0.62); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(22px); }
-  .dock-btn { padding: 7px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-</style>
-</head>
-<body>
-  <div class="bg"></div>
-  <div class="ui">
-    <div class="top">
-      <div class="pill">Android TV Connected · 192.168.29.45</div>
-      <div class="pill" id="tv-clock">--:--</div>
-    </div>
-    <div>
-      <div class="center-title" id="active-name">YouTube</div>
-      <div class="center-sub" id="active-sub">Press OK or click to open YouTube on Android TV</div>
-      <div class="shelf" id="tiles">
-        <button class="tile focused" data-pkg="com.google.android.youtube.tv" data-sub="4K HDR Video & Live Channels"><span>▶</span><span>YouTube</span></button>
-        <button class="tile" data-pkg="com.netflix.ninja" data-sub="Series & Movies"><span>N</span><span>Netflix</span></button>
-        <button class="tile" data-pkg="com.amazon.amazonvideo.livingroom" data-sub="Prime Video"><span>Prime</span><span>Prime Video</span></button>
-        <button class="tile" data-pkg="in.startv.hotstar" data-sub="Live Sports & Shows"><span>★</span><span>JioHotstar</span></button>
-        <button class="tile" data-pkg="com.spotify.tv.android" data-sub="Music & Audio"><span>♫</span><span>Spotify</span></button>
-        <button class="tile" data-pkg="com.android.tv.settings" data-sub="System & Wi-Fi"><span>⚙</span><span>TV Settings</span></button>
-      </div>
-    </div>
-    <div class="dock-wrap">
-      <div class="dock">
-        <button class="dock-btn" data-action="hdmi1">HDMI 1</button>
-        <button class="dock-btn" data-action="hdmi3">HDMI 3 · Jio STB</button>
-        <button class="dock-btn" data-action="home">TV Home</button>
-      </div>
-    </div>
-  </div>
-<script>
-  const tiles = [...document.querySelectorAll(".tile")];
-  let idx = 0;
-  function setIdx(n) {
-    idx = (n + tiles.length) % tiles.length;
-    tiles.forEach((t, i) => t.classList.toggle("focused", i === idx));
-    const cur = tiles[idx];
-    document.getElementById("active-name").textContent = cur.children[1].textContent;
-    document.getElementById("active-sub").textContent = cur.dataset.sub || "";
-  }
-  function launchTile(el) {
-    const pkg = el.dataset.pkg;
-    const name = el.children[1] ? el.children[1].textContent : pkg;
-    try { window.parent.postMessage({ type: "LAUNCH_APP", pkg, name }, "*"); } catch (_) {}
-    if (pkg) {
-      window.location.href = "intent:#Intent;package=" + pkg + ";end";
-    }
-  }
-  tiles.forEach((t, i) => {
-    t.addEventListener("click", () => { setIdx(i); launchTile(t); });
-  });
-  document.querySelectorAll(".dock-btn").forEach((b) => {
-    b.addEventListener("click", () => {
-      const act = b.dataset.action;
-      try { window.parent.postMessage({ type: "DOCK_ACTION", act }, "*"); } catch (_) {}
-      if (act === "hdmi3") window.location.href = "content://android.media.tv/passthrough/com.droidlogic.tvinput%2F.services.Hdmi3InputService%2FHW7";
-      if (act === "hdmi1") window.location.href = "content://android.media.tv/passthrough/com.droidlogic.tvinput%2F.services.Hdmi1InputService%2FHW5";
-    });
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") { e.preventDefault(); setIdx(idx + 1); }
-    if (e.key === "ArrowLeft") { e.preventDefault(); setIdx(idx - 1); }
-    if (e.key === "Enter") { e.preventDefault(); launchTile(tiles[idx]); }
-  });
-  window.addEventListener("message", (e) => {
-    if (!e.data || !e.data.key) return;
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: e.data.key, bubbles: true }));
-  });
-  setInterval(() => {
-    document.getElementById("tv-clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }, 1000);
-</script>
-</body>
-</html>`;
-
-  const BRIDGE_INJECT = `\n<script id="clean-tv-app-bridge">
-(() => {
-  const map = ${JSON.stringify(APP_INTENTS)};
-  function openTarget(pkg, label) {
-    try { window.parent.postMessage({ type: "LAUNCH_APP", pkg, name: label || pkg }, "*"); } catch (_) {}
-    if (pkg) window.location.href = "intent:#Intent;package=" + pkg + ";end";
-  }
-  document.addEventListener("click", (e) => {
-    const el = e.target.closest("[data-pkg], .app-tile, button, a");
-    if (!el) return;
-    const pkg = el.getAttribute("data-pkg");
-    const txt = (el.innerText || el.getAttribute("data-name") || "").toLowerCase();
-    if (pkg) { e.preventDefault(); openTarget(pkg, el.innerText.trim()); return; }
-    for (const k in map) {
-      if (txt.includes(k)) { e.preventDefault(); openTarget(map[k], el.innerText.trim()); return; }
-    }
-  }, true);
-  window.addEventListener("message", (e) => {
-    if (e.data && e.data.key) document.dispatchEvent(new KeyboardEvent("keydown", { key: e.data.key, bubbles: true }));
-  });
-})();
-<\/script>\n`;
-
-  let uploadedHtml = "";
-  let uploadedName = "macos_tv_launcher_mi_tv_192_168_29_45.html";
-  let currentTab = "launch";
-
-  const tvIpInput = document.getElementById("tv-ip");
-  const tvUrlInput = document.getElementById("tv-url");
-  const chkBackup = document.getElementById("chk-backup");
-  const chkYoutube = document.getElementById("chk-youtube");
-  const filePicker = document.getElementById("file-picker");
-  const tvFrame = document.getElementById("tv-frame");
-  const codeOut = document.getElementById("code-out");
-  const statusMsg = document.getElementById("status-msg");
-  const tvStatusText = document.getElementById("tv-status-text");
-
-  function buildLauncherSource() {
-    const raw = uploadedHtml || DEFAULT_MAC_HTML;
-    if (!chkYoutube.checked) return raw;
-    if (raw.includes("</body>")) return raw.replace("</body>", BRIDGE_INJECT + "</body>");
-    return raw + BRIDGE_INJECT;
-  }
-
-  function getLaunchTarget() {
-    const customUrl = (tvUrlInput.value || "").trim();
-    if (customUrl) return customUrl;
-    return `file:///sdcard/Download/${uploadedName}`;
-  }
-
-  function getLaunchScript() {
-    const ip = (tvIpInput.value || "192.168.29.45").trim();
-    const target = getLaunchTarget();
-    const lines = [
-      `adb connect ${ip}:5555`,
-      `adb -s ${ip}:5555 shell getprop ro.product.model`
-    ];
-    if (chkBackup.checked) {
-      lines.push(
-        `adb -s ${ip}:5555 shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME > stock_home_backup.txt`,
-        `adb -s ${ip}:5555 shell pm list packages -d > disabled_apps_backup.txt`
-      );
-    }
-    if (!tvUrlInput.value.trim()) {
-      lines.push(`adb -s ${ip}:5555 push "${uploadedName}" /sdcard/Download/${uploadedName}`);
-    }
-    lines.push(`adb -s ${ip}:5555 shell am start -a android.intent.action.VIEW -d "${target}"`);
-    return lines.join("\n");
-  }
-
-  function getRestoreSh() {
-    const ip = (tvIpInput.value || "192.168.29.45").trim();
-    return `#!/bin/sh
-set -u
-TV_HOST="\${1:-${ip}:5555}"
-echo "Restoring previous TV state on $TV_HOST..."
-adb connect "$TV_HOST"
-adb -s "$TV_HOST" shell pm enable --user 0 com.google.android.tvlauncher
-adb -s "$TV_HOST" shell pm enable --user 0 com.mitv.tvhome.atv
-adb -s "$TV_HOST" shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
-echo "Previous TV home restored."`;
-  }
-
-  function getRestorePs1() {
-    const ip = (tvIpInput.value || "192.168.29.45").trim();
-    return `$TvHost = "${ip}:5555"
-Write-Output "Restoring previous TV state on $TvHost..."
-adb connect $TvHost
-adb -s $TvHost shell pm enable --user 0 com.google.android.tvlauncher
-adb -s $TvHost shell pm enable --user 0 com.mitv.tvhome.atv
-adb -s $TvHost shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
-Write-Output "Previous TV home restored."`;
-  }
-
-  function renderCodeTab() {
-    if (currentTab === "restore-sh") codeOut.textContent = getRestoreSh();
-    else if (currentTab === "restore-ps1") codeOut.textContent = getRestorePs1();
-    else codeOut.textContent = getLaunchScript();
-  }
-
-  function renderPreview() {
-    const url = (tvUrlInput.value || "").trim();
-    if (url && !uploadedHtml) {
-      tvFrame.removeAttribute("srcdoc");
-      tvFrame.src = url;
-    } else {
-      tvFrame.removeAttribute("src");
-      tvFrame.srcdoc = buildLauncherSource();
-    }
-    tvStatusText.textContent = `Android TV Connected · ${tvIpInput.value.trim() || "192.168.29.45"}`;
-    renderCodeTab();
-  }
-
-  filePicker.addEventListener("change", (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-    uploadedName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      uploadedHtml = String(ev.target.result || "");
-      document.getElementById("picked-name").textContent = "Loaded: " + f.name;
-      document.getElementById("picked-info").textContent = `${(f.size / 1024).toFixed(1)} KB · Ready to launch`;
-      statusMsg.textContent = `"${f.name}" preview mein load ho gayi hai.`;
-      renderPreview();
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            carbon: '#080a0e',
+            panel: '#11151d',
+            panelLight: '#171d28',
+            nv: {
+              DEFAULT: '#76b900',
+              bright: '#8ee000',
+              dark: '#558700',
+            },
+          },
+        },
+      },
     };
-    reader.readAsText(f);
-  });
+  </script>
 
-  document.getElementById("btn-scan").addEventListener("click", () => {
-    const ip = (tvIpInput.value || "192.168.29.45").trim();
-    tvStatusText.textContent = `Android TV Connected · ${ip}`;
-    statusMsg.textContent = `Target set to ${ip}:5555 (Android TV Connected). Browser direct TCP scan ke liye ADB/local bridge use karein.`;
-    renderCodeTab();
-  });
-
-  document.getElementById("btn-launch").addEventListener("click", () => {
-    renderPreview();
-    const target = getLaunchTarget();
-    statusMsg.textContent = `Launch tayaar! Preview active aur launch command (${target}) generate ho gayi hai.`;
-  });
-
-  document.getElementById("btn-test-yt").addEventListener("click", () => {
-    statusMsg.textContent = `YouTube Intent -> intent:#Intent;package=${APP_INTENTS.youtube};end`;
-  });
-
-  document.getElementById("btn-copy").addEventListener("click", () => {
-    navigator.clipboard.writeText(getLaunchScript());
-    statusMsg.textContent = "Launch aur backup commands copy ho gaye.";
-  });
-
-  document.getElementById("btn-save-file").addEventListener("click", () => {
-    const names = { launch: "launch_tv.txt", "restore-sh": "restore.sh", "restore-ps1": "restore.ps1" };
-    const blob = new Blob([codeOut.textContent], { type: "text/plain;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = names[currentTab] || "tv_script.txt";
-    a.click();
-  });
-
-  document.querySelectorAll(".key-btn[data-key]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const key = btn.getAttribute("data-key");
-      if (tvFrame.contentWindow) {
-        tvFrame.contentWindow.postMessage({ key }, "*");
-      }
-    });
-  });
-
-  document.querySelectorAll(".tab").forEach((t) => {
-    t.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
-      t.classList.add("active");
-      currentTab = t.dataset.tab;
-      renderCodeTab();
-    });
-  });
-
-  window.addEventListener("message", (e) => {
-    if (e.data && e.data.type === "LAUNCH_APP") {
-      statusMsg.textContent = `App triggered: ${e.data.name} (${e.data.pkg})`;
+  <style>
+    /* Base matte carbon theme and scrollbar */
+    html, body {
+      background-color: #080a0e;
+      color: #f3f4f6;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-  });
 
-  [tvIpInput, tvUrlInput, chkBackup, chkYoutube].forEach((el) => {
-    el.addEventListener("input", renderPreview);
-    el.addEventListener("change", renderPreview);
-  });
+    /* Subtle carbon micro-grid backdrop */
+    .bg-carbon-grid {
+      background-color: #080a0e;
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(118, 185, 0, 0.08), transparent 55%),
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
 
-  renderPreview();
-})();
-</script>
+    /* NVIDIA neon green glow utilities */
+    .nv-glow {
+      box-shadow: 0 0 20px rgba(118, 185, 0, 0.35), 0 0 4px rgba(142, 224, 0, 0.45);
+    }
+
+    .nv-glow-sm {
+      box-shadow: 0 0 12px rgba(118, 185, 0, 0.25);
+    }
+
+    .nv-text-glow {
+      text-shadow: 0 0 14px rgba(118, 185, 0, 0.55);
+    }
+
+    /* Custom sleek range sliders */
+    input[type='range'].nv-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #1f2937;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type='range'].nv-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #76b900;
+      border: 2px solid #080a0e;
+      box-shadow: 0 0 10px rgba(118, 185, 0, 0.7);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.12s ease;
+    }
+
+    input[type='range'].nv-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #8ee000;
+    }
+
+    input[type='range'].nv-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #76b900;
+      border: 2px solid #080a0e;
+      box-shadow: 0 0 10px rgba(118, 185, 0, 0.7);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.12s ease;
+    }
+
+    /* Glowing neon split divider */
+    .split-divider-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #76b900;
+      box-shadow: 0 0 14px rgba(118, 185, 0, 0.95), 0 0 4px #b8ff33;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .split-divider-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 9999px;
+      background: rgba(8, 10, 14, 0.92);
+      border: 2px solid #76b900;
+      box-shadow: 0 0 18px rgba(118, 185, 0, 0.75), inset 0 0 8px rgba(118, 185, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: ew-resize;
+      pointer-events: auto;
+      touch-action: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .split-divider-handle:hover,
+    .split-divider-handle.dragging {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: #0d130a;
+      border-color: #8ee000;
+      box-shadow: 0 0 26px rgba(142, 224, 0, 0.95), inset 0 0 10px rgba(142, 224, 0, 0.35);
+    }
+
+    /* Fullscreen viewport styling */
+    #viewportShell:fullscreen {
+      background: #05070a;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    #viewportShell:fullscreen #stageFrame {
+      max-height: 92vh;
+      max-width: 98vw;
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080a0e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+
+    /* Pulse animation for AI processing */
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(400%); }
+    }
+    .ai-scanline {
+      animation: scanline 2.2s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-carbon-grid min-h-screen flex flex-col selection:bg-nv/30 selection:text-white">
+
+  <!-- ==================== TOP HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-carbon/90 backdrop-blur-md border-b border-gray-800/90">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+
+      <!-- Brand Logo & Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-nv/15 border border-nv/50 flex items-center justify-center nv-glow-sm shrink-0">
+          <!-- Custom Geometric Eye / Neural Prism Icon -->
+          <svg class="w-5 h-5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" fill="currentColor" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41" opacity="0.65" />
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="flex items-center gap-2">
+            <span class="text-sm sm:text-base font-extrabold tracking-wider text-white">DLSS 5 <span class="text-nv nv-text-glow">AI STUDIO</span></span>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold uppercase tracking-wider bg-nv/15 text-nv border border-nv/30">
+              iGPU Ready
+            </span>
+          </div>
+          <p class="text-[11px] text-gray-400 hidden sm:block">Real-Time Neural Enhancement &amp; 4K/8K Photorealism Engine</p>
+        </div>
+      </div>
+
+      <!-- Center Mode Switcher Tabs -->
+      <nav class="flex items-center bg-panel p-1 rounded-xl border border-gray-800 order-3 md:order-2 w-full md:w-auto justify-center" aria-label="Studio Mode Switcher">
+        <button id="tabLiveBtn" type="button" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-nv text-carbon shadow-md">
+          <span id="liveDotHeader" class="w-2 h-2 rounded-full bg-carbon animate-pulse"></span>
+          Live Screen Mode
+        </button>
+        <button id="tabPhotoBtn" type="button" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+          </svg>
+          4K/8K Photo AI
+        </button>
+      </nav>
+
+      <!-- Right Action: AI API Key Settings -->
+      <div class="flex items-center gap-2 order-2 md:order-3">
+        <button id="openApiModalBtn" type="button" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-panel hover:bg-panelLight border border-gray-700/80 hover:border-nv/60 text-xs sm:text-sm font-medium text-gray-200 transition-all">
+          <span id="apiKeyStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <svg class="w-4 h-4 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+          </svg>
+          <span>AI API Key</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="flex-1 max-w-[1480px] w-full mx-auto px-4 sm:px-6 py-5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- ==================== LEFT / HERO STAGE: INTERACTIVE SPLIT-SCREEN VIEWPORT ==================== -->
+      <section class="lg:col-span-8 xl:col-span-9 flex flex-col gap-3">
+        <div id="viewportShell" class="bg-panel border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+
+          <!-- Telemetry & Quick Actions Top Bar -->
+          <div class="px-4 py-2.5 bg-carbon/70 border-b border-gray-800/90 flex flex-wrap items-center justify-between gap-2">
+            <!-- Telemetry Pills -->
+            <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-panel border border-gray-800 text-gray-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-nv"></span>
+                <span id="hudFps">60 FPS</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-panel border border-gray-800 text-gray-300">
+                <span class="text-gray-500">IN:</span>
+                <span id="hudInputRes">1280×720</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-panel border border-gray-800 text-nv font-semibold">
+                <span class="text-gray-500 font-normal">OUT:</span>
+                <span id="hudTargetScale">4K UHD (2160p)</span>
+              </span>
+              <span id="hudEngineBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-nv/10 border border-nv/30 text-nv">
+                WebGL GPU
+              </span>
+            </div>
+
+            <!-- Viewport Actions -->
+            <div class="flex items-center gap-2">
+              <button id="snapshotBtn" type="button" title="Save current enhanced frame as PNG" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-panelLight hover:bg-gray-800 border border-gray-700 text-xs font-medium text-gray-200 transition-colors">
+                <svg class="w-3.5 h-3.5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span class="hidden sm:inline">Capture Snapshot</span>
+              </button>
+              <button id="fullscreenBtn" type="button" title="Toggle Fullscreen" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-panelLight hover:bg-gray-800 border border-gray-700 text-xs font-medium text-gray-200 transition-colors">
+                <svg class="w-3.5 h-3.5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                </svg>
+                <span class="hidden sm:inline">Fullscreen</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Center Stage Wrapper (Keeps exact aspect ratio of active video/photo so divider aligns pixel-perfectly) -->
+          <div class="relative w-full bg-[#05070a] flex items-center justify-center p-2 sm:p-3 min-h-[300px] sm:min-h-[460px] lg:min-h-[540px] select-none">
+
+            <!-- Exact Media Frame -->
+            <div id="stageFrame" class="relative w-full max-w-full rounded-xl overflow-hidden border border-gray-800/80 shadow-inner bg-black" style="aspect-ratio: 16 / 9; max-height: 68vh;">
+
+              <!-- Primary Rendering Canvas (WebGL or Canvas2D fallback) -->
+              <canvas id="glCanvas" class="w-full h-full block"></canvas>
+              <canvas id="fallbackCanvas" class="w-full h-full hidden"></canvas>
+
+              <!-- Interactive Split-Screen Overlay -->
+              <div id="splitOverlay" class="absolute inset-0 cursor-ew-resize touch-none z-10">
+                <!-- Left Badge: DLSS 5 Off -->
+                <div class="absolute top-3 left-3 pointer-events-none z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/75 backdrop-blur-md border border-gray-700/80 shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                  <span class="text-xs font-bold tracking-wide text-gray-200 uppercase">DLSS 5 Off</span>
+                </div>
+
+                <!-- Right Badge: DLSS 5 On -->
+                <div class="absolute top-3 right-3 pointer-events-none z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md border border-nv/60 shadow-lg nv-glow-sm">
+                  <span class="w-2 h-2 rounded-full bg-nv animate-pulse"></span>
+                  <span id="rightModeBadgeText" class="text-xs font-bold tracking-wide text-nv uppercase">DLSS 5 On</span>
+                </div>
+
+                <!-- Bottom Drag Hint Pill -->
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 backdrop-blur-sm border border-gray-800 text-[11px] text-gray-300 font-medium">
+                  <span>Drag slider to compare Original vs Enhanced</span>
+                  <span id="splitPercentLabel" class="font-mono text-nv font-semibold">50%</span>
+                </div>
+
+                <!-- Glowing Neon Vertical Divider Line & Handle -->
+                <div id="splitDivider" class="split-divider-line" style="left: 50%;">
+                  <div id="splitHandle" class="split-divider-handle" role="slider" aria-label="Before and After Comparison Slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+                    <svg class="w-5 h-5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 3 12 9 6"></polyline>
+                      <polyline points="15 6 21 12 15 18"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Processing Overlay (Shown during Gemini AI Photorealism Render or 8K Tiled Export) -->
+              <div id="processingOverlay" class="hidden absolute inset-0 z-30 bg-carbon/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+                <div class="relative w-16 h-16 mb-4 flex items-center justify-center">
+                  <div class="absolute inset-0 rounded-full border-2 border-nv/20"></div>
+                  <div class="absolute inset-0 rounded-full border-t-2 border-nv animate-spin"></div>
+                  <svg class="w-7 h-7 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                </div>
+                <h3 id="processingTitle" class="text-base sm:text-lg font-bold text-white mb-1">DLSS 5 Neural Engine Rendering...</h3>
+                <p id="processingSubtitle" class="text-xs sm:text-sm text-gray-400 max-w-md">Synthesizing micro-textures, realistic lighting, and ultra-sharp details.</p>
+                <div class="w-56 h-1.5 bg-gray-800 rounded-full overflow-hidden mt-4">
+                  <div id="processingBar" class="h-full bg-nv rounded-full transition-all duration-300" style="width: 35%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Mode Context Footer inside Viewport -->
+          <div class="px-4 py-2.5 bg-carbon/60 border-t border-gray-800/80 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-2 h-2 rounded-full bg-nv"></span>
+              <span id="viewportStatusText">Demo Preview active — drag the green handle or start Live Screen Capture.</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="centerSplitBtn" type="button" class="text-[11px] font-mono text-gray-400 hover:text-nv transition-colors px-2 py-0.5 rounded bg-panel border border-gray-800">
+                Reset 50/50
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== RIGHT SIDEBAR: CONTROLS & PIPELINES ==================== -->
+      <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
+
+        <!-- ========== PANEL A: LIVE SCREEN CAPTURE CONTROLS ========== -->
+        <div id="liveControlsPanel" class="bg-panel border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Live Stream Capture</h2>
+              <p class="text-[11px] text-gray-400 mt-0.5">Enhance games, videos &amp; desktop at 60 FPS</p>
+            </div>
+            <span id="captureStatePill" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-nv/15 text-nv border border-nv/30">
+              DEMO
+            </span>
+          </div>
+
+          <!-- Primary Capture Buttons -->
+          <div class="grid grid-cols-1 gap-2.5">
+            <button id="startCaptureBtn" type="button" class="w-full py-3 px-4 rounded-xl bg-nv hover:bg-nv-bright text-carbon font-bold text-sm flex items-center justify-center gap-2 transition-all nv-glow active:scale-[0.99]">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+              Start Live Capture
+            </button>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button id="stopCaptureBtn" type="button" disabled class="py-2.5 px-3 rounded-xl bg-panelLight border border-gray-800 text-xs font-semibold text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:border-red-500/60 hover:enabled:text-red-400 transition-all flex items-center justify-center gap-1.5">
+                <span class="w-2 h-2 rounded-sm bg-current"></span>
+                Stop Capture
+              </button>
+              <button id="demoToggleBtn" type="button" class="py-2.5 px-3 rounded-xl bg-nv/15 border border-nv/50 text-xs font-semibold text-nv hover:bg-nv/25 transition-all flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Demo Preview
+              </button>
+            </div>
+          </div>
+
+          <!-- Presets -->
+          <div class="pt-3 border-t border-gray-800/90">
+            <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Quality Presets</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button type="button" data-preset="perf" class="preset-btn px-2 py-2 rounded-lg border border-gray-800 bg-carbon/60 hover:border-gray-600 text-center transition-all">
+                <div class="text-[11px] font-bold text-gray-200">Performance</div>
+                <div class="text-[10px] font-mono text-gray-400">1080p</div>
+              </button>
+              <button type="button" data-preset="ultra" class="preset-btn px-2 py-2 rounded-lg border border-nv bg-nv/15 text-center transition-all">
+                <div class="text-[11px] font-bold text-nv">Ultra Realism</div>
+                <div class="text-[10px] font-mono text-nv/80">4K UHD</div>
+              </button>
+              <button type="button" data-preset="max8k" class="preset-btn px-2 py-2 rounded-lg border border-gray-800 bg-carbon/60 hover:border-gray-600 text-center transition-all">
+                <div class="text-[11px] font-bold text-gray-200">Max Detail</div>
+                <div class="text-[10px] font-mono text-gray-400">8K Scale</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PANEL B: 4K/8K PHOTO AI CONTROLS (Hidden in Live Mode) ========== -->
+        <div id="photoControlsPanel" class="hidden bg-panel border border-gray-800 rounded-2xl p-4 sm:p-5 flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">4K/8K Photo AI</h2>
+              <p class="text-[11px] text-gray-400 mt-0.5">Upload screenshot or photo to upscale</p>
+            </div>
+            <button id="loadDemoPhotoBtn" type="button" class="text-[11px] font-semibold text-nv hover:text-nv-bright underline underline-offset-2">
+              Load Sample
+            </button>
+          </div>
+
+          <!-- Upload Dropzone -->
+          <div id="photoDropZone" class="relative border-2 border-dashed border-gray-700 hover:border-nv/70 rounded-xl p-4 text-center cursor-pointer transition-all bg-carbon/50 group">
+            <input id="photoFileInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" />
+            <svg class="w-7 h-7 mx-auto text-gray-400 group-hover:text-nv transition-colors mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p class="text-xs font-semibold text-gray-200">Click or Drag &amp; Drop Photo</p>
+            <p id="uploadedFileInfo" class="text-[11px] text-gray-500 mt-0.5 truncate">JPG, PNG, WebP • Instant Preview</p>
+          </div>
+
+          <!-- Pipeline 1: Local WebGL 4K/8K Upscaler -->
+          <div class="p-3.5 rounded-xl bg-carbon/70 border border-gray-800 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-nv"></span>
+                1. Instant Local Upscaler
+              </span>
+              <span class="text-[10px] font-mono text-gray-400 bg-panel px-1.5 py-0.5 rounded border border-gray-800">OFFLINE</span>
+            </div>
+
+            <div>
+              <label for="localResSelect" class="block text-[11px] text-gray-400 mb-1">Output Resolution Target</label>
+              <select id="localResSelect" class="w-full bg-panel border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-nv">
+                <option value="orig">Original Resolution (Enhanced)</option>
+                <option value="4k" selected>4K UHD (3840px Longest Edge)</option>
+                <option value="8k">8K UHD (7680px Tiled Safe Mode)</option>
+              </select>
+            </div>
+
+            <button id="applyLocalUpscaleBtn" type="button" class="w-full py-2.5 px-3 rounded-xl bg-panelLight hover:bg-gray-800 border border-nv/50 text-nv font-semibold text-xs transition-all flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+              Preview Local WebGL Upscale
+            </button>
+          </div>
+
+          <!-- Pipeline 2: True AI Photorealism (Gemini API) -->
+          <div class="p-3.5 rounded-xl bg-gradient-to-b from-nv/10 to-carbon/80 border border-nv/40 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                2. True AI Photorealism
+              </span>
+              <span class="text-[10px] font-mono text-nv bg-nv/15 px-1.5 py-0.5 rounded border border-nv/30">GEMINI AI</span>
+            </div>
+
+            <div>
+              <label for="aiStyleQuickSelect" class="block text-[11px] text-gray-400 mb-1">Neural Render Style</label>
+              <select id="aiStyleQuickSelect" class="w-full bg-panel border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-nv">
+                <option value="photoreal">Photorealistic Skin &amp; Hair (DLSS 5)</option>
+                <option value="cinematic">Cinematic Ray-Traced Lighting</option>
+                <option value="game8k">Ultra Sharp 8K Game Graphics</option>
+              </select>
+            </div>
+
+            <button id="runAiPhotorealBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-nv hover:bg-nv-bright text-carbon font-bold text-xs sm:text-sm transition-all nv-glow flex items-center justify-center gap-2 active:scale-[0.99]">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z" />
+              </svg>
+              Generate True AI Photorealism
+            </button>
+
+            <!-- Inline AI Status Message -->
+            <div id="aiInlineStatus" class="hidden text-[11px] leading-relaxed px-2.5 py-2 rounded-lg border"></div>
+          </div>
+
+          <!-- Export Buttons (4K / 8K Safe PNG Export) -->
+          <div class="pt-2 border-t border-gray-800/90 flex flex-col gap-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Export Enhanced Photo</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="download4kBtn" type="button" class="py-2.5 px-3 rounded-xl bg-panelLight hover:bg-gray-800 border border-gray-700 hover:border-nv/60 text-xs font-semibold text-white transition-all flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                4K PNG
+              </button>
+              <button id="download8kBtn" type="button" class="py-2.5 px-3 rounded-xl bg-panelLight hover:bg-gray-800 border border-gray-700 hover:border-nv/60 text-xs font-semibold text-white transition-all flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-nv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                8K PNG
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SHARED PANEL: REAL-TIME NEURAL SHADER SLIDERS ========== -->
+        <div class="bg-panel border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-white">Neural Shader Tuning</h3>
+            <button id="resetSlidersBtn" type="button" class="text-[11px] text-gray-400 hover:text-nv transition-colors">Reset</button>
+          </div>
+
+          <!-- Slider 1: Neural Sharpness (CAS) -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-medium">Neural Sharpness (CAS)</span>
+              <span id="valSharpness" class="font-mono text-nv font-semibold">75%</span>
+            </div>
+            <input id="sliderSharpness" type="range" min="0" max="100" value="75" class="nv-slider" />
+          </div>
+
+          <!-- Slider 2: Micro-Detail & Texture Boost -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-medium">Micro-Detail &amp; Texture</span>
+              <span id="valMicroDetail" class="font-mono text-nv font-semibold">65%</span>
+            </div>
+            <input id="sliderMicroDetail" type="range" min="0" max="100" value="65" class="nv-slider" />
+          </div>
+
+          <!-- Slider 3: Cinematic HDR (ACES Filmic) -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-medium">Cinematic HDR (ACES)</span>
+              <span id="valHdr" class="font-mono text-nv font-semibold">55%</span>
+            </div>
+            <input id="sliderHdr" type="range" min="0" max="100" value="55" class="nv-slider" />
+          </div>
+
+          <!-- Slider 4: Realism & Color Depth -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-300 font-medium">Realism &amp; Color Depth</span>
+              <span id="valRealism" class="font-mono text-nv font-semibold">60%</span>
+            </div>
+            <input id="sliderRealism" type="range" min="0" max="100" value="60" class="nv-slider" />
+          </div>
+
+          <!-- Toggle for Photo AI Mode: Apply shaders on top of AI render -->
+          <div id="aiShaderBoostRow" class="hidden pt-2 border-t border-gray-800/80 flex items-center justify-between gap-2">
+            <label for="aiShaderBoostToggle" class="text-[11px] text-gray-300 cursor-pointer">Fine-tune AI Render with sliders</label>
+            <input id="aiShaderBoostToggle" type="checkbox" class="w-4 h-4 accent-[#76b900] rounded cursor-pointer" />
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ==================== API KEY SETTINGS MODAL ==================== -->
+  <div id="apiModalBackdrop" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-panel border border-gray-700/90 rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 bg-carbon/80 border-b border-gray-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-nv/15 border border-nv/40 flex items-center justify-center text-nv">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Google Gemini AI API Settings</h3>
+            <p class="text-[11px] text-gray-400">Stored privately in your browser (localStorage)</p>
+          </div>
+        </div>
+        <button id="closeApiModalBtn" type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 flex flex-col gap-4">
+        <div>
+          <label for="apiKeyInput" class="block text-xs font-semibold text-gray-200 mb-1.5">Google AI Studio API Key</label>
+          <div class="relative">
+            <input id="apiKeyInput" type="password" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-carbon border border-gray-700 focus:border-nv rounded-xl pl-3.5 pr-16 py-2.5 text-xs font-mono text-white placeholder-gray-600 focus:outline-none" />
+            <button id="toggleApiKeyVisBtn" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-gray-400 hover:text-nv px-2 py-1 rounded">
+              Show
+            </button>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+            Required when hosted on GitHub Pages or localhost to power <strong class="text-gray-200">True AI Photorealism</strong>. Get a key from <span class="text-nv font-mono">aistudio.google.com</span>. Live Screen Mode &amp; Local 4K/8K Upscaler work 100% offline without a key.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="modalStyleSelect" class="block text-xs font-semibold text-gray-200 mb-1.5">Default Render Style</label>
+            <select id="modalStyleSelect" class="w-full bg-carbon border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-nv">
+              <option value="photoreal">Photorealistic Skin &amp; Hair</option>
+              <option value="cinematic">Cinematic Lighting</option>
+              <option value="game8k">Ultra Sharp Game Graphics</option>
+            </select>
+          </div>
+          <div>
+            <label for="modalIntensitySelect" class="block text-xs font-semibold text-gray-200 mb-1.5">AI Intensity</label>
+            <select id="modalIntensitySelect" class="w-full bg-carbon border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-nv">
+              <option value="balanced">Balanced Fidelity</option>
+              <option value="ultra" selected>Ultra Photoreal (DLSS 5)</option>
+              <option value="maximum">Maximum Neural Detail</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="modalKeyStatusBox" class="px-3 py-2 rounded-xl bg-carbon border border-gray-800 text-[11px] text-gray-300 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
+          <span>No custom key saved yet (using environment runtime if available).</span>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3.5 bg-carbon/80 border-t border-gray-800 flex items-center justify-between gap-2">
+        <button id="clearApiKeyBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+          Clear Key
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="cancelApiModalBtn" type="button" class="px-4 py-2 rounded-xl bg-panelLight hover:bg-gray-800 text-xs font-semibold text-gray-300 transition-colors">
+            Cancel
+          </button>
+          <button id="saveApiKeyBtn" type="button" class="px-5 py-2 rounded-xl bg-nv hover:bg-nv-bright text-carbon text-xs font-bold transition-all nv-glow-sm">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-[calc(100%-2rem)] pointer-events-none"></div>
+
+  <!-- Hidden Video Element for Screen Capture -->
+  <video id="captureVideo" class="hidden" playsinline autoplay muted></video>
+
+  <!-- ==================== APPLICATION SCRIPT ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* =========================================================================
+       * 1. STATE & CONFIGURATION
+       * ========================================================================= */
+      const STORAGE_KEYS = {
+        apiKey: 'dlss5_gemini_api_key',
+        style: 'dlss5_ai_style',
+        intensity: 'dlss5_ai_intensity',
+      };
+
+      const PRESETS = {
+        perf: {
+          name: 'Performance (1080p)',
+          targetLabel: '1080p FHD (60 FPS)',
+          sharpness: 55,
+          microDetail: 40,
+          hdr: 30,
+          realism: 35,
+        },
+        ultra: {
+          name: 'Ultra Realism (4K)',
+          targetLabel: '4K UHD (2160p)',
+          sharpness: 75,
+          microDetail: 65,
+          hdr: 55,
+          realism: 60,
+        },
+        max8k: {
+          name: 'Max Detail (8K Scale)',
+          targetLabel: '8K UHD (4320p)',
+          sharpness: 95,
+          microDetail: 90,
+          hdr: 72,
+          realism: 75,
+        },
+      };
+
+      const state = {
+        mode: 'live', // 'live' | 'photo'
+        splitPos: 0.5, // 0.0 to 1.0
+        isDraggingSplit: false,
+
+        // Live capture state
+        isCapturing: false,
+        isDemoActive: true,
+        mediaStream: null,
+        activePreset: 'ultra',
+
+        // Shader parameters (0..100)
+        sharpness: 75,
+        microDetail: 65,
+        hdr: 55,
+        realism: 60,
+
+        // Photo mode state
+        photoOriginalImg: null, // HTMLImageElement or HTMLCanvasElement
+        photoOriginalName: 'sample-neural-portrait.png',
+        photoAiImg: null, // HTMLImageElement returned by Gemini API
+        photoUsingAi: false,
+        applyShaderToAi: false,
+        localTargetRes: '4k',
+
+        // AI Settings
+        apiKey: '',
+        aiStyle: 'photoreal',
+        aiIntensity: 'ultra',
+        isProcessing: false,
+
+        // Rendering engine
+        useWebGL: true,
+        gl: null,
+        program: null,
+        texOrig: null,
+        texAlt: null,
+        maxTextureSize: 4096,
+
+        // FPS Telemetry
+        frameCount: 0,
+        lastFpsTime: performance.now(),
+        currentFps: 60,
+        sourceWidth: 1280,
+        sourceHeight: 720,
+      };
+
+      /* =========================================================================
+       * 2. DOM REFERENCES
+       * ========================================================================= */
+      const dom = {
+        tabLiveBtn: document.getElementById('tabLiveBtn'),
+        tabPhotoBtn: document.getElementById('tabPhotoBtn'),
+        liveDotHeader: document.getElementById('liveDotHeader'),
+        liveControlsPanel: document.getElementById('liveControlsPanel'),
+        photoControlsPanel: document.getElementById('photoControlsPanel'),
+
+        // Viewport & Canvas
+        viewportShell: document.getElementById('viewportShell'),
+        stageFrame: document.getElementById('stageFrame'),
+        glCanvas: document.getElementById('glCanvas'),
+        fallbackCanvas: document.getElementById('fallbackCanvas'),
+        splitOverlay: document.getElementById('splitOverlay'),
+        splitDivider: document.getElementById('splitDivider'),
+        splitHandle: document.getElementById('splitHandle'),
+        splitPercentLabel: document.getElementById('splitPercentLabel'),
+        rightModeBadgeText: document.getElementById('rightModeBadgeText'),
+        viewportStatusText: document.getElementById('viewportStatusText'),
+        centerSplitBtn: document.getElementById('centerSplitBtn'),
+
+        // HUD & Viewport Buttons
+        hudFps: document.getElementById('hudFps'),
+        hudInputRes: document.getElementById('hudInputRes'),
+        hudTargetScale: document.getElementById('hudTargetScale'),
+        hudEngineBadge: document.getElementById('hudEngineBadge'),
+        snapshotBtn: document.getElementById('snapshotBtn'),
+        fullscreenBtn: document.getElementById('fullscreenBtn'),
+
+        // Processing overlay
+        processingOverlay: document.getElementById('processingOverlay'),
+        processingTitle: document.getElementById('processingTitle'),
+        processingSubtitle: document.getElementById('processingSubtitle'),
+        processingBar: document.getElementById('processingBar'),
+
+        // Live controls
+        captureVideo: document.getElementById('captureVideo'),
+        captureStatePill: document.getElementById('captureStatePill'),
+        startCaptureBtn: document.getElementById('startCaptureBtn'),
+        stopCaptureBtn: document.getElementById('stopCaptureBtn'),
+        demoToggleBtn: document.getElementById('demoToggleBtn'),
+        presetBtns: document.querySelectorAll('.preset-btn'),
+
+        // Photo controls
+        photoDropZone: document.getElementById('photoDropZone'),
+        photoFileInput: document.getElementById('photoFileInput'),
+        uploadedFileInfo: document.getElementById('uploadedFileInfo'),
+        loadDemoPhotoBtn: document.getElementById('loadDemoPhotoBtn'),
+        localResSelect: document.getElementById('localResSelect'),
+        applyLocalUpscaleBtn: document.getElementById('applyLocalUpscaleBtn'),
+        aiStyleQuickSelect: document.getElementById('aiStyleQuickSelect'),
+        runAiPhotorealBtn: document.getElementById('runAiPhotorealBtn'),
+        aiInlineStatus: document.getElementById('aiInlineStatus'),
+        download4kBtn: document.getElementById('download4kBtn'),
+        download8kBtn: document.getElementById('download8kBtn'),
+        aiShaderBoostRow: document.getElementById('aiShaderBoostRow'),
+        aiShaderBoostToggle: document.getElementById('aiShaderBoostToggle'),
+
+        // Sliders
+        sliderSharpness: document.getElementById('sliderSharpness'),
+        sliderMicroDetail: document.getElementById('sliderMicroDetail'),
+        sliderHdr: document.getElementById('sliderHdr'),
+        sliderRealism: document.getElementById('sliderRealism'),
+        valSharpness: document.getElementById('valSharpness'),
+        valMicroDetail: document.getElementById('valMicroDetail'),
+        valHdr: document.getElementById('valHdr'),
+        valRealism: document.getElementById('valRealism'),
+        resetSlidersBtn: document.getElementById('resetSlidersBtn'),
+
+        // API Modal
+        openApiModalBtn: document.getElementById('openApiModalBtn'),
+        apiKeyStatusDot: document.getElementById('apiKeyStatusDot'),
+        apiModalBackdrop: document.getElementById('apiModalBackdrop'),
+        closeApiModalBtn: document.getElementById('closeApiModalBtn'),
+        cancelApiModalBtn: document.getElementById('cancelApiModalBtn'),
+        apiKeyInput: document.getElementById('apiKeyInput'),
+        toggleApiKeyVisBtn: document.getElementById('toggleApiKeyVisBtn'),
+        modalStyleSelect: document.getElementById('modalStyleSelect'),
+        modalIntensitySelect: document.getElementById('modalIntensitySelect'),
+        modalKeyStatusBox: document.getElementById('modalKeyStatusBox'),
+        saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+        clearApiKeyBtn: document.getElementById('clearApiKeyBtn'),
+
+        toastContainer: document.getElementById('toastContainer'),
+      };
+
+      /* =========================================================================
+       * 3. TOAST NOTIFICATION SYSTEM (NO alert() / confirm())
+       * ========================================================================= */
+      function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        const styles = {
+          success: 'border-nv/60 bg-[#0d1409]/95 text-gray-100',
+          error: 'border-red-500/60 bg-[#1a0b0e]/95 text-red-100',
+          warning: 'border-amber-500/60 bg-[#1a1409]/95 text-amber-100',
+          info: 'border-gray-700 bg-panel/95 text-gray-100',
+        };
+        const dotColor = {
+          success: 'bg-nv',
+          error: 'bg-red-500',
+          warning: 'bg-amber-400',
+          info: 'bg-sky-400',
+        };
+
+        toast.className = `pointer-events-auto flex items-start gap-2.5 px-4 py-3 rounded-xl border backdrop-blur-md shadow-2xl text-xs leading-relaxed transition-all duration-300 translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+        toast.innerHTML = `
+          <span class="w-2 h-2 rounded-full mt-1 shrink-0 ${dotColor[type] || dotColor.info}"></span>
+          <span class="flex-1">${escapeHtml(message)}</span>
+        `;
+        dom.toastContainer.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-y-2', 'opacity-0');
+        });
+
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }, 4200);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function setProcessing(active, title = '', subtitle = '', progress = 35) {
+        state.isProcessing = active;
+        if (active) {
+          dom.processingTitle.textContent = title;
+          dom.processingSubtitle.textContent = subtitle;
+          dom.processingBar.style.width = `${progress}%`;
+          dom.processingOverlay.classList.remove('hidden');
+        } else {
+          dom.processingOverlay.classList.add('hidden');
+        }
+      }
+
+      function setAiInlineStatus(message, type = 'info') {
+        if (!message) {
+          dom.aiInlineStatus.classList.add('hidden');
+          return;
+        }
+        const map = {
+          success: 'bg-nv/10 border-nv/40 text-nv',
+          error: 'bg-red-500/10 border-red-500/40 text-red-300',
+          warning: 'bg-amber-500/10 border-amber-500/40 text-amber-200',
+          info: 'bg-panel border-gray-700 text-gray-300',
+        };
+        dom.aiInlineStatus.className = `text-[11px] leading-relaxed px-2.5 py-2 rounded-lg border ${map[type] || map.info}`;
+        dom.aiInlineStatus.textContent = message;
+        dom.aiInlineStatus.classList.remove('hidden');
+      }
+
+      /* =========================================================================
+       * 4. PROCEDURAL DEMO SCENE GENERATOR (ZERO EXTERNAL IMAGE URLS)
+       * ========================================================================= */
+      const demoCanvas = document.createElement('canvas');
+      demoCanvas.width = 1280;
+      demoCanvas.height = 720;
+      const demoCtx = demoCanvas.getContext('2d', { alpha: false });
+
+      // Pre-generate static architectural & micro-detail stars/particles for smooth 60fps demo
+      const demoParticles = Array.from({ length: 48 }, (_, i) => ({
+        x: (i * 97) % 1280,
+        y: (i * 53) % 720,
+        r: 1.2 + (i % 4) * 0.9,
+        speed: 0.3 + (i % 5) * 0.18,
+        alpha: 0.25 + (i % 5) * 0.12,
+      }));
+
+      // Render a rich, realistic futuristic game scene / studio portrait that clearly showcases CAS, Micro-Detail & ACES HDR
+      function renderDemoScene(ctx, w, h, timeSec, isStaticPortrait = false) {
+        // 1. Atmospheric dark futuristic studio/alley background
+        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+        bgGrad.addColorStop(0, '#121821');
+        bgGrad.addColorStop(0.45, '#19222d');
+        bgGrad.addColorStop(1, '#10141c');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Architectural columns & blurred depth bokeh
+        const shift = isStaticPortrait ? 0 : Math.sin(timeSec * 0.5) * 18;
+        ctx.save();
+        for (let i = 0; i < 8; i++) {
+          const x = ((i * 190) + shift + w) % (w + 160) - 80;
+          ctx.fillStyle = i % 2 === 0 ? 'rgba(28, 39, 52, 0.7)' : 'rgba(18, 25, 34, 0.65)';
+          ctx.fillRect(x, 0, 74, h);
+          // Subtle rim highlight on pillars
+          ctx.fillStyle = i % 3 === 0 ? 'rgba(118, 185, 0, 0.11)' : 'rgba(90, 165, 220, 0.10)';
+          ctx.fillRect(x + 70, 0, 4, h);
+        }
+
+        // Soft glowing cyberpunk background lights (benefits dramatically from ACES HDR)
+        const lights = [
+          { x: w * 0.18, y: h * 0.28, r: 170, c: 'rgba(60, 130, 195, 0.28)' },
+          { x: w * 0.82, y: h * 0.32, r: 190, c: 'rgba(220, 130, 75, 0.24)' },
+          { x: w * 0.5, y: h * 0.18, r: 220, c: 'rgba(118, 185, 0, 0.16)' },
+        ];
+        lights.forEach((l) => {
+          const rg = ctx.createRadialGradient(l.x, l.y, 10, l.x, l.y, l.r);
+          rg.addColorStop(0, l.c);
+          rg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = rg;
+          ctx.fillRect(l.x - l.r, l.y - l.r, l.r * 2, l.r * 2);
+        });
+        ctx.restore();
+
+        // 3. Textured floor grid & perspective lines (shows sharpness & aliasing cleanup)
+        ctx.save();
+        const horizon = h * 0.68;
+        const floorGrad = ctx.createLinearGradient(0, horizon, 0, h);
+        floorGrad.addColorStop(0, '#131922');
+        floorGrad.addColorStop(1, '#0a0d13');
+        ctx.fillStyle = floorGrad;
+        ctx.fillRect(0, horizon, w, h - horizon);
+
+        ctx.strokeStyle = 'rgba(140, 170, 195, 0.14)';
+        ctx.lineWidth = 1.5;
+        for (let i = -8; i <= 8; i++) {
+          ctx.beginPath();
+          ctx.moveTo(w * 0.5 + i * 35, horizon);
+          ctx.lineTo(w * 0.5 + i * 240, h);
+          ctx.stroke();
+        }
+        for (let row = 1; row <= 6; row++) {
+          const y = horizon + Math.pow(row / 6, 1.8) * (h - horizon);
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 4. Hero Stylized Game Character Bust / Jacket / Hair / Visor (Directly inspired by DLSS 5 showcase)
+        const cx = w * 0.5 + (isStaticPortrait ? 0 : Math.sin(timeSec * 0.7) * 6);
+        const cy = h * 0.46 + (isStaticPortrait ? 0 : Math.cos(timeSec * 1.1) * 3);
+        const scale = Math.min(w / 1280, h / 720);
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+
+        // Tactical Puffer & Leather Jacket Shoulders
+        const jacketGrad = ctx.createLinearGradient(-260, 110, 260, 320);
+        jacketGrad.addColorStop(0, '#2a2c32');
+        jacketGrad.addColorStop(0.5, '#1d2026');
+        jacketGrad.addColorStop(1, '#26282e');
+        ctx.fillStyle = jacketGrad;
+        ctx.beginPath();
+        ctx.moveTo(-265, 290);
+        ctx.quadraticCurveTo(-240, 125, -105, 92);
+        ctx.lineTo(105, 92);
+        ctx.quadraticCurveTo(240, 125, 265, 290);
+        ctx.closePath();
+        ctx.fill();
+
+        // Padded orange-copper sleeves with stitched ribs (great for micro-detail boost)
+        const sleeveGradL = ctx.createLinearGradient(-260, 140, -145, 260);
+        sleeveGradL.addColorStop(0, '#8d482a');
+        sleeveGradL.addColorStop(0.5, '#a85a35');
+        sleeveGradL.addColorStop(1, '#63301b');
+        ctx.fillStyle = sleeveGradL;
+        ctx.beginPath();
+        ctx.ellipse(-205, 225, 68, 95, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        const sleeveGradR = ctx.createLinearGradient(145, 140, 260, 260);
+        sleeveGradR.addColorStop(0, '#a85a35');
+        sleeveGradR.addColorStop(0.5, '#864326');
+        sleeveGradR.addColorStop(1, '#552917');
+        ctx.fillStyle = sleeveGradR;
+        ctx.beginPath();
+        ctx.ellipse(205, 225, 68, 95, -0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Stitch & zipper fine lines across jacket
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+        ctx.lineWidth = 1.5;
+        for (let r = 0; r < 5; r++) {
+          ctx.beginPath();
+          ctx.arc(-205, 175 + r * 26, 52, 0.2, 2.8);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(205, 175 + r * 26, 52, 0.3, 2.9);
+          ctx.stroke();
+        }
+        // Leather vest specular panel
+        const vestGrad = ctx.createLinearGradient(-110, 95, 110, 290);
+        vestGrad.addColorStop(0, '#343842');
+        vestGrad.addColorStop(0.4, '#1b1d23');
+        vestGrad.addColorStop(1, '#14161b');
+        ctx.fillStyle = vestGrad;
+        ctx.beginPath();
+        ctx.moveTo(-135, 290);
+        ctx.lineTo(-115, 100);
+        ctx.lineTo(115, 100);
+        ctx.lineTo(135, 290);
+        ctx.closePath();
+        ctx.fill();
+
+        // Metallic carabiner / zipper hardware details
+        ctx.strokeStyle = '#9aa6b4';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-105, 150, 24, 54, 12);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(82, 150, 24, 54, 12);
+        ctx.stroke();
+
+        // High collar & neck
+        ctx.fillStyle = '#a47864';
+        ctx.beginPath();
+        ctx.roundRect(-36, 48, 72, 68, 22);
+        ctx.fill();
+
+        // Hair back volume
+        const hairBackGrad = ctx.createRadialGradient(0, -55, 40, 0, -40, 145);
+        hairBackGrad.addColorStop(0, '#3d2a22');
+        hairBackGrad.addColorStop(1, '#1a120f');
+        ctx.fillStyle = hairBackGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, -48, 124, 134, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Face silhouette with natural lighting gradients
+        const skinGrad = ctx.createRadialGradient(-24, -60, 18, 5, -35, 118);
+        skinGrad.addColorStop(0, '#cfa48e');
+        skinGrad.addColorStop(0.55, '#b68973');
+        skinGrad.addColorStop(1, '#845e4d');
+        ctx.fillStyle = skinGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, -44, 84, 108, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cheekbone & nose shadow sculpting
+        ctx.fillStyle = 'rgba(72, 42, 34, 0.24)';
+        ctx.beginPath();
+        ctx.ellipse(-44, -22, 22, 34, -0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(44, -22, 22, 34, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes (iris detail + catchlights)
+        [-31, 31].forEach((ex) => {
+          // Eye socket shadow
+          ctx.fillStyle = 'rgba(55, 36, 30, 0.35)';
+          ctx.beginPath();
+          ctx.ellipse(ex, -56, 20, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Sclera
+          ctx.fillStyle = '#dcd9d5';
+          ctx.beginPath();
+          ctx.ellipse(ex, -56, 15, 7.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Iris
+          ctx.fillStyle = '#486058';
+          ctx.beginPath();
+          ctx.arc(ex, -56, 6.5, 0, Math.PI * 2);
+          ctx.fill();
+          // Pupil
+          ctx.fillStyle = '#111417';
+          ctx.beginPath();
+          ctx.arc(ex, -56, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+          // Specular catchlight
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.beginPath();
+          ctx.arc(ex - 2, -58, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+          // Brow
+          ctx.strokeStyle = '#33221a';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(ex - 18, -71);
+          ctx.quadraticCurveTo(ex, -77, ex + 18, -70);
+          ctx.stroke();
+        });
+
+        // Nose bridge highlight & nostrils
+        ctx.strokeStyle = 'rgba(245, 215, 198, 0.35)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, -58);
+        ctx.lineTo(-2, -24);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(70, 42, 34, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(-8, -21, 5, 3, 0.2, 0, Math.PI * 2);
+        ctx.ellipse(8, -21, 5, 3, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lips
+        ctx.fillStyle = '#9b635a';
+        ctx.beginPath();
+        ctx.moveTo(-24, 6);
+        ctx.quadraticCurveTo(0, -4, 24, 6);
+        ctx.quadraticCurveTo(0, 22, -24, 6);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(55, 28, 25, 0.5)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(-23, 6);
+        ctx.quadraticCurveTo(0, 9, 23, 6);
+        ctx.stroke();
+
+        // Fine hair strands layered on top (greatly highlighted by CAS + Micro-detail shader)
+        ctx.strokeStyle = 'rgba(92, 65, 50, 0.72)';
+        ctx.lineWidth = 1.6;
+        for (let s = 0; s < 58; s++) {
+          const angle = -2.75 + (s / 58) * 2.35;
+          const sx = Math.cos(angle) * 76;
+          const sy = -58 + Math.sin(angle) * 86;
+          const ex = sx + Math.cos(angle - 0.3) * 58;
+          const ey = sy + Math.sin(angle - 0.3) * 78 + 38;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.quadraticCurveTo((sx + ex) * 0.5 + (s % 2 ? 12 : -12), (sy + ey) * 0.5 - 8, ex, ey);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 5. Floating volumetric dust & subtle HUD telemetry reticle in background
+        ctx.save();
+        demoParticles.forEach((p, idx) => {
+          const px = (p.x + (isStaticPortrait ? 0 : timeSec * 16 * p.speed)) % w;
+          const py = (p.y - (isStaticPortrait ? 0 : timeSec * 9 * p.speed) + h) % h;
+          ctx.fillStyle = idx % 4 === 0
+            ? `rgba(118, 185, 0, ${p.alpha})`
+            : `rgba(210, 225, 240, ${p.alpha * 0.75})`;
+          ctx.beginPath();
+          ctx.arc(px, py, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Subtle scene badge in bottom-left of demo feed
+        ctx.fillStyle = 'rgba(220, 230, 240, 0.35)';
+        ctx.font = '600 13px "JetBrains Mono", monospace';
+        ctx.fillText(isStaticPortrait ? 'SAMPLE ENGINE CAPTURE • RAW 720P INPUT' : 'LIVE ENGINE DEMO • 720P NATIVE FEED', 22, h - 20);
+        ctx.restore();
+      }
+
+      /* =========================================================================
+       * 5. WEBGL REAL-TIME DLSS 5 SHADER ENGINE (WITH CANVAS2D FALLBACK)
+       * ========================================================================= */
+      const VERTEX_SHADER_SRC = `
+        attribute vec2 a_pos;
+        attribute vec2 a_uv;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = a_uv;
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+      `;
+
+      // High-performance 9-tap Contrast Adaptive Sharpening (CAS) + Multi-scale Micro-Detail
+      // + ACES Filmic HDR Tone Mapping + Smart Color Depth & Realism
+      const FRAGMENT_SHADER_SRC = `
+        precision highp float;
+        varying vec2 v_uv;
+
+        uniform sampler2D u_origTex;
+        uniform sampler2D u_altTex;
+        uniform vec2 u_texel;
+        uniform float u_split;
+        uniform float u_sharpness;
+        uniform float u_microDetail;
+        uniform float u_hdr;
+        uniform float u_realism;
+        uniform float u_useAltRight;
+        uniform float u_applyShaderToAlt;
+        uniform vec2 u_uvOffset;
+        uniform vec2 u_uvScale;
+
+        float luma(vec3 c) {
+          return dot(c, vec3(0.2126, 0.7152, 0.0722));
+        }
+
+        // Narkowicz ACES Filmic Tone Mapping Curve
+        vec3 acesFilm(vec3 x) {
+          const float a = 2.51;
+          const float b = 0.03;
+          const float c = 2.43;
+          const float d = 0.59;
+          const float e = 0.14;
+          return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+        }
+
+        vec3 enhanceColor(sampler2D tex, vec2 uv) {
+          vec3 c = texture2D(tex, uv).rgb;
+
+          // 3x3 neighborhood samples
+          vec2 dx = vec2(u_texel.x, 0.0);
+          vec2 dy = vec2(0.0, u_texel.y);
+
+          vec3 n  = texture2D(tex, uv - dy).rgb;
+          vec3 s  = texture2D(tex, uv + dy).rgb;
+          vec3 w  = texture2D(tex, uv - dx).rgb;
+          vec3 e  = texture2D(tex, uv + dx).rgb;
+
+          vec3 nw = texture2D(tex, uv - dx - dy).rgb;
+          vec3 ne = texture2D(tex, uv + dx - dy).rgb;
+          vec3 sw = texture2D(tex, uv - dx + dy).rgb;
+          vec3 se = texture2D(tex, uv + dx + dy).rgb;
+
+          // 1. Contrast Adaptive Sharpening (CAS-inspired soft-clamped edge enhancement)
+          vec3 minCross = min(min(min(n, s), min(w, e)), c);
+          vec3 maxCross = max(max(max(n, s), max(w, e)), c);
+          vec3 minFull  = min(minCross, min(min(nw, ne), min(sw, se)));
+          vec3 maxFull  = max(maxCross, max(max(nw, ne), max(sw, se)));
+
+          vec3 minRGB = (minCross + minFull) * 0.5;
+          vec3 maxRGB = (maxCross + maxFull) * 0.5;
+
+          // Adaptive weight avoids amplifying flat noise or clipping bright highlights
+          vec3 invMax = 1.0 / max(maxRGB, vec3(0.001));
+          vec3 amp = clamp(min(minRGB, 1.0 - maxRGB) * invMax, 0.0, 1.0);
+          amp = sqrt(amp);
+
+          vec3 blurCross = (n + s + w + e) * 0.25;
+          vec3 casDetail = c - blurCross;
+          float sharpGain = u_sharpness * 1.45;
+          vec3 color = c + casDetail * (amp * sharpGain + u_sharpness * 0.35);
+
+          // 2. Micro-Detail & Local Texture Boost (multi-tap Laplacian clarity)
+          vec3 blurFull = (n + s + w + e) * 0.15 + (nw + ne + sw + se) * 0.10;
+          vec3 highFreq = color - blurFull;
+          // Luma-safe soft limiter to prevent ringing halos
+          vec3 microBoost = clamp(highFreq * (u_microDetail * 1.85), vec3(-0.22), vec3(0.22));
+          color = clamp(color + microBoost, 0.0, 1.0);
+
+          // 3. Cinematic HDR / ACES Filmic Tone Mapping
+          if (u_hdr > 0.001) {
+            // Subtle shadow lift & highlight expansion before ACES curve
+            vec3 lifted = pow(max(color, vec3(0.0)), vec3(1.0 - u_hdr * 0.10));
+            vec3 hdrExposed = lifted * (1.0 + u_hdr * 0.42);
+            vec3 mapped = acesFilm(hdrExposed);
+            // Preserve crisp blacks & deep contrast
+            mapped = smoothstep(0.0, 1.0, mapped * 1.04 - 0.015);
+            color = mix(color, mapped, u_hdr * 0.78);
+          }
+
+          // 4. Realism & Color Depth (Smart Vibrance + Local S-Curve + Subtle Studio Grade)
+          if (u_realism > 0.001) {
+            float l = luma(color);
+            float maxC = max(color.r, max(color.g, color.b));
+            float minC = min(color.r, min(color.g, color.b));
+            float sat = maxC - minC;
+
+            // Boost muted tones more than already-saturated areas (protects skin tones)
+            float vibBoost = (1.0 - sat) * u_realism * 0.48;
+            vec3 vibranced = mix(vec3(l), color, 1.0 + vibBoost);
+
+            // Subtle S-curve contrast for 3D depth
+            vec3 scurve = vibranced * vibranced * (3.0 - 2.0 * vibranced);
+            color = mix(vibranced, scurve, u_realism * 0.24);
+
+            // Micro cinematic color balance (slightly deeper cool shadows, warm skin/specular highlights)
+            vec3 shadowTint = vec3(0.97, 0.99, 1.03);
+            vec3 highTint   = vec3(1.02, 1.005, 0.985);
+            vec3 grade = mix(shadowTint, highTint, smoothstep(0.15, 0.85, l));
+            color = clamp(color * mix(vec3(1.0), grade, u_realism * 0.65), 0.0, 1.0);
+          }
+
+          return clamp(color, 0.0, 1.0);
+        }
+
+        void main() {
+          vec2 uv = u_uvOffset + v_uv * u_uvScale;
+
+          // Left of divider: DLSS 5 Off (100% raw original)
+          if (v_uv.x < u_split) {
+            gl_FragColor = vec4(texture2D(u_origTex, uv).rgb, 1.0);
+            return;
+          }
+
+          // Right of divider: DLSS 5 On
+          if (u_useAltRight > 0.5) {
+            if (u_applyShaderToAlt > 0.5) {
+              gl_FragColor = vec4(enhanceColor(u_altTex, uv), 1.0);
+            } else {
+              gl_FragColor = vec4(texture2D(u_altTex, uv).rgb, 1.0);
+            }
+          } else {
+            gl_FragColor = vec4(enhanceColor(u_origTex, uv), 1.0);
+          }
+        }
+      `;
+
+      function compileShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const err = gl.getShaderInfoLog(shader);
+          gl.deleteShader(shader);
+          throw new Error('Shader compile failed: ' + err);
+        }
+        return shader;
+      }
+
+      function createConfiguredTexture(gl) {
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        return tex;
+      }
+
+      function initWebGL() {
+        try {
+          const gl = dom.glCanvas.getContext('webgl', {
+            alpha: false,
+            antialias: false,
+            preserveDrawingBuffer: true,
+            powerPreference: 'default', // Friendly for integrated GPUs
+          });
+
+          if (!gl) throw new Error('WebGL unavailable');
+
+          const vs = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SRC);
+          const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER_SRC);
+
+          const prog = gl.createProgram();
+          gl.attachShader(prog, vs);
+          gl.attachShader(prog, fs);
+          gl.linkProgram(prog);
+          if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            throw new Error('Program link failed: ' + gl.getProgramInfoLog(prog));
+          }
+          gl.useProgram(prog);
+
+          // Fullscreen quad (x, y, u, v)
+          const verts = new Float32Array([
+            -1, -1, 0, 0,
+             1, -1, 1, 0,
+            -1,  1, 0, 1,
+            -1,  1, 0, 1,
+             1, -1, 1, 0,
+             1,  1, 1, 1,
+          ]);
+          const buf = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+          gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+
+          const posLoc = gl.getAttribLocation(prog, 'a_pos');
+          const uvLoc = gl.getAttribLocation(prog, 'a_uv');
+          gl.enableVertexAttribArray(posLoc);
+          gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
+          gl.enableVertexAttribArray(uvLoc);
+          gl.vertexAttribPointer(uvLoc, 2, gl.FLOAT, false, 16, 8);
+
+          state.gl = gl;
+          state.program = prog;
+          state.texOrig = createConfiguredTexture(gl);
+          state.texAlt = createConfiguredTexture(gl);
+          state.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096;
+          state.useWebGL = true;
+
+          // Cache uniform locations
+          state.u = {
+            origTex: gl.getUniformLocation(prog, 'u_origTex'),
+            altTex: gl.getUniformLocation(prog, 'u_altTex'),
+            texel: gl.getUniformLocation(prog, 'u_texel'),
+            split: gl.getUniformLocation(prog, 'u_split'),
+            sharpness: gl.getUniformLocation(prog, 'u_sharpness'),
+            microDetail: gl.getUniformLocation(prog, 'u_microDetail'),
+            hdr: gl.getUniformLocation(prog, 'u_hdr'),
+            realism: gl.getUniformLocation(prog, 'u_realism'),
+            useAltRight: gl.getUniformLocation(prog, 'u_useAltRight'),
+            applyShaderToAlt: gl.getUniformLocation(prog, 'u_applyShaderToAlt'),
+            uvOffset: gl.getUniformLocation(prog, 'u_uvOffset'),
+            uvScale: gl.getUniformLocation(prog, 'u_uvScale'),
+          };
+
+          gl.uniform1i(state.u.origTex, 0);
+          gl.uniform1i(state.u.altTex, 1);
+
+          dom.glCanvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+            enableFallback2D('WebGL Context Lost');
+          });
+
+          dom.hudEngineBadge.textContent = 'WebGL GPU';
+          dom.hudEngineBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-nv/10 border border-nv/30 text-nv';
+        } catch (err) {
+          enableFallback2D('Canvas2D Fallback');
+        }
+      }
+
+      function enableFallback2D(label) {
+        state.useWebGL = false;
+        dom.glCanvas.classList.add('hidden');
+        dom.fallbackCanvas.classList.remove('hidden');
+        dom.hudEngineBadge.textContent = label;
+        dom.hudEngineBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/40 text-amber-300';
+      }
+
+      /* =========================================================================
+       * 6. RENDERING PIPELINE (REAL-TIME & PHOTO)
+       * ========================================================================= */
+      function syncStageAspect(srcW, srcH) {
+        if (!srcW || !srcH) return;
+        if (state.sourceWidth !== srcW || state.sourceHeight !== srcH) {
+          state.sourceWidth = srcW;
+          state.sourceHeight = srcH;
+          dom.hudInputRes.textContent = `${srcW}×${srcH}`;
+          dom.stageFrame.style.aspectRatio = `${srcW} / ${srcH}`;
+        }
+
+        const rect = dom.stageFrame.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const targetW = Math.max(320, Math.round(rect.width * dpr));
+        const targetH = Math.max(180, Math.round(rect.height * dpr));
+
+        const activeCanvas = state.useWebGL ? dom.glCanvas : dom.fallbackCanvas;
+        if (activeCanvas.width !== targetW || activeCanvas.height !== targetH) {
+          activeCanvas.width = targetW;
+          activeCanvas.height = targetH;
+        }
+      }
+
+      function drawWebGLFrame(sourceEl, altEl, splitValue, uvOffset = [0, 0], uvScale = [1, 1], targetGl = state.gl, targetProg = state.program, targetU = state.u, tex0 = state.texOrig, tex1 = state.texAlt) {
+        const gl = targetGl;
+        const w = sourceEl.videoWidth || sourceEl.naturalWidth || sourceEl.width || 1280;
+        const h = sourceEl.videoHeight || sourceEl.naturalHeight || sourceEl.height || 720;
+
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.useProgram(targetProg);
+
+        // Upload original texture to unit 0
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, tex0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceEl);
+
+        // Upload optional AI render texture to unit 1
+        const hasAlt = Boolean(altEl);
+        if (hasAlt) {
+          gl.activeTexture(gl.TEXTURE1);
+          gl.bindTexture(gl.TEXTURE_2D, tex1);
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, altEl);
+        }
+
+        const texelW = hasAlt ? (altEl.naturalWidth || altEl.width || w) : w;
+        const texelH = hasAlt ? (altEl.naturalHeight || altEl.height || h) : h;
+
+        gl.uniform2f(targetU.texel, 1.0 / Math.max(1, texelW), 1.0 / Math.max(1, texelH));
+        gl.uniform1f(targetU.split, splitValue);
+        gl.uniform1f(targetU.sharpness, state.sharpness / 100);
+        gl.uniform1f(targetU.microDetail, state.microDetail / 100);
+        gl.uniform1f(targetU.hdr, state.hdr / 100);
+        gl.uniform1f(targetU.realism, state.realism / 100);
+        gl.uniform1f(targetU.useAltRight, hasAlt ? 1.0 : 0.0);
+        gl.uniform1f(targetU.applyShaderToAlt, state.applyShaderToAi ? 1.0 : 0.0);
+        gl.uniform2f(targetU.uvOffset, uvOffset[0], uvOffset[1]);
+        gl.uniform2f(targetU.uvScale, uvScale[0], uvScale[1]);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+
+      // Automatic Canvas2D fallback renderer
+      function drawFallback2DFrame(sourceEl, altEl, splitValue) {
+        const c = dom.fallbackCanvas;
+        const ctx = c.getContext('2d');
+        const cw = c.width;
+        const ch = c.height;
+        const splitX = Math.round(cw * splitValue);
+
+        // Left: Original
+        ctx.save();
+        ctx.filter = 'none';
+        ctx.drawImage(sourceEl, 0, 0, cw, ch);
+        ctx.restore();
+
+        // Right: Enhanced
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(splitX, 0, cw - splitX, ch);
+        ctx.clip();
+
+        if (altEl && !state.applyShaderToAi) {
+          ctx.filter = 'none';
+          ctx.drawImage(altEl, 0, 0, cw, ch);
+        } else {
+          const target = altEl || sourceEl;
+          const contrast = 100 + (state.sharpness * 0.16) + (state.hdr * 0.22);
+          const saturate = 100 + (state.realism * 0.35);
+          const brightness = 100 + (state.hdr * 0.08);
+          ctx.filter = `contrast(${contrast.toFixed(1)}%) saturate(${saturate.toFixed(1)}%) brightness(${brightness.toFixed(1)}%)`;
+          ctx.drawImage(target, 0, 0, cw, ch);
+        }
+        ctx.restore();
+      }
+
+      // Main 60 FPS animation loop
+      function renderLoop(now) {
+        try {
+          // FPS counter update every 450ms
+          state.frameCount++;
+          if (now - state.lastFpsTime >= 450) {
+            state.currentFps = Math.round((state.frameCount * 1000) / (now - state.lastFpsTime));
+            dom.hudFps.textContent = `${state.currentFps} FPS`;
+            state.frameCount = 0;
+            state.lastFpsTime = now;
+          }
+
+          if (state.mode === 'live') {
+            let sourceEl = null;
+            if (state.isCapturing && dom.captureVideo.readyState >= 2 && dom.captureVideo.videoWidth > 0) {
+              sourceEl = dom.captureVideo;
+              syncStageAspect(dom.captureVideo.videoWidth, dom.captureVideo.videoHeight);
+            } else if (state.isDemoActive) {
+              renderDemoScene(demoCtx, demoCanvas.width, demoCanvas.height, now * 0.001, false);
+              sourceEl = demoCanvas;
+              syncStageAspect(demoCanvas.width, demoCanvas.height);
+            }
+
+            if (sourceEl) {
+              if (state.useWebGL) {
+                drawWebGLFrame(sourceEl, null, state.splitPos);
+              } else {
+                drawFallback2DFrame(sourceEl, null, state.splitPos);
+              }
+            }
+          } else if (state.mode === 'photo') {
+            if (state.photoOriginalImg) {
+              const w = state.photoOriginalImg.naturalWidth || state.photoOriginalImg.width;
+              const h = state.photoOriginalImg.naturalHeight || state.photoOriginalImg.height;
+              syncStageAspect(w, h);
+              const altEl = state.photoUsingAi && state.photoAiImg ? state.photoAiImg : null;
+
+              if (state.useWebGL) {
+                drawWebGLFrame(state.photoOriginalImg, altEl, state.splitPos);
+              } else {
+                drawFallback2DFrame(state.photoOriginalImg, altEl, state.splitPos);
+              }
+            }
+          }
+        } catch (err) {
+          // Keep loop alive silently on transient video frame states
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      /* =========================================================================
+       * 7. INTERACTIVE BEFORE / AFTER SPLIT SLIDER (MOUSE + TOUCH + KEYBOARD)
+       * ========================================================================= */
+      function setSplitPosition(norm) {
+        const clamped = Math.max(0.0, Math.min(1.0, norm));
+        state.splitPos = clamped;
+        const pct = clamped * 100;
+        dom.splitDivider.style.left = `${pct}%`;
+        dom.splitPercentLabel.textContent = `${Math.round(pct)}%`;
+        dom.splitHandle.setAttribute('aria-valuenow', String(Math.round(pct)));
+      }
+
+      function updateSplitFromClientX(clientX) {
+        const rect = dom.splitOverlay.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const norm = (clientX - rect.left) / rect.width;
+        setSplitPosition(norm);
+      }
+
+      function bindSplitSliderEvents() {
+        const onStart = (clientX) => {
+          state.isDraggingSplit = true;
+          dom.splitHandle.classList.add('dragging');
+          updateSplitFromClientX(clientX);
+        };
+
+        const onMove = (clientX) => {
+          if (!state.isDraggingSplit) return;
+          updateSplitFromClientX(clientX);
+        };
+
+        const onEnd = () => {
+          if (!state.isDraggingSplit) return;
+          state.isDraggingSplit = false;
+          dom.splitHandle.classList.remove('dragging');
+        };
+
+        // Mouse events
+        dom.splitOverlay.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          onStart(e.clientX);
+        });
+        window.addEventListener('mousemove', (e) => onMove(e.clientX));
+        window.addEventListener('mouseup', onEnd);
+
+        // Touch events (mobile & tablet)
+        dom.splitOverlay.addEventListener('touchstart', (e) => {
+          if (e.touches.length > 0) {
+            e.preventDefault();
+            onStart(e.touches[0].clientX);
+          }
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+          if (state.isDraggingSplit && e.touches.length > 0) {
+            e.preventDefault();
+            onMove(e.touches[0].clientX);
+          }
+        }, { passive: false });
+
+        window.addEventListener('touchend', onEnd);
+        window.addEventListener('touchcancel', onEnd);
+
+        // Keyboard accessibility on handle
+        dom.splitHandle.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            setSplitPosition(state.splitPos - 0.03);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            setSplitPosition(state.splitPos + 0.03);
+          }
+        });
+
+        dom.centerSplitBtn.addEventListener('click', () => setSplitPosition(0.5));
+      }
+
+      /* =========================================================================
+       * 8. MODE 1: LIVE SCREEN CAPTURE (getDisplayMedia)
+       * ========================================================================= */
+      async function startLiveCapture() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+          showToast('Live Screen Capture requires a modern desktop browser on HTTPS or localhost. Demo Preview remains active.', 'warning');
+          return;
+        }
+
+        try {
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+              frameRate: { ideal: 60, max: 60 },
+              cursor: 'always',
+            },
+            audio: false,
+          });
+
+          stopLiveCapture(false); // clean previous stream if any
+          state.mediaStream = stream;
+          state.isCapturing = true;
+          state.isDemoActive = false;
+
+          dom.captureVideo.srcObject = stream;
+          await dom.captureVideo.play();
+
+          const track = stream.getVideoTracks()[0];
+          if (track) {
+            track.addEventListener('ended', () => {
+              stopLiveCapture(true);
+            });
+          }
+
+          updateLiveCaptureUI();
+          showToast('Live Screen Capture started! Slide the green handle to inspect DLSS 5 enhancement.', 'success');
+        } catch (err) {
+          if (err && err.name === 'NotAllowedError') {
+            showToast('Screen capture cancelled or permission denied. Demo Preview stays ready.', 'info');
+          } else {
+            showToast('Unable to start screen capture in this environment. Try running on localhost or GitHub Pages HTTPS.', 'warning');
+          }
+        }
+      }
+
+      function stopLiveCapture(returnToDemo = true) {
+        if (state.mediaStream) {
+          state.mediaStream.getTracks().forEach((t) => t.stop());
+          state.mediaStream = null;
+        }
+        dom.captureVideo.srcObject = null;
+        state.isCapturing = false;
+        if (returnToDemo) {
+          state.isDemoActive = true;
+        }
+        updateLiveCaptureUI();
+      }
+
+      function updateLiveCaptureUI() {
+        dom.stopCaptureBtn.disabled = !state.isCapturing;
+        if (state.isCapturing) {
+          dom.captureStatePill.textContent = 'LIVE';
+          dom.captureStatePill.className = 'px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse';
+          dom.demoToggleBtn.className = 'py-2.5 px-3 rounded-xl bg-panelLight border border-gray-800 text-xs font-semibold text-gray-300 hover:border-nv/50 transition-all flex items-center justify-center gap-1.5';
+          dom.rightModeBadgeText.textContent = 'DLSS 5 On • Live GPU';
+          dom.viewportStatusText.textContent = 'Live Capture active — enhancing your screen in real time at 60 FPS.';
+        } else {
+          dom.captureStatePill.textContent = 'DEMO';
+          dom.captureStatePill.className = 'px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-nv/15 text-nv border border-nv/30';
+          dom.demoToggleBtn.className = 'py-2.5 px-3 rounded-xl bg-nv/15 border border-nv/50 text-xs font-semibold text-nv hover:bg-nv/25 transition-all flex items-center justify-center gap-1.5';
+          if (state.mode === 'live') {
+            dom.rightModeBadgeText.textContent = 'DLSS 5 On • Neural';
+            dom.viewportStatusText.textContent = 'Demo Preview active — drag the green handle or start Live Screen Capture.';
+          }
+        }
+      }
+
+      /* =========================================================================
+       * 9. MODE 2: PHOTO UPLOAD, SAMPLE PHOTO & TILED 4K/8K EXPORT
+       * ========================================================================= */
+      function generateSamplePhotoCanvas() {
+        const c = document.createElement('canvas');
+        c.width = 1280;
+        c.height = 720;
+        const ctx = c.getContext('2d', { alpha: false });
+        renderDemoScene(ctx, c.width, c.height, 0, true);
+        return c;
+      }
+
+      function loadSamplePhoto(notify = false) {
+        state.photoOriginalImg = generateSamplePhotoCanvas();
+        state.photoOriginalName = 'dlss5-sample-character.png';
+        state.photoAiImg = null;
+        state.photoUsingAi = false;
+        dom.uploadedFileInfo.textContent = 'Sample Portrait • 1280×720 px';
+        dom.aiShaderBoostRow.classList.add('hidden');
+        setAiInlineStatus('');
+        updatePhotoBadges();
+        if (notify) showToast('Loaded built-in sample game portrait.', 'info');
+      }
+
+      function handlePhotoFile(file) {
+        if (!file) return;
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          showToast('Please upload a JPG, PNG, or WebP image.', 'error');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            state.photoOriginalImg = img;
+            state.photoOriginalName = file.name;
+            state.photoAiImg = null;
+            state.photoUsingAi = false;
+            dom.uploadedFileInfo.textContent = `${file.name} • ${img.naturalWidth}×${img.naturalHeight} px`;
+            dom.aiShaderBoostRow.classList.add('hidden');
+            setAiInlineStatus('');
+            updatePhotoBadges();
+            showToast(`Loaded "${file.name}" (${img.naturalWidth}×${img.naturalHeight}). Slide to compare Local Upscale or run True AI Photorealism!`, 'success');
+          };
+          img.onerror = () => showToast('Failed to decode this image file.', 'error');
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function updatePhotoBadges() {
+        if (state.mode !== 'photo') return;
+        const resLabelMap = {
+          orig: 'Original Enhanced',
+          '4k': '4K UHD (3840px)',
+          '8k': '8K UHD (7680px)',
+        };
+        dom.hudTargetScale.textContent = state.photoUsingAi
+          ? 'True AI Photoreal'
+          : resLabelMap[state.localTargetRes] || '4K UHD (3840px)';
+
+        if (state.photoUsingAi && state.photoAiImg) {
+          dom.rightModeBadgeText.textContent = 'DLSS 5 On • AI Photoreal';
+          dom.viewportStatusText.textContent = 'Comparing Original (Left) vs Gemini AI Photorealistic Render (Right).';
+          dom.aiShaderBoostRow.classList.remove('hidden');
+        } else {
+          dom.rightModeBadgeText.textContent = `DLSS 5 On • Local ${state.localTargetRes.toUpperCase()}`;
+          dom.viewportStatusText.textContent = 'Local WebGL Upscaler active — adjust sliders in real time or run True AI Photorealism.';
+          dom.aiShaderBoostRow.classList.add('hidden');
+        }
+      }
+
+      // Memory-safe Tiled WebGL 4K/8K Exporter (prevents browser crashes on 8GB RAM / integrated GPUs)
+      async function exportEnhancedImage(targetLongEdge, filenameSuffix) {
+        const baseSource = state.mode === 'live'
+          ? (state.isCapturing && dom.captureVideo.videoWidth > 0 ? dom.captureVideo : demoCanvas)
+          : state.photoOriginalImg;
+
+        if (!baseSource) {
+          showToast('No image or video source available to export.', 'warning');
+          return;
+        }
+
+        const useAi = state.mode === 'photo' && state.photoUsingAi && state.photoAiImg;
+        const renderSource = useAi ? state.photoAiImg : baseSource;
+        const srcW = renderSource.videoWidth || renderSource.naturalWidth || renderSource.width;
+        const srcH = renderSource.videoHeight || renderSource.naturalHeight || renderSource.height;
+
+        if (!srcW || !srcH) return;
+
+        // Calculate output dimensions preserving exact aspect ratio
+        let outW = srcW;
+        let outH = srcH;
+        if (targetLongEdge && targetLongEdge > 0) {
+          const ratio = srcW / srcH;
+          if (srcW >= srcH) {
+            outW = targetLongEdge;
+            outH = Math.round(targetLongEdge / ratio);
+          } else {
+            outH = targetLongEdge;
+            outW = Math.round(targetLongEdge * ratio);
+          }
+        }
+
+        // Clamp total megapixels safely for integrated graphics / 8GB RAM browsers (~34MP = full 8K 7680x4320)
+        const maxPixels = 7680 * 4320;
+        if (outW * outH > maxPixels) {
+          const shrink = Math.sqrt(maxPixels / (outW * outH));
+          outW = Math.floor(outW * shrink);
+          outH = Math.floor(outH * shrink);
+        }
+
+        setProcessing(
+          true,
+          `Exporting ${filenameSuffix.toUpperCase()} PNG (${outW}×${outH})`,
+          'Running memory-safe tiled neural enhancement pass...',
+          20
+        );
+
+        // Allow UI overlay to paint before heavy canvas work
+        await new Promise((r) => setTimeout(r, 60));
+
+        try {
+          const outCanvas = document.createElement('canvas');
+          outCanvas.width = outW;
+          outCanvas.height = outH;
+          const outCtx = outCanvas.getContext('2d', { alpha: false });
+
+          if (!outCtx) {
+            throw new Error('Browser could not allocate output canvas memory.');
+          }
+
+          if (state.useWebGL && (!useAi || state.applyShaderToAi)) {
+            // Create a dedicated memory-safe tile WebGL canvas (max 2048px tile)
+            const tileMax = Math.min(2048, state.maxTextureSize);
+            const cols = Math.ceil(outW / tileMax);
+            const rows = Math.ceil(outH / tileMax);
+            const totalTiles = cols * rows;
+
+            const tileCanvas = document.createElement('canvas');
+            const tGl = tileCanvas.getContext('webgl', { alpha: false, preserveDrawingBuffer: true });
+
+            if (!tGl) {
+              throw new Error('Could not initialize export WebGL context.');
+            }
+
+            const vs = compileShader(tGl, tGl.VERTEX_SHADER, VERTEX_SHADER_SRC);
+            const fs = compileShader(tGl, tGl.FRAGMENT_SHADER, FRAGMENT_SHADER_SRC);
+            const tProg = tGl.createProgram();
+            tGl.attachShader(tProg, vs);
+            tGl.attachShader(tProg, fs);
+            tGl.linkProgram(tProg);
+            tGl.useProgram(tProg);
+
+            const verts = new Float32Array([
+              -1, -1, 0, 0,
+               1, -1, 1, 0,
+              -1,  1, 0, 1,
+              -1,  1, 0, 1,
+               1, -1, 1, 0,
+               1,  1, 1, 1,
+            ]);
+            const buf = tGl.createBuffer();
+            tGl.bindBuffer(tGl.ARRAY_BUFFER, buf);
+            tGl.bufferData(tGl.ARRAY_BUFFER, verts, tGl.STATIC_DRAW);
+            const pLoc = tGl.getAttribLocation(tProg, 'a_pos');
+            const uLoc = tGl.getAttribLocation(tProg, 'a_uv');
+            tGl.enableVertexAttribArray(pLoc);
+            tGl.vertexAttribPointer(pLoc, 2, tGl.FLOAT, false, 16, 0);
+            tGl.enableVertexAttribArray(uLoc);
+            tGl.vertexAttribPointer(uLoc, 2, tGl.FLOAT, false, 16, 8);
+
+            const tU = {
+              origTex: tGl.getUniformLocation(tProg, 'u_origTex'),
+              altTex: tGl.getUniformLocation(tProg, 'u_altTex'),
+              texel: tGl.getUniformLocation(tProg, 'u_texel'),
+              split: tGl.getUniformLocation(tProg, 'u_split'),
+              sharpness: tGl.getUniformLocation(tProg, 'u_sharpness'),
+              microDetail: tGl.getUniformLocation(tProg, 'u_microDetail'),
+              hdr: tGl.getUniformLocation(tProg, 'u_hdr'),
+              realism: tGl.getUniformLocation(tProg, 'u_realism'),
+              useAltRight: tGl.getUniformLocation(tProg, 'u_useAltRight'),
+              applyShaderToAlt: tGl.getUniformLocation(tProg, 'u_applyShaderToAlt'),
+              uvOffset: tGl.getUniformLocation(tProg, 'u_uvOffset'),
+              uvScale: tGl.getUniformLocation(tProg, 'u_uvScale'),
+            };
+            tGl.uniform1i(tU.origTex, 0);
+            tGl.uniform1i(tU.altTex, 1);
+
+            const tex0 = createConfiguredTexture(tGl);
+            const tex1 = createConfiguredTexture(tGl);
+
+            // Upload source texture once (downscale input slightly ONLY if larger than GPU maxTextureSize)
+            let uploadSrc = renderSource;
+            if (srcW > state.maxTextureSize || srcH > state.maxTextureSize) {
+              const s = state.maxTextureSize / Math.max(srcW, srcH);
+              const tmp = document.createElement('canvas');
+              tmp.width = Math.floor(srcW * s);
+              tmp.height = Math.floor(srcH * s);
+              tmp.getContext('2d').drawImage(renderSource, 0, 0, tmp.width, tmp.height);
+              uploadSrc = tmp;
+            }
+
+            let doneTiles = 0;
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                const x = c * tileMax;
+                const y = r * tileMax;
+                const tw = Math.min(tileMax, outW - x);
+                const th = Math.min(tileMax, outH - y);
+
+                tileCanvas.width = tw;
+                tileCanvas.height = th;
+
+                // Note: WebGL UV y=0 is bottom, Canvas2D y=0 is top
+                const uvX = x / outW;
+                const uvW = tw / outW;
+                const uvH = th / outH;
+                const uvY = 1.0 - (y + th) / outH;
+
+                // split = -1.0 means 100% enhanced across entire exported image
+                drawWebGLFrame(uploadSrc, null, -1.0, [uvX, uvY], [uvW, uvH], tGl, tProg, tU, tex0, tex1);
+                outCtx.drawImage(tileCanvas, x, y, tw, th);
+
+                doneTiles++;
+                dom.processingBar.style.width = `${20 + Math.round((doneTiles / totalTiles) * 65)}%`;
+                await new Promise((res) => setTimeout(res, 10));
+              }
+            }
+
+            // Free GPU resources cleanly
+            tGl.deleteTexture(tex0);
+            tGl.deleteTexture(tex1);
+            tGl.deleteProgram(tProg);
+            const loseExt = tGl.getExtension('WEBGL_lose_context');
+            if (loseExt) loseExt.loseContext();
+          } else {
+            // Direct high-quality draw (e.g., pure AI render or Canvas2D fallback)
+            outCtx.imageSmoothingEnabled = true;
+            outCtx.imageSmoothingQuality = 'high';
+            if (!useAi) {
+              const contrast = 100 + (state.sharpness * 0.16) + (state.hdr * 0.22);
+              const saturate = 100 + (state.realism * 0.35);
+              outCtx.filter = `contrast(${contrast.toFixed(1)}%) saturate(${saturate.toFixed(1)}%)`;
+            }
+            outCtx.drawImage(renderSource, 0, 0, outW, outH);
+            outCtx.filter = 'none';
+          }
+
+          dom.processingBar.style.width = '92%';
+          dom.processingSubtitle.textContent = 'Encoding PNG file...';
+
+          const blob = await new Promise((resolve) => outCanvas.toBlob(resolve, 'image/png'));
+          if (!blob) throw new Error('PNG encoding ran out of memory. Try 4K export.');
+
+          const baseName = (state.photoOriginalName || 'dlss5-capture').replace(/\.[^.]+$/, '');
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${baseName}-DLSS5-${filenameSuffix}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+          setProcessing(false);
+          showToast(`Exported ${outW}×${outH} PNG successfully!`, 'success');
+        } catch (err) {
+          setProcessing(false);
+          showToast(err.message || 'Export failed due to memory constraints. Try 4K PNG.', 'error');
+        }
+      }
+
+      /* =========================================================================
+       * 10. GEMINI API INTEGRATION (TRUE AI PHOTOREALISM IMAGE-TO-IMAGE)
+       * ========================================================================= */
+      function buildEnhancementPrompt() {
+        const stylePrompts = {
+          photoreal:
+            'Transform this image into an ultra-photorealistic NVIDIA DLSS 5 Neural Rendering showcase. Preserve the exact composition, face identity, pose, clothing, and background geometry with 100% fidelity, while upgrading every surface to lifelike realism: natural subsurface skin pores, individual fine hair strands, realistic leather/fabric weave, crisp reflections, and studio-grade depth. Remove any low-poly, blurry, or waxy CGI artifacts.',
+          cinematic:
+            'Remaster this image with cinematic ray-traced global illumination, volumetric studio lighting, ACES filmic HDR dynamic range, realistic specular reflections, and deep rich shadows. Keep the exact subject, pose, and scene layout identical while elevating textures and lighting to feature-film photorealism.',
+          game8k:
+            'Upscale and remaster this game screenshot or photo into razor-sharp 8K ultra-graphics quality with realistic PBR materials, ultra-crisp edges, micro-texture detail on leather, metal, hair, and environment, clean anti-aliasing, and balanced photorealistic color depth while preserving the exact original scene.',
+        };
+
+        const intensityNotes = {
+          balanced: 'Keep enhancements natural and faithful to the original tone.',
+          ultra: 'Apply high-impact DLSS 5 photorealistic detail, micro-texture synthesis, and realistic lighting.',
+          maximum: 'Push micro-detail, hyper-realistic skin/material textures, and dramatic cinematic clarity to the maximum while maintaining exact subject identity.',
+        };
+
+        return `${stylePrompts[state.aiStyle] || stylePrompts.photoreal} ${intensityNotes[state.aiIntensity] || intensityNotes.ultra}`;
+      }
+
+      // Prepare source image as cleanly sized base64 JPEG/PNG for reliable API upload
+      function getSourceAsInlineData(sourceEl) {
+        const srcW = sourceEl.naturalWidth || sourceEl.width;
+        const srcH = sourceEl.naturalHeight || sourceEl.height;
+        const maxEdge = 1536;
+        let w = srcW;
+        let h = srcH;
+        if (Math.max(w, h) > maxEdge) {
+          const ratio = maxEdge / Math.max(w, h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(sourceEl, 0, 0, w, h);
+        const dataUrl = c.toDataURL('image/png');
+        return {
+          mimeType: 'image/png',
+          data: dataUrl.split(',')[1],
+        };
+      }
+
+      // Exponential backoff fetch wrapper (retries 429/503 silently without console error spam)
+      async function fetchWithBackoff(url, options, maxRetries = 3) {
+        let delay = 1000;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            const response = await fetch(url, options);
+            if (response.status === 429 || response.status >= 500) {
+              if (attempt < maxRetries) {
+                await new Promise((r) => setTimeout(r, delay));
+                delay *= 2;
+                continue;
+              }
+            }
+            return response;
+          } catch (networkErr) {
+            if (attempt < maxRetries) {
+              await new Promise((r) => setTimeout(r, delay));
+              delay *= 2;
+              continue;
+            }
+            throw networkErr;
+          }
+        }
+      }
+
+      async function runTrueAiPhotorealism() {
+        if (state.isProcessing) return;
+        if (!state.photoOriginalImg) {
+          loadSamplePhoto(false);
+        }
+
+        // Leave apiKey empty string if user has not entered a custom key (Canvas runtime auto-injects if available;
+        // on GitHub Pages / localhost, user enters their key in AI API Key settings modal).
+        const apiKey = (state.apiKey || '').trim();
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+        setProcessing(
+          true,
+          'DLSS 5 Neural AI Rendering...',
+          'Analyzing geometry, skin pores, hair strands & cinematic lighting via Gemini AI...',
+          30
+        );
+        setAiInlineStatus('Sending frame to Gemini Neural Image Engine...', 'info');
+
+        // Animate smooth progress while waiting
+        let prog = 30;
+        const progTimer = setInterval(() => {
+          prog = Math.min(88, prog + 4);
+          dom.processingBar.style.width = `${prog}%`;
+        }, 700);
+
+        try {
+          const inlineImg = getSourceAsInlineData(state.photoOriginalImg);
+          const payload = {
+            contents: [
+              {
+                role: 'user',
+                parts: [
+                  { text: buildEnhancementPrompt() },
+                  {
+                    inlineData: {
+                      mimeType: inlineImg.mimeType,
+                      data: inlineImg.data,
+                    },
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE'],
+            },
+          };
+
+          const response = await fetchWithBackoff(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            const errMsg = result?.error?.message || `HTTP ${response.status}`;
+            if (response.status === 400 || response.status === 401 || response.status === 403) {
+              throw new Error(
+                'API Key missing or invalid. Click "AI API Key" at the top right to enter your Google AI Studio Gemini key.'
+              );
+            }
+            if (response.status === 429) {
+              throw new Error(
+                'API quota exceeded or rate-limited. Please wait a moment or check your Google AI Studio billing/quota.'
+              );
+            }
+            throw new Error(`Gemini API error: ${errMsg}`);
+          }
+
+          const parts = result?.candidates?.[0]?.content?.parts || [];
+          const imgPart = parts.find((p) => p.inlineData && p.inlineData.data);
+
+          if (!imgPart) {
+            const textReply = parts.find((p) => p.text)?.text;
+            throw new Error(
+              textReply
+                ? `Model returned text instead of an image: ${textReply.slice(0, 120)}`
+                : 'No rendered image returned by the AI model. Try again with a different photo.'
+            );
+          }
+
+          const outMime = imgPart.inlineData.mimeType || 'image/png';
+          const imageUrl = `data:${outMime};base64,${imgPart.inlineData.data}`;
+
+          const aiImg = new Image();
+          await new Promise((resolve, reject) => {
+            aiImg.onload = resolve;
+            aiImg.onerror = () => reject(new Error('Failed to decode AI rendered image.'));
+            aiImg.src = imageUrl;
+          });
+
+          state.photoAiImg = aiImg;
+          state.photoUsingAi = true;
+          updatePhotoBadges();
+
+          clearInterval(progTimer);
+          dom.processingBar.style.width = '100%';
+          setTimeout(() => setProcessing(false), 200);
+
+          setAiInlineStatus('AI Photorealism Render complete! Drag the green slider to compare Before vs After.', 'success');
+          showToast('True AI Photorealism render complete! Slide to compare or export in 4K/8K PNG.', 'success');
+        } catch (err) {
+          clearInterval(progTimer);
+          setProcessing(false);
+          const msg = err.message || 'AI Render failed. Check your network or API key settings.';
+          setAiInlineStatus(msg, 'error');
+          showToast(msg, 'error');
+        }
+      }
+
+      /* =========================================================================
+       * 11. SETTINGS & MODE MANAGEMENT
+       * ========================================================================= */
+      function loadSavedSettings() {
+        try {
+          state.apiKey = localStorage.getItem(STORAGE_KEYS.apiKey) || '';
+          state.aiStyle = localStorage.getItem(STORAGE_KEYS.style) || 'photoreal';
+          state.aiIntensity = localStorage.getItem(STORAGE_KEYS.intensity) || 'ultra';
+        } catch (e) {
+          // Ignore storage errors in restricted contexts
+        }
+
+        dom.apiKeyInput.value = state.apiKey;
+        dom.modalStyleSelect.value = state.aiStyle;
+        dom.aiStyleQuickSelect.value = state.aiStyle;
+        dom.modalIntensitySelect.value = state.aiIntensity;
+        refreshApiKeyIndicators();
+      }
+
+      function refreshApiKeyIndicators() {
+        const hasKey = Boolean(state.apiKey && state.apiKey.trim().length > 8);
+        if (hasKey) {
+          dom.apiKeyStatusDot.className = 'w-2 h-2 rounded-full bg-nv nv-glow-sm';
+          dom.modalKeyStatusBox.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-nv shrink-0"></span>
+            <span class="text-nv">Custom Gemini API Key saved in localStorage (Ready for GitHub Pages / localhost).</span>
+          `;
+        } else {
+          dom.apiKeyStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+          dom.modalKeyStatusBox.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
+            <span>No custom key saved. Add a Gemini API key for external hosting, or use offline Local 4K/8K Upscaler.</span>
+          `;
+        }
+      }
+
+      function applyPreset(key) {
+        const p = PRESETS[key];
+        if (!p) return;
+        state.activePreset = key;
+        state.sharpness = p.sharpness;
+        state.microDetail = p.microDetail;
+        state.hdr = p.hdr;
+        state.realism = p.realism;
+
+        syncSlidersUI();
+        if (state.mode === 'live') {
+          dom.hudTargetScale.textContent = p.targetLabel;
+        }
+
+        dom.presetBtns.forEach((btn) => {
+          const isMatch = btn.dataset.preset === key;
+          btn.className = isMatch
+            ? 'preset-btn px-2 py-2 rounded-lg border border-nv bg-nv/15 text-center transition-all'
+            : 'preset-btn px-2 py-2 rounded-lg border border-gray-800 bg-carbon/60 hover:border-gray-600 text-center transition-all';
+          const title = btn.children[0];
+          const sub = btn.children[1];
+          title.className = isMatch ? 'text-[11px] font-bold text-nv' : 'text-[11px] font-bold text-gray-200';
+          sub.className = isMatch ? 'text-[10px] font-mono text-nv/80' : 'text-[10px] font-mono text-gray-400';
+        });
+      }
+
+      function syncSlidersUI() {
+        dom.sliderSharpness.value = state.sharpness;
+        dom.sliderMicroDetail.value = state.microDetail;
+        dom.sliderHdr.value = state.hdr;
+        dom.sliderRealism.value = state.realism;
+
+        dom.valSharpness.textContent = `${state.sharpness}%`;
+        dom.valMicroDetail.textContent = `${state.microDetail}%`;
+        dom.valHdr.textContent = `${state.hdr}%`;
+        dom.valRealism.textContent = `${state.realism}%`;
+      }
+
+      function switchMode(newMode) {
+        state.mode = newMode;
+        const isLive = newMode === 'live';
+
+        dom.tabLiveBtn.className = isLive
+          ? 'flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-nv text-carbon shadow-md'
+          : 'flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white';
+
+        dom.tabPhotoBtn.className = !isLive
+          ? 'flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-nv text-carbon shadow-md'
+          : 'flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white';
+
+        dom.liveDotHeader.className = isLive
+          ? 'w-2 h-2 rounded-full bg-carbon animate-pulse'
+          : (state.isCapturing ? 'w-2 h-2 rounded-full bg-red-500 animate-pulse' : 'w-2 h-2 rounded-full bg-nv');
+
+        if (isLive) {
+          dom.liveControlsPanel.classList.remove('hidden');
+          dom.liveControlsPanel.classList.add('flex');
+          dom.photoControlsPanel.classList.add('hidden');
+          dom.photoControlsPanel.classList.remove('flex');
+          dom.aiShaderBoostRow.classList.add('hidden');
+          dom.hudTargetScale.textContent = PRESETS[state.activePreset].targetLabel;
+          updateLiveCaptureUI();
+        } else {
+          dom.liveControlsPanel.classList.add('hidden');
+          dom.liveControlsPanel.classList.remove('flex');
+          dom.photoControlsPanel.classList.remove('hidden');
+          dom.photoControlsPanel.classList.add('flex');
+          if (!state.photoOriginalImg) {
+            loadSamplePhoto(false);
+          }
+          updatePhotoBadges();
+        }
+      }
+
+      /* =========================================================================
+       * 12. EVENT LISTENERS
+       * ========================================================================= */
+      function bindUIEvents() {
+        // Mode tabs
+        dom.tabLiveBtn.addEventListener('click', () => switchMode('live'));
+        dom.tabPhotoBtn.addEventListener('click', () => switchMode('photo'));
+
+        // Live Capture buttons
+        dom.startCaptureBtn.addEventListener('click', startLiveCapture);
+        dom.stopCaptureBtn.addEventListener('click', () => {
+          stopLiveCapture(true);
+          showToast('Live capture stopped. Returned to Demo Preview.', 'info');
+        });
+        dom.demoToggleBtn.addEventListener('click', () => {
+          if (state.isCapturing) {
+            stopLiveCapture(true);
+            showToast('Switched to built-in Demo Preview.', 'info');
+          } else {
+            state.isDemoActive = true;
+            updateLiveCaptureUI();
+            showToast('Demo Preview active — slide the handle to test DLSS 5 shaders.', 'info');
+          }
+        });
+
+        // Presets
+        dom.presetBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            applyPreset(btn.dataset.preset);
+            showToast(`Preset applied: ${PRESETS[btn.dataset.preset].name}`, 'info');
+          });
+        });
+
+        // Shader Sliders
+        const bindSlider = (el, valEl, prop) => {
+          el.addEventListener('input', () => {
+            state[prop] = parseInt(el.value, 10);
+            valEl.textContent = `${state[prop]}%`;
+          });
+        };
+        bindSlider(dom.sliderSharpness, dom.valSharpness, 'sharpness');
+        bindSlider(dom.sliderMicroDetail, dom.valMicroDetail, 'microDetail');
+        bindSlider(dom.sliderHdr, dom.valHdr, 'hdr');
+        bindSlider(dom.sliderRealism, dom.valRealism, 'realism');
+
+        dom.resetSlidersBtn.addEventListener('click', () => {
+          applyPreset('ultra');
+          showToast('Shader tuning reset to Ultra Realism defaults.', 'info');
+        });
+
+        dom.aiShaderBoostToggle.addEventListener('change', () => {
+          state.applyShaderToAi = dom.aiShaderBoostToggle.checked;
+        });
+
+        // Viewport Actions: Snapshot & Fullscreen
+        dom.snapshotBtn.addEventListener('click', () => {
+          const targetEdge = state.mode === 'photo'
+            ? (state.localTargetRes === '8k' ? 7680 : state.localTargetRes === '4k' ? 3840 : 0)
+            : 0;
+          exportEnhancedImage(targetEdge, 'Snapshot');
+        });
+
+        dom.fullscreenBtn.addEventListener('click', async () => {
+          try {
+            if (!document.fullscreenElement) {
+              await dom.viewportShell.requestFullscreen();
+            } else {
+              await document.exitFullscreen();
+            }
+          } catch (e) {
+            showToast('Fullscreen is restricted by the current browser frame.', 'warning');
+          }
+        });
+
+        // Photo Upload Zone (Click & Drag/Drop)
+        dom.photoDropZone.addEventListener('click', () => dom.photoFileInput.click());
+        dom.photoFileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            handlePhotoFile(e.target.files[0]);
+            e.target.value = '';
+          }
+        });
+
+        dom.photoDropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dom.photoDropZone.classList.add('border-nv', 'bg-nv/10');
+        });
+        dom.photoDropZone.addEventListener('dragleave', () => {
+          dom.photoDropZone.classList.remove('border-nv', 'bg-nv/10');
+        });
+        dom.photoDropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dom.photoDropZone.classList.remove('border-nv', 'bg-nv/10');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handlePhotoFile(e.dataTransfer.files[0]);
+          }
+        });
+
+        dom.loadDemoPhotoBtn.addEventListener('click', () => loadSamplePhoto(true));
+
+        dom.localResSelect.addEventListener('change', () => {
+          state.localTargetRes = dom.localResSelect.value;
+          updatePhotoBadges();
+        });
+
+        dom.applyLocalUpscaleBtn.addEventListener('click', () => {
+          if (!state.photoOriginalImg) loadSamplePhoto(false);
+          state.photoUsingAi = false;
+          updatePhotoBadges();
+          showToast(`Local WebGL Upscaler active (${dom.localResSelect.options[dom.localResSelect.selectedIndex].text}).`, 'success');
+        });
+
+        // Sync AI Style selector between sidebar & modal
+        dom.aiStyleQuickSelect.addEventListener('change', () => {
+          state.aiStyle = dom.aiStyleQuickSelect.value;
+          dom.modalStyleSelect.value = state.aiStyle;
+          try { localStorage.setItem(STORAGE_KEYS.style, state.aiStyle); } catch (e) {}
+        });
+
+        dom.runAiPhotorealBtn.addEventListener('click', runTrueAiPhotorealism);
+
+        // 4K & 8K Export buttons
+        dom.download4kBtn.addEventListener('click', () => exportEnhancedImage(3840, '4K'));
+        dom.download8kBtn.addEventListener('click', () => exportEnhancedImage(7680, '8K'));
+
+        // API Settings Modal
+        const openModal = () => {
+          dom.apiKeyInput.value = state.apiKey;
+          dom.modalStyleSelect.value = state.aiStyle;
+          dom.modalIntensitySelect.value = state.aiIntensity;
+          refreshApiKeyIndicators();
+          dom.apiModalBackdrop.classList.remove('hidden');
+        };
+        const closeModal = () => dom.apiModalBackdrop.classList.add('hidden');
+
+        dom.openApiModalBtn.addEventListener('click', openModal);
+        dom.closeApiModalBtn.addEventListener('click', closeModal);
+        dom.cancelApiModalBtn.addEventListener('click', closeModal);
+        dom.apiModalBackdrop.addEventListener('click', (e) => {
+          if (e.target === dom.apiModalBackdrop) closeModal();
+        });
+
+        dom.toggleApiKeyVisBtn.addEventListener('click', () => {
+          const isPwd = dom.apiKeyInput.type === 'password';
+          dom.apiKeyInput.type = isPwd ? 'text' : 'password';
+          dom.toggleApiKeyVisBtn.textContent = isPwd ? 'Hide' : 'Show';
+        });
+
+        dom.saveApiKeyBtn.addEventListener('click', () => {
+          state.apiKey = dom.apiKeyInput.value.trim();
+          state.aiStyle = dom.modalStyleSelect.value;
+          state.aiIntensity = dom.modalIntensitySelect.value;
+          dom.aiStyleQuickSelect.value = state.aiStyle;
+          try {
+            localStorage.setItem(STORAGE_KEYS.apiKey, state.apiKey);
+            localStorage.setItem(STORAGE_KEYS.style, state.aiStyle);
+            localStorage.setItem(STORAGE_KEYS.intensity, state.aiIntensity);
+          } catch (e) {}
+          refreshApiKeyIndicators();
+          closeModal();
+          showToast('AI API settings saved to localStorage.', 'success');
+        });
+
+        dom.clearApiKeyBtn.addEventListener('click', () => {
+          state.apiKey = '';
+          dom.apiKeyInput.value = '';
+          try { localStorage.removeItem(STORAGE_KEYS.apiKey); } catch (e) {}
+          refreshApiKeyIndicators();
+          showToast('Saved API key cleared.', 'info');
+        });
+
+        // Keyboard Escape closes modal
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !dom.apiModalBackdrop.classList.contains('hidden')) {
+            closeModal();
+          }
+        });
+      }
+
+      /* =========================================================================
+       * 13. BOOTSTRAP ON WINDOW LOAD
+       * ========================================================================= */
+      window.addEventListener('load', () => {
+        loadSavedSettings();
+        initWebGL();
+        bindSplitSliderEvents();
+        bindUIEvents();
+        applyPreset('ultra');
+        setSplitPosition(0.5);
+        updateLiveCaptureUI();
+        requestAnimationFrame(renderLoop);
+      });
+    })();
+  </script>
 </body>
 </html>
