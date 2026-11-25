@@ -1,410 +1,623 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>macOS TV Launcher Hub · Upload & Launch on Mi TV</title>
-  <style>
-    :root {
-      --bg: #0b0e14;
-      --card: rgba(20, 24, 34, 0.78);
-      --border: rgba(255, 255, 255, 0.16);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #3b82f6;
-      --ok: #22c55e;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>macOS TV Direct Launch Hub · Clean Your TV + macOS Launcher</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --card: rgba(20, 24, 34, 0.84);
+    --border: rgba(255, 255, 255, 0.16);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #0a84ff;
+    --green: #30d158;
+  }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  }
 
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 15% 15%, rgba(217, 179, 130, 0.22), transparent 45%),
-        radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.2), transparent 50%),
-        var(--bg);
-      color: var(--text);
-      padding: 20px;
-    }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(217, 179, 130, 0.22), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(10, 132, 255, 0.22), transparent 50%),
+      var(--bg);
+    color: var(--text);
+    padding: 18px;
+  }
 
-    .wrap {
-      max-width: 1240px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 390px 1fr;
-      gap: 20px;
-    }
+  .app-shell {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 18px;
+  }
 
-    @media (max-width: 960px) {
-      .wrap { grid-template-columns: 1fr; }
-    }
+  @media (max-width: 980px) {
+    .app-shell { grid-template-columns: 1fr; }
+  }
 
-    .panel {
-      background: var(--card);
-      backdrop-filter: blur(24px);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+  .panel {
+    background: var(--card);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
 
-    h1 { font-size: 19px; font-weight: 700; }
-    h2 { font-size: 15px; font-weight: 700; color: #e2e8f0; }
-    p.desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    .drop {
-      border: 1.5px dashed rgba(59, 130, 246, 0.65);
-      background: rgba(59, 130, 246, 0.08);
-      border-radius: 16px;
-      padding: 18px 14px;
-      text-align: center;
-      cursor: pointer;
-    }
+  .tv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(48, 209, 88, 0.14);
+    border: 1px solid rgba(48, 209, 88, 0.4);
+    color: #86efac;
+  }
 
-    .drop.over { background: rgba(59, 130, 246, 0.18); }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
 
-    label.lbl {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #cbd5e1;
-      margin-bottom: 5px;
-    }
+  h1 { font-size: 18px; font-weight: 700; }
+  h2 { font-size: 15px; font-weight: 700; color: #e2e8f0; }
+  p.desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(0, 0, 0, 0.35);
-      color: #fff;
-      font-size: 13px;
-    }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 5px;
+  }
 
-    .chk {
-      display: flex;
-      gap: 9px;
-      align-items: flex-start;
-      font-size: 12.5px;
-      color: #e2e8f0;
-      cursor: pointer;
-    }
+  input[type="text"] {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.38);
+    color: #fff;
+    font-size: 13px;
+  }
 
-    .btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+  .drop {
+    border: 1.5px dashed rgba(10, 132, 255, 0.65);
+    background: rgba(10, 132, 255, 0.08);
+    border-radius: 15px;
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12.5px;
+  }
 
-    button {
-      padding: 11px 14px;
-      border-radius: 13px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+  .chk {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    color: #e2e8f0;
+    cursor: pointer;
+  }
 
-    button.primary {
-      grid-column: 1 / -1;
-      background: var(--accent);
-      border-color: rgba(147, 197, 253, 0.5);
-    }
+  .btn-main {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #0a84ff, #2563eb);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
-    .tv-frame-box {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      background: #05070b;
-    }
+  .btn-sub {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-    iframe#preview {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
 
-    .test-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
+  .tv-stage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: #05070b;
+  }
 
-    .pill {
-      padding: 6px 11px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border);
-      cursor: pointer;
-    }
+  iframe#tv-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 
-    pre.cmd {
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #bbf7d0;
-      overflow-x: auto;
-      white-space: pre-wrap;
-    }
+  .remote-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
 
-    .status {
-      font-size: 12.5px;
-      color: #86efac;
-      min-height: 18px;
-    }
-  </style>
+  .key-btn {
+    padding: 6px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tab {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    background: rgba(10, 132, 255, 0.25);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  pre.code-out {
+    background: rgba(0, 0, 0, 0.48);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #a7f3d0;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+  }
+
+  .msg {
+    font-size: 12.5px;
+    color: #93c5fd;
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="app-shell">
     <aside class="panel">
-      <div>
-        <h1>macOS TV Launcher Hub</h1>
-        <p class="desc">Apni banayi hui HTML launcher file yahan upload karein, YouTube &amp; TV apps launch test karein, aur Mi TV (192.168.29.45) par push/launch karne ke commands ya script lein.</p>
+      <div class="header-row">
+        <h1>macOS TV Direct Launch</h1>
+        <span class="tv-pill" id="tv-status-pill">
+          <span class="dot"></span>
+          <span id="tv-status-text">Android TV Connected · 192.168.29.45</span>
+        </span>
       </div>
 
-      <div class="drop" id="drop-area" onclick="document.getElementById('html-input').click()">
-        <div id="file-label" style="font-weight:700;font-size:13.5px;">HTML File Upload Karein (.html)</div>
-        <div id="file-sub" style="font-size:12px;color:#94a3b8;margin-top:4px;">macos_tv_launcher_mi_tv_192_168_29_45.html ya koi bhi HTML</div>
-        <input type="file" id="html-input" accept=".html,.htm,text/html" hidden />
-      </div>
+      <p class="desc">
+        GitHub Pages ya local HTTP par chalne wala hub. Apni macOS HTML file ya GitHub link daalein, TV scan/check karein, purani TV settings ka backup save rakhein, aur <b>Launch</b> dabayein.
+      </p>
 
-      <div>
-        <label class="lbl" for="tv-ip">Mi Android TV IP (ADB over Wi-Fi)</label>
+      <div class="field">
+        <label for="tv-ip">TV IP (Scan / Connect Target)</label>
         <input type="text" id="tv-ip" value="192.168.29.45" />
       </div>
 
-      <div>
-        <label class="lbl" for="hosted-url">GitHub Pages / HTTP URL (Optional, agar online host kiya hai)</label>
-        <input type="text" id="hosted-url" placeholder="https://username.github.io/repo/macos_tv_launcher_mi_tv_192_168_29_45.html" />
+      <div class="field">
+        <label for="tv-url">GitHub Pages / HTTP Launcher URL</label>
+        <input type="text" id="tv-url" placeholder="https://username.github.io/repo/macos_tv_launcher_mi_tv_192_168_29_45.html" />
+      </div>
+
+      <div class="drop" id="drop-box" onclick="document.getElementById('file-picker').click()">
+        <div id="picked-name" style="font-weight:700;">macOS HTML File Upload Karein (.html)</div>
+        <div id="picked-info" style="font-size:11.5px;color:#94a3b8;margin-top:3px;">Built-in macOS TV preview loaded</div>
+        <input type="file" id="file-picker" accept=".html,.htm,text/html" hidden />
       </div>
 
       <label class="chk">
-        <input type="checkbox" id="inject-bridge" checked />
-        <span><b>App Launch Bridge jorein:</b> YouTube, Netflix, Prime Video, Google TV, JioHotstar, Spotify, Plex aur Settings par click hote hi Android TV intent (`intent:#Intent;package=...;end`) se app open ho[cite: 3].</span>
+        <input type="checkbox" id="chk-backup" checked />
+        <span><b>Purani TV File / Restore Backup Save Rakhein:</b> <code>restore.sh</code> aur <code>restore.ps1</code> (Clean Your TV 0.4.8 style) tayaar rakhein taaki TV kharab na ho aur purani state wapas aa sake.</span>
       </label>
 
       <label class="chk">
-        <input type="checkbox" id="clean-stock" checked />
-        <span><b>Stock Launcher / Bloatware Cleanup:</b> Purane bloatware disable karne aur pehle undo/restore list banane ke commands shamil karein.</span>
+        <input type="checkbox" id="chk-youtube" checked />
+        <span><b>YouTube &amp; TV App Bridge:</b> YouTube (<code>com.google.android.youtube.tv</code>), Netflix, Hotstar aur HDMI buttons ko direct Android TV intent se jorein.</span>
       </label>
 
-      <div class="btns">
-        <button class="primary" id="btn-download-bat" type="button">Download TV Launch Script (.bat)</button>
-        <button id="btn-download-html" type="button">Download Ready HTML</button>
-        <button id="btn-copy-cmd" type="button">Copy ADB Commands</button>
+      <div class="grid-2">
+        <button class="btn-sub" id="btn-scan" type="button">Scan TV (192.168.29.45)</button>
+        <button class="btn-sub" id="btn-copy" type="button">Copy Commands</button>
       </div>
 
-      <div class="status" id="status-text">Ready.</div>
+      <button class="btn-main" id="btn-launch" type="button">▶ Launch on TV</button>
+
+      <div class="msg" id="status-msg">Android TV target ready: 192.168.29.45:5555</div>
     </aside>
 
     <main class="panel">
-      <h2>Live Launcher Preview &amp; App Test</h2>
-      <div class="tv-frame-box">
-        <iframe id="preview" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      <div class="header-row">
+        <h2>Live Launcher &amp; Remote Controls</h2>
+        <span style="font-size:12px;color:#94a3b8;">Arrow Keys / OK / Back</span>
       </div>
 
-      <div class="test-bar">
-        <span style="font-size:12px;color:#94a3b8;">Quick App Intent Test:</span>
-        <span class="pill" data-test="YouTube|com.google.android.youtube.tv">YouTube</span>
-        <span class="pill" data-test="Netflix|com.netflix.ninja">Netflix</span>
-        <span class="pill" data-test="Prime Video|com.amazon.amazonvideo.livingroom">Prime Video</span>
-        <span class="pill" data-test="Google TV|com.google.android.videos">Google TV</span>
-        <span class="pill" data-test="JioHotstar|in.startv.hotstar">JioHotstar</span>
-        <span class="pill" data-test="Spotify|com.spotify.tv.android">Spotify</span>
-        <span class="pill" data-test="Plex|com.plexapp.android">Plex</span>
+      <div class="tv-stage">
+        <iframe id="tv-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
       </div>
 
-      <h2>ADB Commands &amp; Push/Launch Script</h2>
-      <pre class="cmd" id="cmd-output"></pre>
+      <div class="remote-bar">
+        <button class="key-btn" data-key="ArrowLeft" type="button">◀ Left</button>
+        <button class="key-btn" data-key="ArrowRight" type="button">Right ▶</button>
+        <button class="key-btn" data-key="Enter" type="button">OK / Open</button>
+        <button class="key-btn" data-key="Escape" type="button">Back</button>
+        <button class="key-btn" id="btn-test-yt" type="button">Open YouTube</button>
+      </div>
+
+      <div class="header-row">
+        <div class="tabs">
+          <button class="tab active" data-tab="launch" type="button">Launch &amp; ADB</button>
+          <button class="tab" data-tab="restore-sh" type="button">restore.sh (Backup/Undo)</button>
+          <button class="tab" data-tab="restore-ps1" type="button">restore.ps1 (Windows)</button>
+        </div>
+        <button class="key-btn" id="btn-save-file" type="button">Save Current Tab File</button>
+      </div>
+
+      <pre class="code-out" id="code-out"></pre>
     </main>
   </div>
 
-  <script>
-    (() => {
-      const PACKAGE_MAP = {
-        "youtube": "com.google.android.youtube.tv",
-        "netflix": "com.netflix.ninja",
-        "prime video": "com.amazon.amazonvideo.livingroom",
-        "prime": "com.amazon.amazonvideo.livingroom",
-        "google tv": "com.google.android.videos",
-        "jiohotstar": "in.startv.hotstar",
-        "hotstar": "in.startv.hotstar",
-        "spotify": "com.spotify.tv.android",
-        "plex": "com.plexapp.android",
-        "tv settings": "com.android.tv.settings",
-        "settings": "com.android.tv.settings"
-      };
-
-      const BRIDGE_SNIPPET = `\n<script id="tv-app-bridge">
+<script>
 (() => {
-  const pkgs = ${JSON.stringify(PACKAGE_MAP)};
-  function launchPkg(pkg, name) {
-    if (!pkg) return;
-    try { window.parent.postMessage({ type: "TV_APP_TEST", pkg, name }, "*"); } catch (_) {}
-    window.location.href = "intent:#Intent;package=" + pkg + ";end";
+  const APP_INTENTS = {
+    youtube: "com.google.android.youtube.tv",
+    netflix: "com.netflix.ninja",
+    prime: "com.amazon.amazonvideo.livingroom",
+    googletv: "com.google.android.videos",
+    hotstar: "in.startv.hotstar",
+    spotify: "com.spotify.tv.android",
+    plex: "com.plexapp.android",
+    settings: "com.android.tv.settings"
+  };
+
+  const DEFAULT_MAC_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>macOS TV Launcher</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; user-select: none; }
+  html, body { width: 100%; height: 100%; overflow: hidden; color: #fff; background: #0b0e14; }
+  .bg {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(110% 90% at 15% 18%, rgba(231, 207, 168, 0.65), transparent 55%),
+      radial-gradient(100% 95% at 85% 20%, rgba(168, 147, 120, 0.45), transparent 55%),
+      linear-gradient(145deg, #2b2623 0%, #161a24 55%, #090b10 100%);
   }
-  document.addEventListener("click", (ev) => {
-    const tile = ev.target.closest(".app-tile, [data-pkg], button, a");
-    if (!tile) return;
-    const explicitPkg = tile.getAttribute("data-pkg");
-    if (explicitPkg) {
-      ev.preventDefault();
-      launchPkg(explicitPkg, tile.innerText.trim());
-      return;
+  .ui { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 36px; }
+  .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .pill { padding: 7px 14px; border-radius: 999px; background: rgba(20, 24, 34, 0.55); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(16px); }
+  .center-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .center-sub { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 18px; }
+  .shelf { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; padding-bottom: 10px; }
+  .tile {
+    width: 136px; height: 92px; border-radius: 20px;
+    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.22);
+    backdrop-filter: blur(18px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; color: #fff; font-weight: 600; font-size: 13px; transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .tile.focused, .tile:hover { transform: translateY(-8px) scale(1.06); border-color: #fff; background: rgba(255,255,255,0.22); outline: none; }
+  .dock-wrap { display: flex; justify-content: center; }
+  .dock { display: inline-flex; gap: 10px; padding: 9px 14px; border-radius: 22px; background: rgba(20,24,34,0.62); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(22px); }
+  .dock-btn { padding: 7px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="ui">
+    <div class="top">
+      <div class="pill">Android TV Connected · 192.168.29.45</div>
+      <div class="pill" id="tv-clock">--:--</div>
+    </div>
+    <div>
+      <div class="center-title" id="active-name">YouTube</div>
+      <div class="center-sub" id="active-sub">Press OK or click to open YouTube on Android TV</div>
+      <div class="shelf" id="tiles">
+        <button class="tile focused" data-pkg="com.google.android.youtube.tv" data-sub="4K HDR Video & Live Channels"><span>▶</span><span>YouTube</span></button>
+        <button class="tile" data-pkg="com.netflix.ninja" data-sub="Series & Movies"><span>N</span><span>Netflix</span></button>
+        <button class="tile" data-pkg="com.amazon.amazonvideo.livingroom" data-sub="Prime Video"><span>Prime</span><span>Prime Video</span></button>
+        <button class="tile" data-pkg="in.startv.hotstar" data-sub="Live Sports & Shows"><span>★</span><span>JioHotstar</span></button>
+        <button class="tile" data-pkg="com.spotify.tv.android" data-sub="Music & Audio"><span>♫</span><span>Spotify</span></button>
+        <button class="tile" data-pkg="com.android.tv.settings" data-sub="System & Wi-Fi"><span>⚙</span><span>TV Settings</span></button>
+      </div>
+    </div>
+    <div class="dock-wrap">
+      <div class="dock">
+        <button class="dock-btn" data-action="hdmi1">HDMI 1</button>
+        <button class="dock-btn" data-action="hdmi3">HDMI 3 · Jio STB</button>
+        <button class="dock-btn" data-action="home">TV Home</button>
+      </div>
+    </div>
+  </div>
+<script>
+  const tiles = [...document.querySelectorAll(".tile")];
+  let idx = 0;
+  function setIdx(n) {
+    idx = (n + tiles.length) % tiles.length;
+    tiles.forEach((t, i) => t.classList.toggle("focused", i === idx));
+    const cur = tiles[idx];
+    document.getElementById("active-name").textContent = cur.children[1].textContent;
+    document.getElementById("active-sub").textContent = cur.dataset.sub || "";
+  }
+  function launchTile(el) {
+    const pkg = el.dataset.pkg;
+    const name = el.children[1] ? el.children[1].textContent : pkg;
+    try { window.parent.postMessage({ type: "LAUNCH_APP", pkg, name }, "*"); } catch (_) {}
+    if (pkg) {
+      window.location.href = "intent:#Intent;package=" + pkg + ";end";
     }
-    const labelEl = tile.querySelector(".app-label") || tile;
-    const text = (labelEl.textContent || "").trim().toLowerCase();
-    for (const key in pkgs) {
-      if (text.includes(key)) {
-        ev.preventDefault();
-        launchPkg(pkgs[key], labelEl.textContent.trim());
-        return;
-      }
+  }
+  tiles.forEach((t, i) => {
+    t.addEventListener("click", () => { setIdx(i); launchTile(t); });
+  });
+  document.querySelectorAll(".dock-btn").forEach((b) => {
+    b.addEventListener("click", () => {
+      const act = b.dataset.action;
+      try { window.parent.postMessage({ type: "DOCK_ACTION", act }, "*"); } catch (_) {}
+      if (act === "hdmi3") window.location.href = "content://android.media.tv/passthrough/com.droidlogic.tvinput%2F.services.Hdmi3InputService%2FHW7";
+      if (act === "hdmi1") window.location.href = "content://android.media.tv/passthrough/com.droidlogic.tvinput%2F.services.Hdmi1InputService%2FHW5";
+    });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); setIdx(idx + 1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); setIdx(idx - 1); }
+    if (e.key === "Enter") { e.preventDefault(); launchTile(tiles[idx]); }
+  });
+  window.addEventListener("message", (e) => {
+    if (!e.data || !e.data.key) return;
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: e.data.key, bubbles: true }));
+  });
+  setInterval(() => {
+    document.getElementById("tv-clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }, 1000);
+</script>
+</body>
+</html>`;
+
+  const BRIDGE_INJECT = `\n<script id="clean-tv-app-bridge">
+(() => {
+  const map = ${JSON.stringify(APP_INTENTS)};
+  function openTarget(pkg, label) {
+    try { window.parent.postMessage({ type: "LAUNCH_APP", pkg, name: label || pkg }, "*"); } catch (_) {}
+    if (pkg) window.location.href = "intent:#Intent;package=" + pkg + ";end";
+  }
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-pkg], .app-tile, button, a");
+    if (!el) return;
+    const pkg = el.getAttribute("data-pkg");
+    const txt = (el.innerText || el.getAttribute("data-name") || "").toLowerCase();
+    if (pkg) { e.preventDefault(); openTarget(pkg, el.innerText.trim()); return; }
+    for (const k in map) {
+      if (txt.includes(k)) { e.preventDefault(); openTarget(map[k], el.innerText.trim()); return; }
     }
   }, true);
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.key) document.dispatchEvent(new KeyboardEvent("keydown", { key: e.data.key, bubbles: true }));
+  });
 })();
 <\/script>\n`;
 
-      const fallbackSample = `<!DOCTYPE html><html><body style="margin:0;background:#111622;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><div style="text-align:center;"><h2>macos_tv_launcher_mi_tv_192_168_29_45.html Upload Karein</h2><p style="color:#94a3b8;margin-top:8px;">Left panel se apni HTML file chunein taaki yahan live preview aur app launch bridge tayaar ho[cite: 3].</p></div></body></html>`;
+  let uploadedHtml = "";
+  let uploadedName = "macos_tv_launcher_mi_tv_192_168_29_45.html";
+  let currentTab = "launch";
 
-      let originalHtml = "";
-      let fileName = "macos_tv_launcher_mi_tv_192_168_29_45.html";
+  const tvIpInput = document.getElementById("tv-ip");
+  const tvUrlInput = document.getElementById("tv-url");
+  const chkBackup = document.getElementById("chk-backup");
+  const chkYoutube = document.getElementById("chk-youtube");
+  const filePicker = document.getElementById("file-picker");
+  const tvFrame = document.getElementById("tv-frame");
+  const codeOut = document.getElementById("code-out");
+  const statusMsg = document.getElementById("status-msg");
+  const tvStatusText = document.getElementById("tv-status-text");
 
-      const fileInput = document.getElementById("html-input");
-      const dropArea = document.getElementById("drop-area");
-      const tvIpEl = document.getElementById("tv-ip");
-      const hostedUrlEl = document.getElementById("hosted-url");
-      const injectBridgeEl = document.getElementById("inject-bridge");
-      const cleanStockEl = document.getElementById("clean-stock");
-      const previewEl = document.getElementById("preview");
-      const cmdOutputEl = document.getElementById("cmd-output");
-      const statusEl = document.getElementById("status-text");
+  function buildLauncherSource() {
+    const raw = uploadedHtml || DEFAULT_MAC_HTML;
+    if (!chkYoutube.checked) return raw;
+    if (raw.includes("</body>")) return raw.replace("</body>", BRIDGE_INJECT + "</body>");
+    return raw + BRIDGE_INJECT;
+  }
 
-      function getPatchedHtml() {
-        if (!originalHtml) return fallbackSample;
-        if (!injectBridgeEl.checked) return originalHtml;
-        if (originalHtml.includes("</body>")) {
-          return originalHtml.replace("</body>", BRIDGE_SNIPPET + "</body>");
-        }
-        return originalHtml + BRIDGE_SNIPPET;
+  function getLaunchTarget() {
+    const customUrl = (tvUrlInput.value || "").trim();
+    if (customUrl) return customUrl;
+    return `file:///sdcard/Download/${uploadedName}`;
+  }
+
+  function getLaunchScript() {
+    const ip = (tvIpInput.value || "192.168.29.45").trim();
+    const target = getLaunchTarget();
+    const lines = [
+      `adb connect ${ip}:5555`,
+      `adb -s ${ip}:5555 shell getprop ro.product.model`
+    ];
+    if (chkBackup.checked) {
+      lines.push(
+        `adb -s ${ip}:5555 shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME > stock_home_backup.txt`,
+        `adb -s ${ip}:5555 shell pm list packages -d > disabled_apps_backup.txt`
+      );
+    }
+    if (!tvUrlInput.value.trim()) {
+      lines.push(`adb -s ${ip}:5555 push "${uploadedName}" /sdcard/Download/${uploadedName}`);
+    }
+    lines.push(`adb -s ${ip}:5555 shell am start -a android.intent.action.VIEW -d "${target}"`);
+    return lines.join("\n");
+  }
+
+  function getRestoreSh() {
+    const ip = (tvIpInput.value || "192.168.29.45").trim();
+    return `#!/bin/sh
+set -u
+TV_HOST="\${1:-${ip}:5555}"
+echo "Restoring previous TV state on $TV_HOST..."
+adb connect "$TV_HOST"
+adb -s "$TV_HOST" shell pm enable --user 0 com.google.android.tvlauncher
+adb -s "$TV_HOST" shell pm enable --user 0 com.mitv.tvhome.atv
+adb -s "$TV_HOST" shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
+echo "Previous TV home restored."`;
+  }
+
+  function getRestorePs1() {
+    const ip = (tvIpInput.value || "192.168.29.45").trim();
+    return `$TvHost = "${ip}:5555"
+Write-Output "Restoring previous TV state on $TvHost..."
+adb connect $TvHost
+adb -s $TvHost shell pm enable --user 0 com.google.android.tvlauncher
+adb -s $TvHost shell pm enable --user 0 com.mitv.tvhome.atv
+adb -s $TvHost shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
+Write-Output "Previous TV home restored."`;
+  }
+
+  function renderCodeTab() {
+    if (currentTab === "restore-sh") codeOut.textContent = getRestoreSh();
+    else if (currentTab === "restore-ps1") codeOut.textContent = getRestorePs1();
+    else codeOut.textContent = getLaunchScript();
+  }
+
+  function renderPreview() {
+    const url = (tvUrlInput.value || "").trim();
+    if (url && !uploadedHtml) {
+      tvFrame.removeAttribute("srcdoc");
+      tvFrame.src = url;
+    } else {
+      tvFrame.removeAttribute("src");
+      tvFrame.srcdoc = buildLauncherSource();
+    }
+    tvStatusText.textContent = `Android TV Connected · ${tvIpInput.value.trim() || "192.168.29.45"}`;
+    renderCodeTab();
+  }
+
+  filePicker.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    uploadedName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      uploadedHtml = String(ev.target.result || "");
+      document.getElementById("picked-name").textContent = "Loaded: " + f.name;
+      document.getElementById("picked-info").textContent = `${(f.size / 1024).toFixed(1)} KB · Ready to launch`;
+      statusMsg.textContent = `"${f.name}" preview mein load ho gayi hai.`;
+      renderPreview();
+    };
+    reader.readAsText(f);
+  });
+
+  document.getElementById("btn-scan").addEventListener("click", () => {
+    const ip = (tvIpInput.value || "192.168.29.45").trim();
+    tvStatusText.textContent = `Android TV Connected · ${ip}`;
+    statusMsg.textContent = `Target set to ${ip}:5555 (Android TV Connected). Browser direct TCP scan ke liye ADB/local bridge use karein.`;
+    renderCodeTab();
+  });
+
+  document.getElementById("btn-launch").addEventListener("click", () => {
+    renderPreview();
+    const target = getLaunchTarget();
+    statusMsg.textContent = `Launch tayaar! Preview active aur launch command (${target}) generate ho gayi hai.`;
+  });
+
+  document.getElementById("btn-test-yt").addEventListener("click", () => {
+    statusMsg.textContent = `YouTube Intent -> intent:#Intent;package=${APP_INTENTS.youtube};end`;
+  });
+
+  document.getElementById("btn-copy").addEventListener("click", () => {
+    navigator.clipboard.writeText(getLaunchScript());
+    statusMsg.textContent = "Launch aur backup commands copy ho gaye.";
+  });
+
+  document.getElementById("btn-save-file").addEventListener("click", () => {
+    const names = { launch: "launch_tv.txt", "restore-sh": "restore.sh", "restore-ps1": "restore.ps1" };
+    const blob = new Blob([codeOut.textContent], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = names[currentTab] || "tv_script.txt";
+    a.click();
+  });
+
+  document.querySelectorAll(".key-btn[data-key]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-key");
+      if (tvFrame.contentWindow) {
+        tvFrame.contentWindow.postMessage({ key }, "*");
       }
+    });
+  });
 
-      function buildCommands() {
-        const ip = (tvIpEl.value || "192.168.29.45").trim();
-        const url = (hostedUrlEl.value || "").trim();
-        const out = [
-          `adb connect ${ip}:5555`,
-          `adb -s ${ip}:5555 wait-for-device`
-        ];
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+      t.classList.add("active");
+      currentTab = t.dataset.tab;
+      renderCodeTab();
+    });
+  });
 
-        if (cleanStockEl.checked) {
-          out.push(
-            `adb -s ${ip}:5555 shell pm list packages -d > disabled_before.txt`,
-            `adb -s ${ip}:5555 shell pm disable-user --user 0 com.xiaomi.mitv.ads`,
-            `adb -s ${ip}:5555 shell pm disable-user --user 0 com.xiaomi.mitv.tvrecommendations`,
-            `adb -s ${ip}:5555 shell pm disable-user --user 0 com.xiaomi.mitv.shop`,
-            `adb -s ${ip}:5555 shell pm disable-user --user 0 com.xiaomi.mitv.payment`
-          );
-        }
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "LAUNCH_APP") {
+      statusMsg.textContent = `App triggered: ${e.data.name} (${e.data.pkg})`;
+    }
+  });
 
-        if (url) {
-          out.push(`adb -s ${ip}:5555 shell am start -a android.intent.action.VIEW -d "${url}"`);
-        } else {
-          out.push(
-            `adb -s ${ip}:5555 push "${fileName}" /sdcard/Download/${fileName}`,
-            `adb -s ${ip}:5555 shell am start -a android.intent.action.VIEW -d "file:///sdcard/Download/${fileName}" -t "text/html"`
-          );
-        }
+  [tvIpInput, tvUrlInput, chkBackup, chkYoutube].forEach((el) => {
+    el.addEventListener("input", renderPreview);
+    el.addEventListener("change", renderPreview);
+  });
 
-        return out.join("\n");
-      }
-
-      function render() {
-        const html = getPatchedHtml();
-        previewEl.srcdoc = html;
-        cmdOutputEl.textContent = buildCommands();
-      }
-
-      function loadFile(file) {
-        if (!file) return;
-        fileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          originalHtml = String(e.target.result || "");
-          document.getElementById("file-label").textContent = "Loaded: " + file.name;
-          document.getElementById("file-sub").textContent = `${(file.size / 1024).toFixed(1)} KB · App Launch Bridge Ready`;
-          statusEl.textContent = `"${file.name}" preview mein load ho gayi hai.`;
-          render();
-        };
-        reader.readAsText(file);
-      }
-
-      fileInput.addEventListener("change", (e) => loadFile(e.target.files[0]));
-      dropArea.addEventListener("dragover", (e) => { e.preventDefault(); dropArea.classList.add("over"); });
-      dropArea.addEventListener("dragleave", () => dropArea.classList.remove("over"));
-      dropArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropArea.classList.remove("over");
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          loadFile(e.dataTransfer.files[0]);
-        }
-      });
-
-      [tvIpEl, hostedUrlEl, injectBridgeEl, cleanStockEl].forEach((el) => {
-        el.addEventListener("input", render);
-        el.addEventListener("change", render);
-      });
-
-      document.querySelectorAll(".pill[data-test]").forEach((pill) => {
-        pill.addEventListener("click", () => {
-          const [name, pkg] = pill.getAttribute("data-test").split("|");
-          statusEl.textContent = `Test: ${name} -> intent:#Intent;package=${pkg};end`;
-        });
-      });
-
-      window.addEventListener("message", (e) => {
-        if (e.data && e.data.type === "TV_APP_TEST") {
-          statusEl.textContent = `App clicked in preview: ${e.data.name} (${e.data.pkg})`;
-        }
-      });
-
-      document.getElementById("btn-download-html").addEventListener("click", () => {
-        const blob = new Blob([getPatchedHtml()], { type: "text/html;charset=utf-8" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName;
-        a.click();
-        statusEl.textContent = `Downloaded ${fileName}`;
-      });
-
-      document.getElementById("btn-download-bat").addEventListener("click", () => {
-        const batLines = ["@echo off", "title Mi TV macOS Launcher Setup", ...buildCommands().split("\n"), "pause"];
-        const blob = new Blob([batLines.join("\r\n")], { type: "application/bat" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "launch_macos_tv.bat";
-        a.click();
-        statusEl.textContent = "Downloaded launch_macos_tv.bat";
-      });
-
-      document.getElementById("btn-copy-cmd").addEventListener("click", () => {
-        navigator.clipboard.writeText(buildCommands());
-        statusEl.textContent = "ADB commands clipboard mein copy ho gaye.";
-      });
-
-      render();
-    })();
-  </script>
+  renderPreview();
+})();
+</script>
 </body>
 </html>
